@@ -1,0 +1,12 @@
+# Build argus-survey from a sibling checkout instead of pulling it:
+#   docker compose -f compose.yaml -f compose.build.yaml up -d --build      (what `make up` does)
+services:
+  survey:
+    image: argus-survey:local
+    pull_policy: build
+    build:
+      context: ${SURVEY_SRC:-../argus-survey}
+      args: {EXTRAS: "server,cli"}
+  kit:
+    image: argus-survey:local
+    pull_policy: never
