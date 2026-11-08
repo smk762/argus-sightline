@@ -1,4 +1,4 @@
-// Generated from smk762/argus-survey@local schema/survey-wire.schema.json.
+// Generated from smk762/argus-survey@7a46db0ca0fc832916db8ba5a283aa64d533b96e schema/survey-wire.schema.json.
 // Do not edit: change schema/pins.json and run `npm run wire:pull`.
 
 export interface SurveyWire {
@@ -576,7 +576,7 @@ export interface QaBody {
 /**
  * ``GET /jobs/{id}/web/{kind}`` for a raster: a Web Mercator PNG placed by its lon/lat corners (TL, TR, BR, BL).
  *
- * ``ramp`` names the fixed colour ramp (``terrain``: blue → red over ``range``; ``diverging``: blue (−) → white (0)
+ * ``ramp`` names the fixed colour ramp (``terrain``: blue → red over ``range``; ``diverging``: blue (−) → transparent (0)
  * → red (+) for a DoD; ``hillshade``: grey, no ``range``). A derived view, never a deliverable.
  */
 export interface RasterView {
