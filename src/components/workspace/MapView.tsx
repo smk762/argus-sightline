@@ -8,7 +8,7 @@
  */
 
 import type { GeoJSONSource, Map as MlMap, MapMouseEvent } from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RasterView } from "@/lib/generated/survey";
 import { bbox, closeRing, lineLength, ringArea, type LonLat } from "@/lib/geo";
 import { m, m2, num } from "@/lib/format";
@@ -42,6 +42,13 @@ function isDark(): boolean {
 const basemapPaint = (dark: boolean) => ({ "raster-brightness-max": dark ? 0.42 : 1, "raster-contrast": dark ? 0.1 : 0 });
 
 const UNITS: Partial<Record<LayerKind, string>> = { dtm: "m", dsm: "m", chm: "m", density: "pts/m²", dod_lod: "m" };
+
+const minPts = (kind: "polygon" | "line") => (kind === "polygon" ? 3 : 2);
+
+/** Keys typed into a field are the field's, not the drawing tool's (Backspace in a zone name must not undo a vertex). */
+function isEditable(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+}
 
 type LayerDef = (typeof LAYERS)[number];
 type Fetched =
@@ -78,6 +85,16 @@ export function MapView() {
       setDraft([]);
     }
   }, [ws.drawing, ws.finishDrawing]);
+
+  // Stable (refs only), so the once-registered MapLibre handlers can call them.
+  const addVertex = useCallback((p: LonLat) => {
+    verts.current = [...verts.current, p];
+    setDraft(verts.current);
+  }, []);
+  const finishDraft = useCallback(() => {
+    const kind = drawingRef.current;
+    if (kind && verts.current.length >= minPts(kind)) finishRef.current({ kind, coords: verts.current });
+  }, []);
 
   // ── create the map once ──
   useEffect(() => {
@@ -144,17 +161,22 @@ export function MapView() {
       map.on("mousemove", (e: MapMouseEvent) => setCursor([e.lngLat.lng, e.lngLat.lat]));
       map.on("mouseout", () => setCursor(null));
       map.on("click", (e: MapMouseEvent) => {
-        if (!drawingRef.current) return;
-        verts.current = [...verts.current, [e.lngLat.lng, e.lngLat.lat]];
-        setDraft(verts.current);
+        if (drawingRef.current) addVertex([e.lngLat.lng, e.lngLat.lat]);
       });
       map.on("dblclick", (e: MapMouseEvent) => {
-        const kind = drawingRef.current;
-        if (!kind) return;
+        if (!drawingRef.current) return;
         e.preventDefault();
-        const pts = verts.current;
-        const min = kind === "polygon" ? 3 : 2;
-        if (pts.length >= min) finishRef.current({ kind, coords: pts });
+        finishDraft();
+      });
+      // Keyboard: MapLibre pans with the arrows and zooms with +/- while the canvas has focus;
+      // Enter drops a vertex under the centre reticle.
+      const canvas = map.getCanvas();
+      canvas.setAttribute("aria-label", "Survey map. Arrow keys pan, plus and minus zoom.");
+      canvas.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter" || !drawingRef.current || !map) return;
+        e.preventDefault();
+        if (e.shiftKey) finishDraft();
+        else addVertex([map.getCenter().lng, map.getCenter().lat]);
       });
     })();
     return () => {
@@ -163,7 +185,7 @@ export function MapView() {
       map?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [addVertex, finishDraft]);
 
   // cursor + double-click zoom while drawing; Escape cancels
   useEffect(() => {
@@ -172,7 +194,10 @@ export function MapView() {
     map.getCanvas().style.cursor = ws.drawing ? "crosshair" : "";
     if (ws.drawing) map.doubleClickZoom.disable();
     else map.doubleClickZoom.enable();
+    // The button that started drawing is now disabled, so focus would fall to <body>; put it on the map.
+    if (ws.drawing) map.getCanvas().focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
+      if (isEditable(e.target)) return;
       if (e.key === "Escape" && drawingRef.current) finishRef.current(null);
       if (e.key === "Backspace" && drawingRef.current && verts.current.length) {
         verts.current = verts.current.slice(0, -1);
@@ -370,14 +395,37 @@ export function MapView() {
         </div>
       )}
 
+      {/* centre reticle: where Enter (or "Add centre") drops a vertex */}
+      {ws.drawing && (
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-10 size-5 -translate-x-1/2 -translate-y-1/2">
+          <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-accent" />
+          <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-accent" />
+        </div>
+      )}
+
       {/* drawing HUD */}
       {ws.drawing && (
-        <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 rounded-full border border-accent/50 bg-panel/95 px-4 py-2 text-[12.5px] shadow-panel">
+        <div
+          role="group"
+          aria-label={ws.drawing === "polygon" ? "Polygon drawing" : "Line drawing"}
+          className="absolute bottom-10 left-1/2 z-20 flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-2xl border border-accent/50 bg-panel/95 px-4 py-2 text-[12.5px] shadow-panel"
+        >
           <span className="font-medium text-accent">{ws.drawing === "polygon" ? "Drawing a polygon" : "Drawing a line"}</span>
-          <span className="num text-ink-2">
+          <span className="num text-ink-2" aria-live="polite">
             {ws.drawing === "polygon" ? `≈ ${m2(ringArea(draftPts), 0)}` : `≈ ${m(lineLength(draftPts), 1)}`} · {draftPts.length} pts
           </span>
-          <span className="hidden text-muted md:inline">click to add · double-click to finish · ⌫ undo · Esc cancel</span>
+          <span className="hidden text-muted xl:inline">
+            click or Enter to add · double-click or ⇧Enter to finish · ⌫ undo · Esc cancel
+          </span>
+          <Button size="sm" variant="outline" onClick={() => {
+            const c = mapRef.current?.getCenter();
+            if (c) addVertex([c.lng, c.lat]);
+          }} title="Add a vertex under the centre crosshair (Enter on the map)">
+            Add centre
+          </Button>
+          <Button size="sm" variant="primary" onClick={finishDraft} disabled={draftPts.length < minPts(ws.drawing)} title="Finish (⇧Enter on the map)">
+            Finish
+          </Button>
           <Button size="sm" variant="ghost" onClick={() => ws.finishDrawing(null)}>
             Cancel
           </Button>
