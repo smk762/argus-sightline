@@ -41,6 +41,7 @@ Open the UI and press **Start the guided demo**. Put your own `.las`/`.laz`, pol
 | `SURVEY_CORS_ORIGINS` | `http://localhost:3107` | The UI's origin. Widen it for a LAN or proxy origin. |
 | `ARGUS_SURVEY_BASEMAP` | OpenStreetMap tiles | An XYZ template, or `none` for an offline blank canvas. |
 | `ARGUS_STUDIO_URL` | unset | Adds a link back to argus-studio. |
+| `ARGUS_SIGHTLINE_CSP` | `enforce` | The nonce-based Content-Security-Policy. `report-only` sends it without enforcing it; `off` drops it. |
 
 The config is read per request, not baked in at build time, so one image deploys to any origin.
 

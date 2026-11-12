@@ -17,6 +17,7 @@ services:
       ARGUS_SURVEY_URL: ${ARGUS_SURVEY_URL:-http://localhost:${SURVEY_PORT:-8107}}
       ARGUS_STUDIO_URL: ${ARGUS_STUDIO_URL:-}
       ARGUS_SURVEY_BASEMAP: ${ARGUS_SURVEY_BASEMAP:-https://tile.openstreetmap.org/{z}/{x}/{y}.png}
+      ARGUS_SIGHTLINE_CSP: ${ARGUS_SIGHTLINE_CSP:-enforce}
     ports:
       - ${UI_BIND:-127.0.0.1}:${UI_PORT:-3107}:3000
     depends_on: [survey]
