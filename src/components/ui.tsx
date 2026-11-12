@@ -189,7 +189,7 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
       >
         <span
           className={cx(
-            "absolute top-[2px] size-3 rounded-full bg-white shadow transition-all",
+            "absolute top-[2px] size-3 rounded-full bg-white shadow transition-all motion-reduce:transition-none",
             checked ? "left-[16px]" : "left-[2px]",
           )}
         />
@@ -288,7 +288,7 @@ export function KV({ rows }: { rows: [string, ReactNode][] }) {
 
 export function Spinner({ className }: { className?: string }) {
   return (
-    <svg className={cx("size-4 animate-spin", className)} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg className={cx("size-4 animate-spin motion-reduce:[animation-duration:6s]", className)} viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
       <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
     </svg>
