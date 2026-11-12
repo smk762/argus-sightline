@@ -196,7 +196,10 @@ body {
   }
 }
 .pulse {
-  animation: pulse-ring 1.6s ease-out infinite;
+  /* Decorative: the ring stays visible without it, so reduced motion gets none. */
+  @media (prefers-reduced-motion: no-preference) {
+    animation: pulse-ring 1.6s ease-out infinite;
+  }
 }
 
 @keyframes sweep {
@@ -214,4 +217,8 @@ body {
   width: 33%;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   animation: sweep 1.2s linear infinite;
+  /* It is the only sign a step is running, so slow it down rather than stop it. */
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 6s;
+  }
 }

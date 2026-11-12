@@ -30,10 +30,10 @@ export function Console({ lines, open, onToggle }: { lines: LogLine[]; open: boo
 
   const last = lines[lines.length - 1];
   return (
-    <div className={cx("flex shrink-0 flex-col border-t border-line bg-panel transition-[height]", open ? "h-64" : "h-9")}>
+    <div className={cx("flex shrink-0 flex-col border-t border-line bg-panel transition-[height] motion-reduce:transition-none", open ? "h-64" : "h-9")}>
       <div className="flex h-9 shrink-0 items-center gap-3 px-3">
         <button type="button" onClick={onToggle} className="flex items-center gap-2 text-[12.5px] font-medium text-ink-2">
-          <span className={cx("transition", open ? "rotate-90" : "")}>▸</span> Console
+          <span className={cx("transition motion-reduce:transition-none", open ? "rotate-90" : "")}>▸</span> Console
         </button>
         {open ? (
           <Segmented
