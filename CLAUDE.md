@@ -6,6 +6,16 @@ Orientation for agents. Usage lives in [README.md](README.md).
 
 A Next.js 16 / React 19 / Tailwind v4 client for the **argus-survey** API (:8107, repo `../argus-survey`). It is the full-feature demo and workspace for that package. argus-studio (`../argus-vision-demo`) links to it rather than embedding it. **No processing, datum logic or file paths here.** The server is the authority; this UI names inputs under `SURVEY_DATA_DIR` (as `/inputs` lists them), runs steps over SSE, and renders `job.json` plus the API's derived map views. The UI port is **3107**.
 
+## Argus suite
+<!-- argus-suite: keep this block; argus-ci checks for it -->
+This repo is part of the Argus suite. The suite map below lists every sibling and what it owns; check it before
+building something a sibling may already do. **On every release, update this repo's row and capabilities in
+argus-cortex's SUITE.md** (a PR to argus-cortex in the same release).
+
+@../argus-core/SUITE.md
+
+Not checked out? Read https://github.com/smk762/argus-cortex/blob/main/SUITE.md
+
 ## Layout
 
 - `src/lib/` holds the pure logic, unit-tested with vitest:
