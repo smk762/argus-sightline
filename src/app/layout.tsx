@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { runtimeConfig, runtimeConfigScript } from "@/lib/runtimeConfig";
@@ -19,13 +20,15 @@ export const metadata: Metadata = {
   description: "The argus-survey workspace. Point clouds to survey deliverables: datums you can see, accuracy you can defend.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Set by src/proxy.ts. Next.js nonces its own scripts; these two inline ones are ours to stamp.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="en-AU" className={`${sans.variable} ${mono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         {/* Read during render only, never at client module scope (see runtimeConfig.ts). */}
-        <script dangerouslySetInnerHTML={{ __html: runtimeConfigScript(runtimeConfig()) }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: runtimeConfigScript(runtimeConfig()) }} />
       </head>
       <body className="min-h-full font-sans text-[14px] leading-snug">{children}</body>
     </html>
