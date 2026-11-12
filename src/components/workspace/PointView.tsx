@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREEType from "three";
 import { count, num } from "@/lib/format";
 import { productUrl } from "@/lib/surveyApi";
+import { TASK_BUDGET_MS, yieldToMain } from "@/lib/yieldToMain";
 import { Button, cx, Segmented, Spinner } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
 
@@ -51,6 +52,8 @@ interface Scene {
   n: number;
   total: number;
   nodes: number;
+  /** Starts or stops the render loop: there is nothing to draw while the view is hidden. */
+  setRunning: (on: boolean) => void;
   dispose: () => void;
 }
 
@@ -58,6 +61,7 @@ export function PointView({ active }: { active: boolean }) {
   const ws = useWorkspace();
   const host = useRef<HTMLDivElement>(null);
   const scene = useRef<Scene | null>(null);
+  const activeRef = useRef(active);
   const [status, setStatus] = useState<{ phase: "idle" | "loading" | "ready" | "error"; text?: string; frac?: number }>({ phase: "idle" });
   const [colour, setColour] = useState<ColourBy>("class");
   const [size, setSize] = useState(2);
@@ -67,21 +71,32 @@ export function PointView({ active }: { active: boolean }) {
   const kind = products.classified ? "classified" : products.copc ? "copc" : null;
   const sha = kind ? products[kind].sha256 : null;
 
-  const paint = useCallback((mode: ColourBy) => {
+  // Recolouring up to millions of points is chunked so a colour-mode click stays responsive.
+  // A newer paint supersedes one still in progress.
+  const paintGen = useRef(0);
+  const paint = useCallback(async (mode: ColourBy) => {
     const s = scene.current;
     if (!s) return;
+    const gen = ++paintGen.current;
     const col = s.geom.getAttribute("color") as THREEType.BufferAttribute;
     const arr = col.array as Float32Array;
     let lo = 0;
     let hi = 1;
     if (mode !== "class") {
       const src = mode === "z" ? s.raw.z : s.raw.intensity;
-      const sample = Array.from(src.subarray(0, Math.min(s.n, 200_000))).sort((a, b) => a - b);
+      // A typed-array copy sorts numerically and natively: no boxing, no comparator.
+      const sample = src.slice(0, Math.min(s.n, 200_000)).sort();
       lo = sample[Math.floor(sample.length * 0.02)] ?? 0;
       hi = sample[Math.floor(sample.length * 0.98)] ?? lo + 1;
       if (hi <= lo) hi = lo + 1;
     }
+    let deadline = performance.now() + TASK_BUDGET_MS;
     for (let i = 0; i < s.n; i++) {
+      if ((i & 0x3fff) === 0 && performance.now() >= deadline) {
+        await yieldToMain();
+        if (gen !== paintGen.current || scene.current !== s) return;
+        deadline = performance.now() + TASK_BUDGET_MS;
+      }
       const rgb =
         mode === "class"
           ? (CLASSES[s.raw.cls[i]]?.rgb ?? [0.8, 0.8, 0.8])
@@ -169,10 +184,10 @@ export function PointView({ active }: { active: boolean }) {
       controls.target.set(0, (maxz - minz) / 4, 0);
       const material = new THREE.PointsMaterial({ size, sizeAttenuation: false, vertexColors: true });
       three.add(new THREE.Points(geom, material));
-      renderer.setAnimationLoop(() => {
+      const frame = () => {
         controls.update();
         renderer.render(three, camera);
-      });
+      };
       const resize = new ResizeObserver(() => {
         if (!el.clientWidth || !el.clientHeight) return;
         renderer.setSize(el.clientWidth, el.clientHeight);
@@ -188,6 +203,7 @@ export function PointView({ active }: { active: boolean }) {
         n,
         total: copc.header.pointCount,
         nodes: chosen.length,
+        setRunning: (on) => renderer.setAnimationLoop(on ? frame : null),
         dispose: () => {
           resize.disconnect();
           renderer.setAnimationLoop(null);
@@ -198,8 +214,9 @@ export function PointView({ active }: { active: boolean }) {
           renderer.domElement.remove();
         },
       };
+      scene.current.setRunning(activeRef.current);
       setClassesSeen([...seen].sort((a, b) => a - b));
-      paint(colour);
+      void paint(colour);
       setStatus({ phase: "ready" });
     } catch (err) {
       setStatus({ phase: "error", text: (err as Error).message });
@@ -217,8 +234,14 @@ export function PointView({ active }: { active: boolean }) {
     void load();
   }, [active, sha, budget, load]);
 
+  useEffect(() => {
+    activeRef.current = active;
+    scene.current?.setRunning(active);
+  }, [active]);
   useEffect(() => () => scene.current?.dispose(), []);
-  useEffect(() => paint(colour), [colour, paint]);
+  useEffect(() => {
+    void paint(colour);
+  }, [colour, paint]);
   useEffect(() => {
     if (scene.current) scene.current.material.size = size;
   }, [size]);
