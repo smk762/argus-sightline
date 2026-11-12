@@ -114,17 +114,20 @@ export function RunBar({
         {secondary}
       </div>
       {why && !busy && disabled && <span className="text-[12px] text-muted">{why}</span>}
-      {outcome && !outcome.ok && (
-        <Banner tone="bad" title="Refused">
-          <span className="whitespace-pre-wrap">{outcome.error}</span>
-          {outcome.stderr && (
-            <details className="mt-1">
-              <summary className="cursor-pointer text-[12px] text-muted">tool stderr</summary>
-              <pre className="num mt-1 max-h-40 overflow-auto whitespace-pre-wrap text-[11px]">{outcome.stderr}</pre>
-            </details>
-          )}
-        </Banner>
-      )}
+      {/* Always in the page (a region that only appears isn't reliably announced); empty, it cancels the gap. */}
+      <div aria-live="polite" className="empty:-mt-2">
+        {outcome && !outcome.ok && (
+          <Banner tone="bad" title="Refused">
+            <span className="whitespace-pre-wrap">{outcome.error}</span>
+            {outcome.stderr && (
+              <details className="mt-1">
+                <summary className="cursor-pointer text-[12px] text-muted">tool stderr</summary>
+                <pre className="num mt-1 max-h-40 overflow-auto whitespace-pre-wrap text-[11px]">{outcome.stderr}</pre>
+              </details>
+            )}
+          </Banner>
+        )}
+      </div>
     </div>
   );
 }
