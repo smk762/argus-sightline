@@ -45,6 +45,18 @@ Not checked out? Read https://github.com/smk762/argus-cortex/blob/main/SUITE.md
 - npm 10's arborist crashes (`edgesOut`) when resolving vitest 4's optional peers from scratch. The lockfile was seeded from argus-studio's. If you ever re-resolve, start from an existing lock.
 - Port 3000 is often taken locally (argus-studio, argus-cull). This UI uses 3107 and argus-survey's CORS default is `localhost:3000`, so compose sets `SURVEY_CORS_ORIGINS`.
 
+- **The CSP is strict and nonce-based** (`src/proxy.ts`, `src/lib/csp.ts`). A new inline `<script>` needs `nonce` from `headers().get("x-nonce")`, as in `layout.tsx`. Anything a nonced script loads is trusted (`'strict-dynamic'`). MapLibre needs `worker-src blob:` and laz-perf needs `'wasm-unsafe-eval'`. Watch for `securitypolicyviolation` in the headless check.
+- **Map keyboard handlers ignore editable targets.** Backspace in a field must not undo a vertex. Keep new map shortcuts behind `isEditable()`.
+- **Field errors go through `<Field error>`**, which sets `aria-invalid`, links the error only while it is shown and announces it via `announce()`. Don't make an error message its own live region.
+
+## Web platform guidance
+
+Frontend work here follows Modern Web Guidance (GoogleChrome/modern-web-guidance). In Claude Code it is the `modern-web-guidance` plugin skill; elsewhere, run `npx modern-web-guidance@latest install`. Search it before building a UI pattern. House exceptions:
+
+- **Reduced motion is per rule, never global.** Wrap decorative animation in `@media (prefers-reduced-motion: no-preference)`. Progress indicators (`.sweep`, `Spinner`) slow down under `reduce` rather than stop. MapLibre already skips its camera animations under `reduce`.
+- **Long loops yield** through `yieldToMain()` (`src/lib/yieldToMain.ts`, `scheduler.yield` with a `setTimeout` fallback) on a 50 ms budget.
+- `legacy-scan src` was clean at adoption (2026-11-12), so there are no skipped findings to record.
+
 ## Checking a change
 
 `make check` and `make build`, then `make up` and drive it in headless Chrome: `zenika/alpine-chrome:with-puppeteer` with `--network host --use-angle=swiftshader --enable-unsafe-swiftshader`. Both the map and the point view render under swiftshader. Click steps by button text and wait for the `.sweep` progress bar to disappear.

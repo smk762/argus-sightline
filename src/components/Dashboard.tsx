@@ -10,7 +10,7 @@ import { runtimeConfig } from "@/lib/runtimeConfig";
 import { getDoctor, getHealth, getInputs, isSafeJobId, listJobs, type Inputs } from "@/lib/surveyApi";
 import { STEPS } from "@/lib/workflow";
 import { AppHeader } from "@/components/AppHeader";
-import { Banner, Button, cx, Dot, Pill, Section, Spinner, TextInput } from "@/components/ui";
+import { announce, Banner, Button, cx, Dot, Pill, Section, Spinner, TextInput } from "@/components/ui";
 
 export function Dashboard() {
   const router = useRouter();
@@ -43,6 +43,9 @@ export function Dashboard() {
   const canWrite = health ? !health.read_only : false;
   const idOk = newId === "" || isSafeJobId(newId);
   const taken = jobs?.some((j) => j.job_id === newId);
+  useEffect(() => {
+    if (!idOk) announce("New job id: letters, digits, dot, underscore and hyphen only");
+  }, [idOk]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -67,12 +70,22 @@ export function Dashboard() {
               }}
             >
               <div className="w-56">
-                <TextInput value={newId} onChange={setNewId} placeholder="new job id, e.g. pit-2026-11" mono />
+                <TextInput
+                  value={newId}
+                  onChange={setNewId}
+                  placeholder="new job id, e.g. pit-2026-11"
+                  mono
+                  aria={{ label: "New job id", invalid: !idOk, describedBy: idOk ? undefined : "new-id-error" }}
+                />
               </div>
               <Button type="submit" variant="outline" disabled={!newId || !idOk || !canWrite}>
                 {taken ? "Open job" : "New survey"}
               </Button>
-              {!idOk && <span className="text-[12px] text-bad">letters, digits, . _ - only</span>}
+              {!idOk && (
+                <span id="new-id-error" className="text-[12px] text-bad">
+                  letters, digits, . _ - only
+                </span>
+              )}
             </form>
           </div>
           <DemoCard kit={kit} canWrite={canWrite} jobs={jobs} loaded={inputs !== null} />

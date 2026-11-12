@@ -2,7 +2,7 @@
 
 /** Small primitives shared by every panel. Tailwind classes resolve the theme tokens in globals.css. */
 
-import { useId, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useSyncExternalStore, type ReactNode } from "react";
 import { applyTheme, nextTheme, readTheme, serverTheme, subscribeTheme, type Theme } from "@/lib/theme";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
@@ -83,14 +83,73 @@ export function Button({
   );
 }
 
-export function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
+/**
+ * One polite live region for the page. A message is set a moment after the
+ * field change, so it doesn't talk over what the screen reader is already
+ * reading. Making each error its own live region isn't reliable, because a
+ * region that is shown, rather than changed, often isn't announced.
+ */
+let announcer: HTMLElement | null = null;
+let announceTimer: ReturnType<typeof setTimeout> | undefined;
+export function announce(message: string): void {
+  if (typeof document === "undefined") return;
+  if (!announcer?.isConnected) {
+    announcer = document.createElement("div");
+    announcer.setAttribute("aria-live", "polite");
+    announcer.className = "sr-only";
+    document.body.append(announcer);
+  }
+  const region = announcer;
+  clearTimeout(announceTimer);
+  region.textContent = "";
+  announceTimer = setTimeout(() => (region.textContent = message), 500);
+}
+
+/** What a Field tells the input inside it: which text describes it and whether it is in error. */
+const FieldContext = createContext<{ describedBy?: string; invalid: boolean }>({ invalid: false });
+
+/**
+ * A labelled control. `hint` is always linked to the input with aria-describedby.
+ * `error` is linked only while it is shown (text that aria-describedby references
+ * is read even when hidden), sets aria-invalid and is announced when it appears or changes.
+ */
+export function Field({ label, hint, error, children }: { label: string; hint?: ReactNode; error?: string | null; children: ReactNode }) {
+  const id = useId();
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
+  const describedBy = [hint ? hintId : "", error ? errorId : ""].filter(Boolean).join(" ") || undefined;
+  useEffect(() => {
+    if (error) announce(`${label}: ${error}`);
+  }, [error, label]);
   return (
-    <label className="flex flex-col gap-1">
-      <span className="text-[11.5px] font-medium uppercase tracking-wide text-muted">{label}</span>
-      {children}
-      {hint && <span className="text-[12px] text-muted">{hint}</span>}
-    </label>
+    <FieldContext.Provider value={{ describedBy, invalid: Boolean(error) }}>
+      <label className="flex flex-col gap-1">
+        <span className="text-[11.5px] font-medium uppercase tracking-wide text-muted">{label}</span>
+        {children}
+        {error && (
+          <span id={errorId} className="text-[12px] text-bad">
+            {error}
+          </span>
+        )}
+        {hint && (
+          <span id={hintId} className="text-[12px] text-muted">
+            {hint}
+          </span>
+        )}
+      </label>
+    </FieldContext.Provider>
   );
+}
+
+/** ARIA for an input: from its Field, unless the caller states it (an input with no Field around it). */
+function useFieldAria(own?: { label?: string; invalid?: boolean; describedBy?: string }) {
+  const field = useContext(FieldContext);
+  const invalid = own?.invalid ?? field.invalid;
+  return {
+    "aria-label": own?.label,
+    "aria-invalid": invalid,
+    "aria-describedby": own?.describedBy ?? field.describedBy,
+  };
 }
 
 const INPUT =
@@ -104,10 +163,14 @@ export function TextInput(props: {
   disabled?: boolean;
   list?: string;
   mono?: boolean;
+  /** For an input outside a Field. */
+  aria?: { label?: string; invalid?: boolean; describedBy?: string };
 }) {
+  const aria = useFieldAria(props.aria);
   return (
     <input
-      className={cx(INPUT, props.mono && "num")}
+      {...aria}
+      className={cx(INPUT, props.mono && "num", "aria-invalid:border-bad")}
       value={props.value}
       placeholder={props.placeholder}
       disabled={props.disabled}
@@ -134,11 +197,13 @@ export function NumberInput({
   disabled?: boolean;
   placeholder?: string;
 }) {
+  const aria = useFieldAria();
   return (
     <div className="relative">
       <input
+        {...aria}
         type="number"
-        className={cx(INPUT, "num pr-10")}
+        className={cx(INPUT, "num pr-10 aria-invalid:border-bad")}
         value={value ?? ""}
         step={step}
         min={min}
@@ -166,8 +231,9 @@ export function Select<T extends string>({
   options: readonly { value: T; label: string }[];
   disabled?: boolean;
 }) {
+  const aria = useFieldAria();
   return (
-    <select className={INPUT} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value as T)}>
+    <select {...aria} className={cx(INPUT, "aria-invalid:border-bad")} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value as T)}>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
@@ -189,7 +255,7 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
       >
         <span
           className={cx(
-            "absolute top-[2px] size-3 rounded-full bg-white shadow transition-all",
+            "absolute top-[2px] size-3 rounded-full bg-white shadow transition-all motion-reduce:transition-none",
             checked ? "left-[16px]" : "left-[2px]",
           )}
         />
@@ -288,7 +354,7 @@ export function KV({ rows }: { rows: [string, ReactNode][] }) {
 
 export function Spinner({ className }: { className?: string }) {
   return (
-    <svg className={cx("size-4 animate-spin", className)} viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg className={cx("size-4 animate-spin motion-reduce:[animation-duration:6s]", className)} viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
       <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
     </svg>
