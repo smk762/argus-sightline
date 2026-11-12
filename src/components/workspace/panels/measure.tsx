@@ -352,7 +352,7 @@ export function AccuracyPanel({ blocked }: PanelProps) {
         <Field label="Their CRS" hint="transformed through the job's operation">
           <TextInput value={crs} onChange={setCrs} mono />
         </Field>
-        <Field label="Columns" hint="id, x, y, z">
+        <Field label="Columns" hint="id, x, y, z" error={colList.length !== 4 ? "exactly four names" : null}>
           <TextInput value={cols} onChange={setCols} mono />
         </Field>
         <Field label="Check point RMSE" hint="their own survey accuracy">
