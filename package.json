@@ -1,0 +1,42 @@
+{
+  "name": "argus-sightline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "postinstall": "node scripts/copy-wasm.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "wire:types": "node scripts/wire-types.mjs",
+    "wire:check": "node scripts/wire-types.mjs --check",
+    "wire:pull": "node scripts/wire-types.mjs --pull",
+    "wire:local": "node scripts/wire-types.mjs --local ../argus-survey"
+  },
+  "dependencies": {
+    "copc": "0.0.9",
+    "laz-perf": "0.0.7",
+    "maplibre-gl": "5.24.0",
+    "next": "16.4.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "~0.186.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "json-schema-to-typescript": "16.0.0",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "4.1.11"
+  }
+}

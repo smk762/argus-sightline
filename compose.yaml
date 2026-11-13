@@ -1,0 +1,61 @@
+# argus-sightline + the argus-survey API it drives.
+#
+#   cp .env.example .env          # UID/GID, ports, posture
+#   make demo-data                # the synthetic demo kit -> data/in/kit/
+#   make up                       # builds ../argus-survey and this UI, then http://localhost:3107
+#
+# The browser talks to the API directly (cross-origin, like argus-studio), so the API runs with
+# --cors for this UI's origin. Both bind to 127.0.0.1 by default.
+name: argus-sightline
+
+services:
+  ui:
+    build: .
+    image: argus-sightline:local
+    environment:
+      # The API as the *browser* sees it (not a compose DNS name).
+      ARGUS_SURVEY_URL: ${ARGUS_SURVEY_URL:-http://localhost:${SURVEY_PORT:-8107}}
+      ARGUS_STUDIO_URL: ${ARGUS_STUDIO_URL:-}
+      ARGUS_SURVEY_BASEMAP: ${ARGUS_SURVEY_BASEMAP:-https://tile.openstreetmap.org/{z}/{x}/{y}.png}
+      ARGUS_SURVEY_BASEMAP_ATTRIBUTION: ${ARGUS_SURVEY_BASEMAP_ATTRIBUTION-}
+      ARGUS_SIGHTLINE_CSP: ${ARGUS_SIGHTLINE_CSP:-enforce}
+    ports:
+      - ${UI_BIND:-127.0.0.1}:${UI_PORT:-3107}:3000
+    depends_on: [survey]
+    restart: unless-stopped
+
+  survey:
+    # Not on GHCR yet: `make up` layers compose.build.yaml to build ../argus-survey instead.
+    image: ${SURVEY_IMAGE:-ghcr.io/smk762/argus-survey:latest}
+    user: "${UID:-1000}:${GID:-1000}"
+    command: [argus-survey, serve, --host, 0.0.0.0, --port, "8107", --cors]
+    environment:
+      HOME: /tmp
+      # A local demo is about running steps; set 0 for a browse-only deployment.
+      SURVEY_ALLOW_PROCESS: ${SURVEY_ALLOW_PROCESS:-1}
+      SURVEY_CORS_ORIGINS: ${SURVEY_CORS_ORIGINS:-http://localhost:${UI_PORT:-3107}}
+    volumes:
+      - type: bind
+        source: ${SURVEY_IN_HOST:-./data/in}
+        target: /data/in
+        read_only: true
+        bind: {create_host_path: false}
+      - {type: bind, source: "${SURVEY_JOBS_HOST:-./data/jobs}", target: /data/jobs, bind: {create_host_path: false}}
+    ports:
+      - ${SURVEY_BIND:-127.0.0.1}:${SURVEY_PORT:-8107}:8107
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8107/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+
+  # One-shot: the demo kit (two epochs, checks, polygons, design surface) into data/in/kit.
+  kit:
+    image: ${SURVEY_IMAGE:-ghcr.io/smk762/argus-survey:latest}
+    profiles: [kit]
+    user: "${UID:-1000}:${GID:-1000}"
+    environment: {HOME: /tmp}
+    entrypoint: [argus-survey, synth, /kit/kit, --kit]
+    volumes:
+      - {type: bind, source: "${SURVEY_IN_HOST:-./data/in}", target: /kit, bind: {create_host_path: false}}
