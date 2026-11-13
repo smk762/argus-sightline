@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { AccuracyGroup, CheckResidual, VolumeReport } from "@/lib/generated/survey";
-import { KIT_JOB_1, KIT_JOB_2, KIT_TRUTH } from "@/lib/demoKit";
+import { KIT_JOB_1, KIT_JOB_2, KIT_TRUTH, TRUTH_TOLERANCE } from "@/lib/demoKit";
 import { closeRing, lineLength, ringArea } from "@/lib/geo";
 import { cm, count, m, m2, m3, num, pct } from "@/lib/format";
 import { productUrl } from "@/lib/surveyApi";
@@ -135,7 +135,7 @@ export function VolumePanel({ blocked }: PanelProps) {
         why={missing ? "Choose a polygon file or draw one." : undefined}
         onRun={() => r.run({ ...zone, base: baseArg, surface, allow_voids: allowVoids })}
       />
-      {v && <VolumeResult report={v} truth={ws.kit && ws.jobId.startsWith("kit-") ? (ws.jobId === KIT_JOB_2 ? (Math.PI * 64 * 5) / 3 : KIT_TRUTH.stockpileVolume) : null} />}
+      {v && <VolumeResult report={v} truth={ws.kit && ws.jobId.startsWith("kit-") ? (ws.jobId === KIT_JOB_2 ? KIT_TRUTH.stockpileVolumeE2 : KIT_TRUTH.stockpileVolume) : null} />}
     </>
   );
 }
@@ -149,7 +149,7 @@ function VolumeResult({ report, truth }: { report: VolumeReport; truth: number |
             <Stat label={`${z.name} · above base`} value={m3(z.above_m3, 1)} big tone="data" sub={`below base ${m3(z.below_m3, 1)}`} />
             <Stat label="Area" value={m2(z.area_m2, 1)} sub={`voids ${pct(z.void_percent, 2)}`} tone={z.void_percent > 0 ? "warn" : undefined} />
           </div>
-          {truth !== null && <TruthCheck label="vs the analytic cone" measured={z.above_m3} truth={truth} unit="m³" tolerance={3} />}
+          {truth !== null && <TruthCheck label="vs the analytic cone" measured={z.above_m3} truth={truth} unit="m³" tolerance={TRUTH_TOLERANCE["stockpile-e1"]} />}
           <KV
             rows={[
               ["Base", z.base],
@@ -229,7 +229,7 @@ export function CutfillPanel({ blocked }: PanelProps) {
                 <Stat label="Net" value={m3(z.net_m3, 1)} sub={z.net_m3 < 0 ? "export" : "import"} />
               </div>
               {ws.kit && ws.jobId.startsWith("kit-") && z.name === "pad" && (
-                <TruthCheck label="cut − fill vs the bench" measured={z.below_m3 - z.above_m3} truth={KIT_TRUTH.padNetCut} unit="m³" tolerance={3} />
+                <TruthCheck label="cut − fill vs the bench" measured={z.below_m3 - z.above_m3} truth={KIT_TRUTH.padNetCut} unit="m³" tolerance={TRUTH_TOLERANCE["pad-net-cut"]} />
               )}
             </div>
           ))}
@@ -309,7 +309,7 @@ export function ChangePanel({ blocked }: PanelProps) {
             <Stat label="Net" value={m3(c.net_m3, 1)} sub={`${m2(c.compared_area_m2, 0)} compared`} />
           </div>
           {ws.kit && ws.jobId === KIT_JOB_2 && c.lod_m === 0 && c.area !== "whole overlap of the two epochs" && (
-            <TruthCheck label="gain vs the grown cone" measured={c.gain_m3} truth={KIT_TRUTH.changeGain} unit="m³" tolerance={6} />
+            <TruthCheck label="gain vs the grown cone" measured={c.gain_m3} truth={KIT_TRUTH.changeGain} unit="m³" tolerance={TRUTH_TOLERANCE["change-gain"]} />
           )}
           <KV
             rows={[

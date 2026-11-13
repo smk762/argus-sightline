@@ -1,0 +1,38 @@
+{
+  "survey": {
+    "commit": "6ecae92d2fed93f5c8f837db7822ed19544e9394",
+    "version": "0.1.0rc2.dev20+g6ecae92d2.d20261113"
+  },
+  "api_version": "0.1.0rc2.dev20+g6ecae92d2.d20261113",
+  "recorded_at": "2026-11-13T14:53:26Z",
+  "checks": [
+    {
+      "id": "stockpile-e1",
+      "label": "Stockpile volume, from the kit polygon (DSM)",
+      "unit": "m³",
+      "truth": 268.1,
+      "measured": 268.2
+    },
+    {
+      "id": "stockpile-e2",
+      "label": "Stockpile volume, epoch 2, from the kit polygon (DSM)",
+      "unit": "m³",
+      "truth": 335.1,
+      "measured": 335.3
+    },
+    {
+      "id": "pad-net-cut",
+      "label": "Pad cut − fill against `design.tif`",
+      "unit": "m³",
+      "truth": 90,
+      "measured": 90
+    },
+    {
+      "id": "change-gain",
+      "label": "Change between epochs, inside the stockpile (LoD 0)",
+      "unit": "m³",
+      "truth": 67,
+      "measured": 67.3
+    }
+  ]
+}

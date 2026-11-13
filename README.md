@@ -8,14 +8,16 @@ It is a thin client. All processing, datum handling and provenance live in the a
 
 - **Guided demo.** A synthetic site near Perth (MGA2020 zone 50 + AHD) with analytically known answers. Every measure step shows *measured against truth*:
 
+  <!-- demo-record:start -->
   | Demo check | Truth | Measured |
   |---|---|---|
   | Stockpile volume, from the kit polygon (DSM) | 268.1 m³ | 268.2 m³ |
-  | Stockpile volume, epoch 2, polygon drawn in the UI | 335.1 m³ | 334.7 m³ |
+  | Stockpile volume, epoch 2, from the kit polygon (DSM) | 335.1 m³ | 335.3 m³ |
   | Pad cut − fill against `design.tif` | 90.0 m³ | 90.0 m³ |
   | Change between epochs, inside the stockpile (LoD 0) | 67.0 m³ | 67.3 m³ |
 
-  Measured values come from a run in headless Chrome against `make up`.
+  Measured by `make demo-record` against argus-survey 0.1.0rc2.dev20+g6ecae92d2.d20261113 @ `6ecae92`.
+  <!-- demo-record:end -->
 - **The whole workflow.** Ingest (working CRS, assumed vertical datum, pinned transformation, crop), QA, ground (SMRF/CSF), surfaces (DTM/DSM/CHM, void fill), contours, stockpile volume (fitted-plane / lowest-edge / surface base), cut/fill against a design, change between epochs (fixed or accuracy-derived LoD), ASPRS ed. 2 accuracy (NVA/VVA, residual histogram), profiles, and the report. "Run core pipeline" goes from points to a report in one step.
 - **Map.** Hillshade, DTM/DSM/CHM, density, change, contours, coverage and gaps over an optional basemap, with opacity, legends, and drawing tools for volume polygons and profile lines.
 - **3D points.** The job's COPC streamed over HTTP range requests (laz-perf WASM, three.js), coloured by class, height or intensity, with a point budget.
@@ -55,7 +57,10 @@ make install       # npm ci (+ copies laz-perf.wasm into public/)
 make check         # wire types, eslint, tsc, vitest
 make build         # next build
 make wire-local    # after changing argus-survey's wire models: re-pin schema/ from ../argus-survey
+make demo-record   # with `make up` running: re-measure the demo table above against the live API
 ```
+
+The UI is synced to one argus-survey `dev` commit (`schema/pins.json`): the wire types, the demo numbers in this README (`schema/demo-record.json`) and the docs links all describe it, and `make check` fails if they disagree. A daily workflow opens an issue when survey's `dev` moves past the pin; that issue lists the re-sync steps.
 
 With Node on the host: `npm ci && npm run dev` (set `ARGUS_SURVEY_URL` in `.env.local`, and add `http://localhost:3000` to the API's `SURVEY_CORS_ORIGINS`).
 

@@ -2,32 +2,48 @@
 
 import type { CrsRecord } from "@/lib/generated/survey";
 import { describeDatum } from "@/lib/datum";
-import { Pill } from "@/components/ui";
+import { docsUrl } from "@/lib/surveyDocs";
+import { ExternalLink, Pill } from "@/components/ui";
+
+/** Each chip opens survey's datum docs; a missing or assumed vertical datum opens why it is shown as a fault. */
+const chipLink = "rounded-full hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2";
 
 /** Rule 1, always on screen: horizontal CRS, vertical datum (or the lack of one), geoid, epoch, source type. */
 export function DatumChips({ crs, sourceType }: { crs: CrsRecord | null | undefined; sourceType?: string }) {
   const d = describeDatum(crs);
   if (!d) return <Pill>no CRS yet</Pill>;
   const vTone = d.status === "gravity" ? "ok" : d.status === "ellipsoidal" ? "warn" : "bad";
+  const datumDocs = docsUrl("datum");
+  const verticalDocs = vTone === "bad" ? docsUrl("datum-fault") : datumDocs;
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-      <Pill tone="data" title={`${d.horizontal} · units ${d.units}`}>
-        <span className="text-muted">H</span>
-        <span className="max-w-[16rem] truncate">{d.horizontal}</span>
-        {d.horizontalCode && <span className="num opacity-70">{d.horizontalCode}</span>}
-      </Pill>
-      <Pill tone={vTone} title={d.detail}>
-        <span className="text-muted">V</span>
-        {d.status === "assumed" && <strong>ASSUMED</strong>}
-        <span className="max-w-[12rem] truncate">{d.vertical}</span>
-        {d.verticalCode && <span className="num opacity-70">{d.verticalCode}</span>}
-      </Pill>
-      {d.geoid && (
-        <Pill title={`Geoid grid applied: ${d.geoid}`}>
-          <span className="max-w-[10rem] truncate">{prettyGeoid(d.geoid)}</span>
+      <ExternalLink href={datumDocs} className={chipLink}>
+        <Pill tone="data" title={`${d.horizontal} · units ${d.units}`}>
+          <span className="text-muted">H</span>
+          <span className="max-w-[16rem] truncate">{d.horizontal}</span>
+          {d.horizontalCode && <span className="num opacity-70">{d.horizontalCode}</span>}
         </Pill>
+      </ExternalLink>
+      <ExternalLink href={verticalDocs} className={chipLink}>
+        <Pill tone={vTone} title={d.detail}>
+          <span className="text-muted">V</span>
+          {d.status === "assumed" && <strong>ASSUMED</strong>}
+          <span className="max-w-[12rem] truncate">{d.vertical}</span>
+          {d.verticalCode && <span className="num opacity-70">{d.verticalCode}</span>}
+        </Pill>
+      </ExternalLink>
+      {d.geoid && (
+        <ExternalLink href={datumDocs} className={chipLink}>
+          <Pill title={`Geoid grid applied: ${d.geoid}`}>
+            <span className="max-w-[10rem] truncate">{prettyGeoid(d.geoid)}</span>
+          </Pill>
+        </ExternalLink>
       )}
-      {d.epoch !== null && <Pill title="Coordinate epoch">epoch {d.epoch}</Pill>}
+      {d.epoch !== null && (
+        <ExternalLink href={datumDocs} className={chipLink}>
+          <Pill title="Coordinate epoch">epoch {d.epoch}</Pill>
+        </ExternalLink>
+      )}
       {sourceType && sourceType !== "unknown" && <Pill>{sourceType}</Pill>}
     </div>
   );
