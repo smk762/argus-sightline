@@ -108,8 +108,16 @@ export function PointView({ active }: { active: boolean }) {
     col.needsUpdate = true;
   }, []);
 
+  // The controls' current values, for a load that finishes after they changed.
+  const colourRef = useRef(colour);
+  const sizeRef = useRef(size);
+  // A newer load (Retry, a budget change, a new cloud) or unmounting supersedes one in flight.
+  const loadGen = useRef(0);
+
   const load = useCallback(async () => {
     if (!kind || !host.current) return;
+    const gen = ++loadGen.current;
+    const stale = () => gen !== loadGen.current;
     scene.current?.dispose();
     scene.current = null;
     const url = productUrl(ws.jobId, kind);
@@ -124,6 +132,7 @@ export function PointView({ active }: { active: boolean }) {
       const lazPerf = await createLazPerf({ locateFile: () => "/laz-perf.wasm" });
       const copc = await Copc.create(url);
       const { nodes } = await Copc.loadHierarchyPage(url, copc.info.rootHierarchyPage);
+      if (stale()) return;
       const keys = Object.keys(nodes)
         .filter((k) => (nodes[k]?.pointCount ?? 0) > 0)
         .sort((a, b) => Number(a.split("-")[0]) - Number(b.split("-")[0]));
@@ -149,6 +158,7 @@ export function PointView({ active }: { active: boolean }) {
           lazPerf,
           include: ["X", "Y", "Z", "Classification", "Intensity"],
         });
+        if (stale()) return;
         const gx = view.getter("X");
         const gy = view.getter("Y");
         const gz = view.getter("Z");
@@ -166,7 +176,7 @@ export function PointView({ active }: { active: boolean }) {
         }
       }
       const el = host.current;
-      if (!el) return;
+      if (!el || stale()) return;
       const geom = new THREE.BufferGeometry();
       geom.setAttribute("position", new THREE.BufferAttribute(pos.subarray(0, 3 * n), 3));
       geom.setAttribute("color", new THREE.BufferAttribute(new Float32Array(3 * n), 3));
@@ -182,7 +192,7 @@ export function PointView({ active }: { active: boolean }) {
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.target.set(0, (maxz - minz) / 4, 0);
-      const material = new THREE.PointsMaterial({ size, sizeAttenuation: false, vertexColors: true });
+      const material = new THREE.PointsMaterial({ size: sizeRef.current, sizeAttenuation: false, vertexColors: true });
       three.add(new THREE.Points(geom, material));
       const frame = () => {
         controls.update();
@@ -216,12 +226,11 @@ export function PointView({ active }: { active: boolean }) {
       };
       scene.current.setRunning(activeRef.current);
       setClassesSeen([...seen].sort((a, b) => a - b));
-      void paint(colour);
+      void paint(colourRef.current);
       setStatus({ phase: "ready" });
     } catch (err) {
-      setStatus({ phase: "error", text: (err as Error).message });
+      if (!stale()) setStatus({ phase: "error", text: (err as Error).message });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- colour/size are applied after load by their own effects
   }, [kind, ws.jobId, budget, paint]);
 
   // load when first shown, and again when the cloud changes (re-ingest / re-classify)
@@ -238,11 +247,19 @@ export function PointView({ active }: { active: boolean }) {
     activeRef.current = active;
     scene.current?.setRunning(active);
   }, [active]);
-  useEffect(() => () => scene.current?.dispose(), []);
+  useEffect(
+    () => () => {
+      loadGen.current++;
+      scene.current?.dispose();
+    },
+    [],
+  );
   useEffect(() => {
+    colourRef.current = colour;
     void paint(colour);
   }, [colour, paint]);
   useEffect(() => {
+    sizeRef.current = size;
     if (scene.current) scene.current.material.size = size;
   }, [size]);
 

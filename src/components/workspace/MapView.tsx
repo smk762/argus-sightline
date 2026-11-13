@@ -152,10 +152,12 @@ export function MapView() {
         setReady(true);
       });
       unsubscribeTheme = subscribeTheme(() => {
-        if (!map?.getLayer("basemap")) return;
-        for (const [k, v] of Object.entries(basemapPaint(isDark()))) map.setPaintProperty("basemap", k, v);
+        if (!map?.getLayer("bg")) return;
+        // The background follows the theme with or without a basemap (ARGUS_SURVEY_BASEMAP=none).
         const bgNow = getComputedStyle(document.documentElement).getPropertyValue("--map-bg").trim();
         if (bgNow) map.setPaintProperty("bg", "background-color", bgNow);
+        if (!map.getLayer("basemap")) return;
+        for (const [k, v] of Object.entries(basemapPaint(isDark()))) map.setPaintProperty("basemap", k, v);
       });
       map.on("error", (e) => console.error(`[map] ${(e as { error?: Error }).error?.message ?? "error"}`));
       map.on("mousemove", (e: MapMouseEvent) => setCursor([e.lngLat.lng, e.lngLat.lat]));
@@ -166,6 +168,11 @@ export function MapView() {
       map.on("dblclick", (e: MapMouseEvent) => {
         if (!drawingRef.current) return;
         e.preventDefault();
+        // Each click of the double-click already dropped a vertex: keep one, not two at the same spot.
+        if (verts.current.length) {
+          verts.current = verts.current.slice(0, -1);
+          setDraft(verts.current);
+        }
         finishDraft();
       });
       // Keyboard: MapLibre pans with the arrows and zooms with +/- while the canvas has focus;

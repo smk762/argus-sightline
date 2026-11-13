@@ -78,7 +78,7 @@ export function Dashboard() {
                   aria={{ label: "New job id", invalid: !idOk, describedBy: idOk ? undefined : "new-id-error" }}
                 />
               </div>
-              <Button type="submit" variant="outline" disabled={!newId || !idOk || !canWrite}>
+              <Button type="submit" variant="outline" disabled={!newId || !idOk || (!canWrite && !taken)}>
                 {taken ? "Open job" : "New survey"}
               </Button>
               {!idOk && (

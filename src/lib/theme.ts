@@ -61,10 +61,17 @@ export function subscribeTheme(listener: () => void): () => void {
     setRoot(readTheme());
     listener();
   };
+  // On "system" the OS can flip the theme with no choice changing here.
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const onMedia = () => {
+    if (readTheme() === "system") listener();
+  };
   window.addEventListener("storage", onStorage);
+  media.addEventListener("change", onMedia);
   return () => {
     listeners.delete(listener);
     window.removeEventListener("storage", onStorage);
+    media.removeEventListener("change", onMedia);
   };
 }
 

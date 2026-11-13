@@ -28,6 +28,7 @@ export function IngestPanel({ blocked }: PanelProps) {
   const [force, setForce] = useState(false);
   const ingest = useStepRun("ingest");
   const pipeline = useStepRun("run");
+  const [lastRun, setLastRun] = useState<"run" | "ingest">("run");
 
   const body = {
     inputs: selected,
@@ -134,15 +135,21 @@ export function IngestPanel({ blocked }: PanelProps) {
         <RunBar
           label="Run core pipeline"
           busy={pipeline.busy}
-          outcome={pipeline.outcome ?? ingest.outcome}
+          outcome={lastRun === "ingest" ? ingest.outcome : pipeline.outcome}
           disabled={blocked || !!why}
           why={why}
-          onRun={() => pipeline.run({ ...body, force, res: res ?? 0.5, interval: interval ?? 0.5 })}
+          onRun={() => {
+            setLastRun("run");
+            void pipeline.run({ ...body, force, res: res ?? 0.5, interval: interval ?? 0.5 });
+          }}
           secondary={
             <button
               type="button"
               disabled={!!why || ws.running !== null || !ws.canWrite}
-              onClick={() => ingest.run({ ...body, force })}
+              onClick={() => {
+                setLastRun("ingest");
+                void ingest.run({ ...body, force });
+              }}
               className="h-10 rounded-md border border-line bg-panel-2 px-3 text-[13px] font-medium text-ink hover:bg-raised disabled:opacity-45"
             >
               {ingest.busy ? "Ingesting…" : "Ingest only"}

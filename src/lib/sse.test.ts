@@ -12,6 +12,13 @@ describe("splitSse", () => {
     const { messages } = splitSse(": keepalive\r\n\r\ndata: one\r\ndata: two\r\n\r\n");
     expect(messages).toEqual([{ event: "message", data: "one\ntwo" }]);
   });
+
+  it("keeps a CRLF split across chunks as one line break", () => {
+    const first = splitSse("event: done\r");
+    expect(first.messages).toEqual([]);
+    const { messages } = splitSse(first.rest + "\ndata: {}\r\n\r\n");
+    expect(messages).toEqual([{ event: "done", data: {} }]);
+  });
 });
 
 describe("readSse", () => {

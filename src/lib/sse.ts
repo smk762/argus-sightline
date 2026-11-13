@@ -15,7 +15,10 @@ export interface SseMessage {
  * message without `event:` is a `message`, per the SSE spec.
  */
 export function splitSse(buffer: string): { messages: SseMessage[]; rest: string } {
-  const text = buffer.replace(/\r\n?/g, "\n");
+  // A trailing `\r` may be the first half of a `\r\n` split across chunks: keep it raw for the next call,
+  // or it and the next chunk's `\n` would each become a newline and end the message early.
+  const held = buffer.endsWith("\r") ? "\r" : "";
+  const text = buffer.slice(0, buffer.length - held.length).replace(/\r\n?/g, "\n");
   const messages: SseMessage[] = [];
   let start = 0;
   for (let end = text.indexOf("\n\n", start); end >= 0; end = text.indexOf("\n\n", start)) {
@@ -41,7 +44,7 @@ export function splitSse(buffer: string): { messages: SseMessage[]; rest: string
     }
     messages.push({ event, data: parsed });
   }
-  return { messages, rest: text.slice(start) };
+  return { messages, rest: text.slice(start) + held };
 }
 
 /** Every message of a streaming response, in order. */

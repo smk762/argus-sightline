@@ -21,8 +21,9 @@ export const cm = (metres: number | null | undefined, digits = 1): string =>
 export function seconds(s: number | null | undefined): string {
   if (s === null || s === undefined || !Number.isFinite(s)) return "—";
   if (s < 1) return `${Math.round(s * 1000)} ms`;
-  if (s < 60) return `${s.toFixed(1)} s`;
-  return `${Math.floor(s / 60)} min ${Math.round(s % 60)} s`;
+  if (s < 59.95) return `${s.toFixed(1)} s`;
+  const whole = Math.round(s);
+  return `${Math.floor(whole / 60)} min ${whole % 60} s`;
 }
 
 export function bytes(n: number): string {

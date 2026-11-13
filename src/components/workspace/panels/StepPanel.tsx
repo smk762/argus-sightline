@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { relError } from "@/lib/demoKit";
 import type { StepId } from "@/lib/surveyApi";
 import { STEPS, stepState } from "@/lib/workflow";
 import { madeWith, type MadeWith } from "@/lib/provenance";
@@ -191,7 +192,7 @@ export function DemoTip({ children }: { children: ReactNode }) {
 
 /** Measured vs the kit's analytic truth. */
 export function TruthCheck({ label, measured, truth, unit, tolerance }: { label: string; measured: number; truth: number; unit: string; tolerance: number }) {
-  const err = ((measured - truth) / truth) * 100;
+  const err = relError(measured, truth);
   const ok = Math.abs(err) <= tolerance;
   return (
     <div className={`flex items-center justify-between rounded-md border px-3 py-2 text-[12.5px] ${ok ? "border-ok/40 bg-ok-soft" : "border-warn/40 bg-warn-soft"}`}>
