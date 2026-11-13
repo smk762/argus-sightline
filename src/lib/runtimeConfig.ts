@@ -12,7 +12,8 @@
  *   ARGUS_STUDIO_URL       link back to argus-studio, or unset for none.
  *   ARGUS_SURVEY_BASEMAP   XYZ raster tile template for the map's backdrop, "none" for a blank canvas.
  *                          Unset: OpenStreetMap's standard tiles (light use only, per their tile policy).
- *   ARGUS_SURVEY_BASEMAP_ATTRIBUTION   attribution HTML for a custom basemap.
+ *   ARGUS_SURVEY_BASEMAP_ATTRIBUTION   attribution HTML for the basemap. Unset: OSM's for OSM's tiles
+ *                          (whether defaulted or named explicitly, as compose does), none for others.
  */
 
 export interface RuntimeConfig {
@@ -69,15 +70,16 @@ function resolveLink(value: string | undefined): string {
 export function resolveRuntimeConfig(source: Record<string, string | undefined>): RuntimeConfig {
   const basemapRaw = firstDefined(source, ["ARGUS_SURVEY_BASEMAP"]);
   const basemap = basemapRaw === undefined ? OSM_TILES : basemapRaw.trim();
-  const custom = basemapRaw !== undefined;
+  // Compose names OSM's template explicitly; that is still OSM and still owes OSM's attribution.
+  const custom = basemap !== OSM_TILES;
+  // Empty counts as unset: compose passes an unset variable through as "".
+  const attribution = (firstDefined(source, ["ARGUS_SURVEY_BASEMAP_ATTRIBUTION"]) ?? "").trim();
   const none = basemap === "" || basemap.toLowerCase() === "none";
   return {
     surveyUrl: normalizeBase(firstDefined(source, ["ARGUS_SURVEY_URL"]) ?? "http://localhost:8107"),
     studioUrl: resolveLink(firstDefined(source, ["ARGUS_STUDIO_URL"])),
     basemapUrl: none ? "" : basemap,
-    basemapAttribution: none
-      ? ""
-      : (firstDefined(source, ["ARGUS_SURVEY_BASEMAP_ATTRIBUTION"]) ?? (custom ? "" : OSM_ATTRIBUTION)),
+    basemapAttribution: none ? "" : attribution || (custom ? "" : OSM_ATTRIBUTION),
   };
 }
 
