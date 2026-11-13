@@ -31,6 +31,16 @@ export function Pill({ tone = "neutral", children, title }: { tone?: Tone; child
   );
 }
 
+/** A link off the site: a new tab, no opener, and a cue for screen readers that it opens one. */
+export function ExternalLink({ href, children, className, title }: { href: string; children: ReactNode; className?: string; title?: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" title={title} className={className}>
+      {children}
+      <span className="sr-only"> (opens in new tab)</span>
+    </a>
+  );
+}
+
 export function Dot({ tone }: { tone: Tone }) {
   const c = { neutral: "bg-muted", accent: "bg-accent", data: "bg-data", ok: "bg-ok", warn: "bg-warn", bad: "bg-bad" }[
     tone

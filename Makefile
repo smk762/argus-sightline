@@ -5,7 +5,7 @@ NPM = $(NODE_RUN) $(NODE_IMAGE)
 COMPOSE_BUILD = docker compose -f compose.yaml -f compose.build.yaml
 SURVEY_SRC ?= ../argus-survey
 
-.PHONY: help install check lint typecheck test build wire-check wire-local demo-data up up-published down logs
+.PHONY: help install check lint typecheck test build wire-check wire-local demo-data demo-record up up-published down logs
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -36,6 +36,9 @@ wire-local:  ## Re-pin the schema from $(SURVEY_SRC) and regenerate types
 demo-data:  ## Write the synthetic demo kit (known answers) into data/in/kit
 	$(COMPOSE_BUILD) --profile kit build survey
 	$(COMPOSE_BUILD) --profile kit run --rm kit
+
+demo-record:  ## Record the demo's measured numbers against the running API (README, schema/demo-record.json, pin version)
+	$(NODE_RUN) --network host -e ARGUS_SURVEY_URL -e SURVEY_COMMIT=$(shell git -C "$(SURVEY_SRC)" rev-parse HEAD) $(NODE_IMAGE) node scripts/demo-record.mjs
 
 up:  ## Build $(SURVEY_SRC) and this UI, start both on http://localhost:3107
 	$(COMPOSE_BUILD) up -d --build

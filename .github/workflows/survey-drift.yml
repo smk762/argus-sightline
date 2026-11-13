@@ -1,0 +1,50 @@
+name: Survey drift
+
+# The offline half of the sync rule is `make check` (src/lib/sync.test.ts): the
+# wire pin, the recorded demo numbers and the README agree with each other. This
+# is the networked half: it flags when argus-survey's dev HEAD moves past the pin.
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare the pin with argus-survey dev HEAD
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pinned=$(jq -r .survey.tag schema/pins.json)
+          head=$(gh api repos/smk762/argus-survey/commits/dev --jq .sha)
+          echo "pinned ${pinned}, survey dev ${head}"
+          if [ "$pinned" = "$head" ]; then exit 0; fi
+
+          title="Sync to argus-survey dev (pin is behind)"
+          body=$(cat <<BODY
+          argus-survey \`dev\` is at \`${head}\`; this repo is synced to \`${pinned}\`.
+          Changes: https://github.com/smk762/argus-survey/compare/${pinned}...${head}
+
+          Re-sync in one PR:
+
+          1. Set \`survey.tag\` in \`schema/pins.json\` to \`${head}\`, run \`npm run wire:pull\`, fix what \`make typecheck\` reports.
+          2. Check out argus-survey at \`${head}\`, then \`make demo-data up\` against it.
+          3. \`make demo-record\` (writes the README table, \`schema/demo-record.json\` and the pin's version).
+          4. \`make check\` must pass.
+
+          Opened by .github/workflows/survey-drift.yml; it updates this issue while the pin stays behind.
+          BODY
+          )
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"${title}\"" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+          fi

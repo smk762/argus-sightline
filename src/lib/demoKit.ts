@@ -25,9 +25,21 @@ export interface DemoKit {
 
 export const KIT_TRUTH = {
   stockpileVolume: (Math.PI * 8 ** 2 * 4) / 3, // 268.083 m³
+  stockpileVolumeE2: (Math.PI * 8 ** 2 * 5) / 3, // 335.103 m³, the same cone grown 1 m at the apex
   changeGain: (Math.PI * 8 ** 2 * 1) / 3, // 67.021 m³, before any level of detection
   padNetCut: 0.25 * 18 * 20, // 90 m³ (cut − fill)
   crs: "EPSG:7850+5711",
+} as const;
+
+/**
+ * How far "measured" may sit from the truth, in percent, before the demo flags it.
+ * The README's recorded numbers are held to the same limits (src/lib/sync.test.ts).
+ */
+export const TRUTH_TOLERANCE = {
+  "stockpile-e1": 3,
+  "stockpile-e2": 3,
+  "pad-net-cut": 3,
+  "change-gain": 6,
 } as const;
 
 export const KIT_JOB_1 = "kit-e1";

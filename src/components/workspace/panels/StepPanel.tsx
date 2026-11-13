@@ -3,7 +3,9 @@
 import { useState, type ReactNode } from "react";
 import type { StepId } from "@/lib/surveyApi";
 import { STEPS, stepState } from "@/lib/workflow";
-import { Banner, Button, Pill, Spinner } from "@/components/ui";
+import { madeWith, type MadeWith } from "@/lib/provenance";
+import { docsUrl, shortSha, sourceUrl, SURVEY } from "@/lib/surveyDocs";
+import { Banner, Button, ExternalLink, KV, Pill, Spinner } from "@/components/ui";
 import { useWorkspace, type RunOutcome } from "@/components/workspace/context";
 import { IngestPanel, QaPanel } from "@/components/workspace/panels/capture";
 import { ContoursPanel, GroundPanel, SurfacesPanel } from "@/components/workspace/panels/model";
@@ -31,6 +33,7 @@ export function StepPanel() {
   const Panel = PANELS[def.id];
   const idx = STEPS.indexOf(def);
   const next = STEPS[idx + 1];
+  const made = madeWith(ws.sidecar, def.id);
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
@@ -39,7 +42,12 @@ export function StepPanel() {
             {def.group} · step {idx + 1} of {STEPS.length}
           </div>
           <h2 className="text-[17px] font-semibold">{def.label}</h2>
-          <p className="text-[12.5px] text-muted">{def.blurb}</p>
+          <p className="text-[12.5px] text-muted">
+            {def.blurb} ·{" "}
+            <ExternalLink href={docsUrl(def.id)} className="text-accent underline-offset-2 hover:underline">
+              Reference
+            </ExternalLink>
+          </p>
         </div>
         <Pill tone={st.status === "done" ? "ok" : st.status === "ready" ? "accent" : "neutral"}>
           {st.status === "done" ? "done" : st.status === "ready" ? "ready" : "waiting"}
@@ -48,6 +56,7 @@ export function StepPanel() {
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
         {st.status === "blocked" && st.reason && <Banner tone="warn">{st.reason}</Banner>}
         <Panel blocked={st.status === "blocked"} />
+        {made && <MadeWithLine made={made} />}
       </div>
       {next && st.status === "done" && (
         <div className="border-t border-line px-4 py-2.5">
@@ -58,6 +67,42 @@ export function StepPanel() {
         </div>
       )}
     </div>
+  );
+}
+
+/** "Computed by argus-survey <version>, `<step>` with <params>": read from job.json, never hard-coded. */
+function MadeWithLine({ made }: { made: MadeWith }) {
+  const clip = (v: string) => (v.length > 40 ? `${v.slice(0, 39)}…` : v);
+  const summary = made.params.slice(0, 2).map(([k, v]) => `${k} ${clip(v)}`).join(", ");
+  return (
+    <details className="rounded-md border border-line bg-panel-2 px-3 py-2 text-[12px] text-muted">
+      <summary className="cursor-pointer">
+        Computed by <strong className="font-semibold text-ink-2">argus-survey {made.version}</strong>,{" "}
+        <code className="num">{made.step}</code>
+        {summary && <> with <span className="text-ink-2">{summary}</span></>}
+        {made.params.length > 2 && !summary.endsWith("…") && " …"}
+      </summary>
+      <div className="mt-2 flex flex-col gap-2">
+        <KV
+          rows={[
+            ...made.params,
+            ...(made.tools.length ? ([["tools", made.tools.join(", ")]] as [string, string][]) : []),
+            ...(made.products.length ? ([["wrote", made.products.join(", ")]] as [string, string][]) : []),
+          ]}
+        />
+        <p>
+          The full record is in this job&apos;s <code className="num">job.json</code> and the report. This UI is synced
+          to argus-survey {SURVEY.version || "(unrecorded)"} @{" "}
+          <ExternalLink href={sourceUrl()} className="num text-accent underline-offset-2 hover:underline">
+            {shortSha(SURVEY.commit)}
+          </ExternalLink>
+          {" · "}
+          <ExternalLink href={docsUrl(made.step)} className="text-accent underline-offset-2 hover:underline">
+            how this step works
+          </ExternalLink>
+        </p>
+      </div>
+    </details>
   );
 }
 
@@ -150,7 +195,9 @@ export function TruthCheck({ label, measured, truth, unit, tolerance }: { label:
   const ok = Math.abs(err) <= tolerance;
   return (
     <div className={`flex items-center justify-between rounded-md border px-3 py-2 text-[12.5px] ${ok ? "border-ok/40 bg-ok-soft" : "border-warn/40 bg-warn-soft"}`}>
-      <span className="text-ink-2">{label}</span>
+      <ExternalLink href={docsUrl("truth")} title="How the kit's truths are derived" className="text-ink-2 underline decoration-dotted underline-offset-2">
+        {label}
+      </ExternalLink>
       <span className="num">
         <span className="text-ink">
           {measured.toFixed(1)} {unit}
