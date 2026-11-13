@@ -37,9 +37,10 @@ Open the UI and press **Start the guided demo**. Put your own `.las`/`.laz`, pol
 | Variable | Default | |
 |---|---|---|
 | `ARGUS_SURVEY_URL` | `http://localhost:8107` | The API as the *browser* sees it. Empty means same origin; a path prefix works behind a proxy. |
-| `SURVEY_ALLOW_PROCESS` | `1` | `0` makes the API read-only: browse jobs, maps, points and reports only. |
+| `SURVEY_ALLOW_PROCESS` | `1` (compose) | Set on the API. `0` makes it read-only: browse jobs, maps, points and reports only. `1` is this compose stack's default; an argus-survey API started on its own is read-only until it is set to `1`. |
 | `SURVEY_CORS_ORIGINS` | `http://localhost:3107` | The UI's origin. Widen it for a LAN or proxy origin. |
 | `ARGUS_SURVEY_BASEMAP` | OpenStreetMap tiles | An XYZ template, or `none` for an offline blank canvas. |
+| `ARGUS_SURVEY_BASEMAP_ATTRIBUTION` | OSM's, for OSM tiles | Attribution HTML shown on the map. Set it for a custom basemap; otherwise that basemap shows none. |
 | `ARGUS_STUDIO_URL` | unset | Adds a link back to argus-studio. |
 | `ARGUS_SIGHTLINE_CSP` | `enforce` | The nonce-based Content-Security-Policy. `report-only` sends it without enforcing it; `off` drops it. |
 
