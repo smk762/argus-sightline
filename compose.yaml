@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   survey:
-    # Not on GHCR yet: `make up` layers compose.build.yaml to build ../argus-survey instead.
+    # Published from argus-survey v0.1.0 on; `make up` layers compose.build.yaml to build ../argus-survey instead.
     image: ${SURVEY_IMAGE:-ghcr.io/smk762/argus-survey:latest}
     user: "${UID:-1000}:${GID:-1000}"
     command: [argus-survey, serve, --host, 0.0.0.0, --port, "8107", --cors]

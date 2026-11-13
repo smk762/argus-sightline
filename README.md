@@ -16,7 +16,7 @@ It is a thin client. All processing, datum handling and provenance live in the a
   | Pad cut − fill against `design.tif` | 90.0 m³ | 90.0 m³ |
   | Change between epochs, inside the stockpile (LoD 0) | 67.0 m³ | 67.3 m³ |
 
-  Measured by `make demo-record` against argus-survey 0.1.0rc2.dev20+g6ecae92d2.d20261113 @ `6ecae92`.
+  Measured by `make demo-record` against argus-survey 0.1.0 @ `087758b`.
   <!-- demo-record:end -->
 - **The whole workflow.** Ingest (working CRS, assumed vertical datum, pinned transformation, crop), QA, ground (SMRF/CSF), surfaces (DTM/DSM/CHM, void fill), contours, stockpile volume (fitted-plane / lowest-edge / surface base), cut/fill against a design, change between epochs (fixed or accuracy-derived LoD), ASPRS ed. 2 accuracy (NVA/VVA, residual histogram), profiles, and the report. "Run core pipeline" goes from points to a report in one step.
 - **Map.** Hillshade, DTM/DSM/CHM, density, change, contours, coverage and gaps over an optional basemap, with opacity, legends, and drawing tools for volume polygons and profile lines.
