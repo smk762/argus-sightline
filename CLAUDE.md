@@ -63,5 +63,9 @@ Frontend work here follows Modern Web Guidance (GoogleChrome/modern-web-guidance
 
 ## Conventions
 
-- Branch `dev` is the default; `main` receives release PRs. Publishing (GitHub, GHCR) is the owner's (smk762) job.
+- Publishing (GitHub, GHCR) is the owner's (smk762) job. Branch rules are under Branches below.
 - Don't add dependencies beyond next/react/maplibre-gl/three/copc/laz-perf without asking. No server-side proxy: the browser calls the API directly (CORS), as in argus-studio.
+
+## Branches
+
+`dev` is the default branch and the base for every PR. Cut feature branches from `origin/dev` and bring them up to date by merging `origin/dev`, never `main`. Never open a PR against `main` or push work to it directly: `main` must never be ahead of `dev`. A release fast-forwards `main` to a `dev` commit that passed CI (`git push origin origin/dev:main`), then tags it. If `main` is protected and needs a PR, merge the release PR, then immediately merge `main` back into `dev` so the merge commit is not left on `main` alone.
