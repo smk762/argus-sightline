@@ -15,6 +15,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Re-synced to argus-survey `dev` at `8d966b6` (the 0.1.2 release merge): the wire pin, the demo record and the README's demo table. The wire schema and the demo numbers are unchanged (#21).
 - The release workflow builds the arm64 image on a native arm64 runner instead of under QEMU: each architecture builds and pushes by digest on its own runner, with its own build cache, and a final job tags the merged multi-platform image `X.Y.Z`, `X.Y` and `latest` (an rc tag moves neither `X.Y` nor `latest`). Follows argus-studio#187, whose QEMU arm64 build crashed during `npm ci`.
 
+### Security
+- `ARGUS_SURVEY_BASEMAP_ATTRIBUTION` is reduced to text and `http(s)` links before it reaches the map, with a warning when markup is dropped. maplibre-gl ≤ 6.4.0's attribution sanitizer can be bypassed (GHSA-jrc7-96c5-q579), and the fix has no 5.x release. The value comes from the deployment and the CSP already blocks the payload, so this is defence in depth until the maplibre upgrade.
+
 ## [0.1.1] - 2026-11-14
 
 ### Added
