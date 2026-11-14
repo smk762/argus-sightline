@@ -4,6 +4,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- The release workflow builds the arm64 image on a native arm64 runner instead of under QEMU: each architecture builds and pushes by digest on its own runner, with its own build cache, and a final job tags the merged multi-platform image `X.Y.Z`, `X.Y` and `latest` (an rc tag moves neither `X.Y` nor `latest`). Follows argus-studio#187, whose QEMU arm64 build crashed during `npm ci`.
+
 ## [0.1.1] - 2026-11-14
 
 ### Added
