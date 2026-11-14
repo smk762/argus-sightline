@@ -48,6 +48,19 @@ Open the UI and press **Start the guided demo**. Put your own `.las`/`.laz`, pol
 
 The config is read per request, not baked in at build time, so one image deploys to any origin.
 
+### Published image
+
+Each `v*` release publishes `ghcr.io/smk762/argus-sightline` for linux/amd64 and linux/arm64, tagged `X.Y.Z`, `X.Y` and `latest`. It serves on port 3000 as a non-root user, has a health check on `/`, and takes the variables above at run time:
+
+```bash
+docker pull ghcr.io/smk762/argus-sightline:latest
+docker run -d -p 127.0.0.1:3107:3000 \
+  -e ARGUS_SURVEY_URL=http://localhost:8107 \
+  ghcr.io/smk762/argus-sightline:latest
+```
+
+The browser calls the API directly, so start argus-survey with `--cors` and this UI's origin in `SURVEY_CORS_ORIGINS`. argus-studio's `survey` profile runs this image next to argus-survey.
+
 ## Develop
 
 Node isn't required on the host; the Makefile runs npm in `node:22.23.4-alpine`.
