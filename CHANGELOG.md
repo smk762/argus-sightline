@@ -4,9 +4,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-14
+
 ### Added
 - A release workflow (`.github/workflows/release.yml`): a `v*` tag that matches `package.json` and has a CHANGELOG section publishes `ghcr.io/smk762/argus-sightline` (linux/amd64 and linux/arm64, tagged `X.Y.Z`, `X.Y` and `latest`), then creates the GitHub Release from that section with the `docker pull` line.
 - The image has a health check: the home page, which renders without the API.
+
+### Changed
+- Follows argus-survey v0.1.0: the wire schema, generated types, sync pins and the demo record are re-synced to the released survey (#16).
 
 ## [0.1.0] - 2026-11-13
 
@@ -30,5 +35,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - The compose stack showed OpenStreetMap tiles without OSM's attribution, because compose names OSM's tile URL explicitly (#9).
 
-[Unreleased]: https://github.com/smk762/argus-sightline/compare/v0.1.0...dev
+[Unreleased]: https://github.com/smk762/argus-sightline/compare/v0.1.1...dev
+[0.1.1]: https://github.com/smk762/argus-sightline/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/smk762/argus-sightline/releases/tag/v0.1.0
