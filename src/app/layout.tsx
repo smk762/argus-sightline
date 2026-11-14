@@ -18,6 +18,9 @@ const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Argus Sightline",
   description: "The argus-survey workspace. Point clouds to survey deliverables: datums you can see, accuracy you can defend.",
+  // Favicons: argus-cortex brand/packages/survey/favicon/, copied unchanged. favicon.ico, icon.svg and
+  // apple-icon.png sit in src/app/ and Next emits their tags; icon-192/512 in public/ are for the manifest.
+  manifest: "/site.webmanifest",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
