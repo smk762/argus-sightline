@@ -1,0 +1,141 @@
+name: Release
+
+# On a v* tag: check the tag against package.json and CHANGELOG.md, push the
+# image to ghcr.io/<owner>/argus-sightline (amd64 and arm64), then create the
+# GitHub Release from the tag's CHANGELOG.md section. Nothing goes to npm:
+# the package is private.
+#
+# The image takes no build-time configuration. ARGUS_SURVEY_URL and the rest
+# are read from the container's environment per request
+# (src/lib/runtimeConfig.ts), so one image deploys to any origin.
+#
+# A new GHCR package starts private: after the first release, make
+# ghcr.io/<owner>/argus-sightline public once in the package settings.
+
+on:
+  push:
+    # Require a digit after `v` so a stray tag (vtest, v-wip) can't publish.
+    tags: ["v[0-9]*"]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+# Read-only by default; each job asks for what it needs.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    # Before anything publishes: a tag that disagrees with package.json, or has
+    # no CHANGELOG section, fails here rather than after the image is on GHCR.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches package.json and has a CHANGELOG section
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          pkg=$(jq -r .version package.json)
+          if [ "$pkg" != "$version" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match package.json version ${pkg}"
+            exit 1
+          fi
+          if ! grep -qF "## [${version}]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for ${version}"
+            exit 1
+          fi
+
+  publish-image:
+    runs-on: ubuntu-latest
+    needs: verify
+    # The arm64 half builds under QEMU, which is slow for `next build`.
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # QEMU is needed to build the linux/arm64 image on an amd64 runner.
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/argus-sightline
+          # X.Y.Z and X.Y; `latest` comes from the default `flavor: latest=auto`,
+          # which tags only the newest non-pre-release semver, so an rc tag
+          # gets its own X.Y.Z-rc.N tag and moves neither X.Y nor latest.
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # One manifest per platform: skip the provenance attestation that
+          # otherwise adds an `unknown/unknown` entry on GHCR.
+          provenance: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  github-release:
+    # The GitHub Release is the last step, so it only appears once the image is
+    # actually on GHCR. Its notes are this version's CHANGELOG.md section, with
+    # the image to pull appended. Nothing is built besides the image, so the
+    # Release carries no assets. Ported from argus-studio#181.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: publish-image
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/argus-sightline
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v head="## [${version}]" 'index($0, head) == 1 {found = 1; next} found && /^## \[/ {exit} found' \
+            CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::CHANGELOG.md has no section for ${version}"
+            exit 1
+          fi
+          # Drop the link-reference definitions at the foot of the last section.
+          sed -i '/^\[[^]]*\]: /d' notes.md
+          {
+            echo
+            echo "### Image"
+            echo
+            echo '```sh'
+            echo "docker pull ${IMAGE}:${version}"
+            echo '```'
+          } >> notes.md
+      - name: Create or update the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          prerelease=""
+          case "$tag" in *-*) prerelease="--prerelease" ;; esac
+          if gh release view "$tag" >/dev/null 2>&1; then
+            # Re-run of the workflow: refresh the notes rather than failing.
+            gh release edit "$tag" --notes-file notes.md
+          else
+            gh release create "$tag" --verify-tag --title "$tag" --notes-file notes.md $prerelease
+          fi

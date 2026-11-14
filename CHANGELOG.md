@@ -4,6 +4,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- A release workflow (`.github/workflows/release.yml`): a `v*` tag that matches `package.json` and has a CHANGELOG section publishes `ghcr.io/smk762/argus-sightline` (linux/amd64 and linux/arm64, tagged `X.Y.Z`, `X.Y` and `latest`), then creates the GitHub Release from that section with the `docker pull` line.
+- The image has a health check: the home page, which renders without the API.
+
 ## [0.1.0] - 2026-11-13
 
 ### Added
