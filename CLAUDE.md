@@ -28,7 +28,7 @@ Not checked out? Read https://github.com/smk762/argus-cortex/blob/dev/SUITE.md
   - `format.ts`, `runtimeConfig.ts`, `theme.ts`.
 - `src/lib/generated/survey.ts` is **generated** from `schema/survey-wire.schema.json`, pinned in `schema/pins.json`, by `scripts/wire-types.mjs` (studio's tool plus `--local`). Never hand-edit it. When argus-survey's models change: run `argus-survey schema` there, then `make wire-local` here, then fix what tsc reports. Once survey tags a release, set the pin's tag and use `npm run wire:pull`. A `"tag": "local"` pin is for unreleased work only.
 - **Sync record** (argus-sightline#7, the argus-studio#169 sync rule): `schema/pins.json`'s survey entry pins survey's `dev` commit (`tag`, a full sha), its `version` and, once docs are imported, a sha256 per file under `docs/survey/` (`docs`). `schema/demo-record.json` and the README's demo table (between `demo-record` markers) are written by `make demo-record` against a stack built from that commit; `src/lib/sync.test.ts` fails `make check` when any of them disagree. `.github/workflows/survey-drift.yml` opens an issue when survey `dev` moves. Build survey for a recording from a *clone* at the commit, not a worktree: hatch-vcs needs a real `.git` in the build context.
-- `src/lib/surveyDocs.ts` is the one table of survey docs links (steps, datum chips, demo truths), at the pinned commit. `src/lib/provenance.ts` builds the "Made with" line from `job.json`.
+- **Survey docs** (argus-sightline#7, #23): `make docs-pull` imports survey's README and `docs/*.md` (plus any `docs/img/*` they show) at the pin's commit into `docs/survey/`, after an opsec gate, and writes their hashes into the pin. Never hand-edit `docs/survey/`. `src/lib/surveyDocs.ts` is the one table of docs links (steps, datum chips, demo truths, methods, refusals) and resolves links inside the docs. `src/lib/surveyMarkdown.ts` renders them with `marked` (raw HTML dropped). `/docs/survey/[[...slug]]` reads the files at request time, so `next.config.ts` traces them into the standalone build. survey's `tests/test_docs.py` lists every anchor Sightline links. A new anchor in `SECTIONS` needs a PR there too. `src/lib/provenance.ts` builds the "Made with" line from `job.json`.
 - `src/components/workspace/` is the job workspace:
   - `Workspace.tsx` holds the state, the context and `run()`, which streams into the console and refreshes the sidecar.
   - Also here: `StepRail`, `MapView`, `PointView`, `Console`, `DatumChips`.
@@ -66,7 +66,7 @@ Frontend work here follows Modern Web Guidance (GoogleChrome/modern-web-guidance
 ## Conventions
 
 - Publishing (GitHub, GHCR) is the owner's (smk762) job. Branch rules are under Branches below.
-- Don't add dependencies beyond next/react/maplibre-gl/three/copc/laz-perf without asking. No server-side proxy: the browser calls the API directly (CORS), as in argus-studio.
+- Don't add dependencies beyond next/react/maplibre-gl/three/copc/laz-perf/marked without asking. No server-side proxy: the browser calls the API directly (CORS), as in argus-studio.
 
 ## Branches
 

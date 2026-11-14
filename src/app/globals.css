@@ -222,3 +222,119 @@ body {
     animation-duration: 6s;
   }
 }
+
+/* argus-survey's imported docs (/docs/survey). Layered, so utilities still win. */
+@layer components {
+  .doc-prose {
+    max-width: 52rem;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .doc-prose > * + * {
+    margin-top: 0.9em;
+  }
+  .doc-prose :is(h1, h2, h3, h4) {
+    color: var(--ink);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+    scroll-margin-top: 4rem;
+  }
+  .doc-prose h1 {
+    font-size: 1.75em;
+    letter-spacing: -0.01em;
+  }
+  .doc-prose h2 {
+    margin-top: 1.8em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.3em;
+  }
+  .doc-prose h3 {
+    margin-top: 1.5em;
+    font-size: 1.1em;
+  }
+  .doc-prose h4 {
+    margin-top: 1.3em;
+  }
+  .doc-prose :target {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.3em;
+  }
+  .doc-prose a {
+    color: var(--accent);
+    text-underline-offset: 2px;
+  }
+  .doc-prose a:not(:hover) {
+    text-decoration: none;
+  }
+  .doc-prose strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .doc-prose :is(ul, ol) {
+    padding-left: 1.4em;
+  }
+  .doc-prose ul {
+    list-style: disc;
+  }
+  .doc-prose ol {
+    list-style: decimal;
+  }
+  .doc-prose li + li {
+    margin-top: 0.25em;
+  }
+  .doc-prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: var(--raised);
+    color: var(--ink);
+  }
+  .doc-prose pre {
+    overflow-x: auto;
+    padding: 0.8em 1em;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel-2);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .doc-prose blockquote {
+    padding-left: 1em;
+    border-left: 3px solid var(--line-strong);
+    color: var(--muted);
+  }
+  .doc-prose hr {
+    border-color: var(--line);
+  }
+  .doc-prose img {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .doc-table {
+    overflow-x: auto;
+  }
+  .doc-prose table {
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .doc-prose :is(th, td) {
+    padding: 0.4em 0.7em;
+    border: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .doc-prose th {
+    background: var(--panel-2);
+    color: var(--ink);
+    font-weight: 600;
+  }
+}

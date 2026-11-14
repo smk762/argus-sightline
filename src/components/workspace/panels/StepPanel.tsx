@@ -92,7 +92,11 @@ function MadeWithLine({ made }: { made: MadeWith }) {
           ]}
         />
         <p>
-          The full record is in this job&apos;s <code className="num">job.json</code> and the report. This UI is synced
+          The full record is in this job&apos;s{" "}
+          <ExternalLink href={docsUrl("provenance")} className="text-accent underline-offset-2 hover:underline">
+            <code className="num">job.json</code>
+          </ExternalLink>{" "}
+          and the report. This UI is synced
           to argus-survey {SURVEY.version || "(unrecorded)"} @{" "}
           <ExternalLink href={sourceUrl()} className="num text-accent underline-offset-2 hover:underline">
             {shortSha(SURVEY.commit)}
@@ -164,7 +168,10 @@ export function RunBar({
       <div aria-live="polite" className="empty:-mt-2">
         {outcome && !outcome.ok && (
           <Banner tone="bad" title="Refused">
-            <span className="whitespace-pre-wrap">{outcome.error}</span>
+            <span className="whitespace-pre-wrap">{outcome.error}</span>{" "}
+            <ExternalLink href={docsUrl("refusals")} className="text-[12px] text-accent underline-offset-2 hover:underline">
+              Reading refusals
+            </ExternalLink>
             {outcome.stderr && (
               <details className="mt-1">
                 <summary className="cursor-pointer text-[12px] text-muted">tool stderr</summary>
