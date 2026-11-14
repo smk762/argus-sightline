@@ -1,4 +1,4 @@
-// Generated from smk762/argus-survey@6ecae92d2fed93f5c8f837db7822ed19544e9394 schema/survey-wire.schema.json.
+// Generated from smk762/argus-survey@087758b4501706a780c01c6dd3968bfb31aafbf4 schema/survey-wire.schema.json.
 // Do not edit: change schema/pins.json and run `npm run wire:pull`.
 
 export interface SurveyWire {
@@ -25,6 +25,8 @@ export interface SurveyWire {
   DoneEvent?: DoneEvent;
   EmptyBody?: EmptyBody;
   ErrorEvent?: ErrorEvent;
+  ExportBody?: ExportBody;
+  ExportRecord?: ExportRecord;
   FileRef?: FileRef;
   GapStats?: GapStats;
   GridSpec?: GridSpec;
@@ -46,6 +48,7 @@ export interface SurveyWire {
   RasterStats?: RasterStats;
   RasterView?: RasterView;
   RunBody?: RunBody;
+  ScaleFactors?: ScaleFactors;
   StartEvent?: StartEvent;
   StepEvent?: StepEvent;
   SurfaceRecord?: SurfaceRecord;
@@ -72,11 +75,15 @@ export interface AccuracyBody {
   surface?: string;
 }
 export interface AccuracyGroup {
+  blunders?: string[];
   excluded: number;
   group: "NVA" | "VVA";
   max_abs_m: number | null;
+  max_m?: number | null;
   mean_m: number | null;
+  median_m?: number | null;
   meets_minimum_count: boolean;
+  min_m?: number | null;
   n: number;
   pass_fail_applies: boolean;
   rmse_data_m: number | null;
@@ -323,6 +330,30 @@ export interface ErrorEvent {
   message: string;
   stderr?: string | null;
 }
+export interface ExportBody {
+  points?: "las" | "e57";
+  polygon?: string | null;
+  polygon_srs?: string | null;
+  thin?: number | null;
+}
+/**
+ * A point-cloud deliverable for ReCap / Civil 3D (``export --points``).
+ */
+export interface ExportRecord {
+  classes?: {
+    [k: string]: number;
+  };
+  crop?: string | null;
+  crs: string;
+  crs_in_file: boolean;
+  crs_name: string;
+  format: "las" | "e57";
+  notes: string;
+  path: string;
+  points: number;
+  source: "classified" | "copc";
+  thin_m?: number | null;
+}
 export interface GapStats {
   area_m2: number;
   cells: number;
@@ -349,6 +380,7 @@ export interface GroundBody {
   params?: {
     [k: string]: number | boolean;
   };
+  preset?: string | null;
 }
 export interface GroundReport {
   ground_density: number;
@@ -365,6 +397,7 @@ export interface GroundReport {
     [k: string]: unknown;
   };
   points: number;
+  preset?: string | null;
   reset_classes: boolean;
   tile_buffer: number;
   tile_size: number;
@@ -399,10 +432,32 @@ export interface IngestRecord {
   inputs_count: number;
   output_count: number;
   scale: number;
+  scale_factors?: ScaleFactors | null;
   source_crs: CrsRecord;
-  source_type?: "lidar" | "photogrammetry" | "unknown";
+  source_type?: "lidar" | "photogrammetry" | "terrestrial" | "unknown";
   stats?: DimStats[];
   transform?: TransformOp | null;
+}
+/**
+ * Grid-to-ground at the site centroid: ground distance = grid distance / combined (see ``scale.py``).
+ */
+export interface ScaleFactors {
+  combined: number | null;
+  convergence_deg: number;
+  easting: number;
+  ellipsoidal_height_m: number | null;
+  geoid_separation_m: number | null;
+  height_factor: number | null;
+  height_m: number;
+  latitude: number;
+  longitude: number;
+  method: string;
+  northing: number;
+  operation?: string | null;
+  point_scale: number;
+  point_scale_max: number;
+  point_scale_min: number;
+  radius_m: number;
 }
 /**
  * An input file, pinned. ``path`` is absolute.
@@ -433,10 +488,12 @@ export interface JobDigest {
 export interface JobSidecar {
   accuracy?: AccuracyReport | null;
   change?: ChangeReport | null;
+  changes?: ChangeReport[];
   commands?: CommandRecord[];
   contours?: ContoursReport | null;
   created_at?: string;
   crs?: CrsRecord | null;
+  exports?: ExportRecord[];
   ground?: GroundReport | null;
   ingest?: IngestRecord | null;
   inputs?: InputRecord[];
@@ -489,7 +546,7 @@ export interface QaReport {
   outliers: OutlierStats;
   points: number;
   returns: ValueCount[];
-  source_type: "lidar" | "photogrammetry" | "unknown";
+  source_type: "lidar" | "photogrammetry" | "terrestrial" | "unknown";
   tiles?: number;
 }
 export interface OutlierStats {
@@ -534,6 +591,7 @@ export interface RasterStats {
 }
 export interface VolumeReport {
   allow_voids?: boolean;
+  combined_scale_factor?: number | null;
   kind: "stockpile" | "cutfill" | "change";
   method: string;
   res: number;
@@ -557,6 +615,10 @@ export interface ZoneVolume {
   base_fit_rms_m?: number | null;
   below_m3: number;
   boundary_samples?: number | null;
+  ground_above_m3?: number | null;
+  ground_area_m2?: number | null;
+  ground_below_m3?: number | null;
+  ground_net_m3?: number | null;
   name: string;
   net_m3: number;
   void_percent: number;
@@ -600,6 +662,7 @@ export interface RunBody {
   interval?: number;
   method?: string;
   operation?: string | null;
+  preset?: string | null;
   res?: number;
   s_srs?: string | null;
   t_srs?: string | null;
@@ -621,6 +684,7 @@ export interface StepEvent {
 }
 export interface SurfacesBody {
   chm?: boolean;
+  chm_method?: string;
   dsm?: boolean;
   dsm_method?: string;
   dtm?: boolean;
