@@ -26,6 +26,8 @@ It is a thin client. All processing, datum handling and provenance live in the a
 
 ## Run it
 
+What this UI needs live, what its mock or recording stands in for, and the no-GPU command are in [What to run for which UI](https://studio.dragonhound.dev/docs/setup/which-services/#sightline). Each external service it depends on has a setup page under the suite's [Setup and services](https://studio.dragonhound.dev/docs/setup/).
+
 You need Docker and a checkout of argus-survey next to this one (`../argus-survey`). It isn't on GHCR yet, so `make up` builds it.
 
 ```bash
