@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - README links this UI's row in the suite's [What to run for which UI](https://docs.dragonhound.dev/setup/which-services/#sightline) matrix.
 
 ### Changed
+- Re-synced to argus-survey `dev` at `8d966b6` (the 0.1.2 release merge): the wire pin, the demo record and the README's demo table. The wire schema and the demo numbers are unchanged (#21).
 - The release workflow builds the arm64 image on a native arm64 runner instead of under QEMU: each architecture builds and pushes by digest on its own runner, with its own build cache, and a final job tags the merged multi-platform image `X.Y.Z`, `X.Y` and `latest` (an rc tag moves neither `X.Y` nor `latest`). Follows argus-studio#187, whose QEMU arm64 build crashed during `npm ci`.
 
 ## [0.1.1] - 2026-11-14

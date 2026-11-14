@@ -1,9 +1,9 @@
 {
   "survey": {
     "repo": "smk762/argus-survey",
-    "tag": "087758b4501706a780c01c6dd3968bfb31aafbf4",
+    "tag": "8d966b6ec7f1cac3f188a705c194ee3c6ad61199",
     "sha256": "363d1d1fce61ee399c98b483f8f3c8aaf63eb37e7a3a611d5fb8e166f31228c6",
-    "version": "0.1.0",
+    "version": "0.1.dev69+g8d966b6ec",
     "docs": {}
   }
 }
