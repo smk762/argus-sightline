@@ -120,7 +120,8 @@ const SURVEY_RAW_IMG = /^https:\/\/raw\.githubusercontent\.com\/smk762\/argus-su
 
 /** Join a relative link onto the directory of the file it appears in (survey paths, posix). */
 function resolvePath(from: string, rel: string): string | null {
-  const parts = from.split("/").slice(0, -1);
+  // A leading `/` is the repo root, as GitHub renders it.
+  const parts = rel.startsWith("/") ? [] : from.split("/").slice(0, -1);
   for (const seg of rel.split("/")) {
     if (seg === "" || seg === ".") continue;
     if (seg === "..") {
@@ -139,21 +140,25 @@ export interface ResolvedLink {
 
 /**
  * Where a link in an imported doc should go. Links between imported files (relative,
- * or survey's own GitHub URLs on any branch) stay in the docs; other relative links
- * go to GitHub at the pinned commit; anything but http(s), mailto and in-page anchors
+ * or survey's own GitHub URLs on any branch) stay in the docs; links to survey's
+ * other files go to GitHub at the pinned commit; anything but http(s), mailto and in-page anchors
  * is dropped (null).
  */
 export function resolveDocLink(href: string, from: string, sync: SyncRecord = SURVEY): ResolvedLink | null {
   if (href.startsWith("#")) return { href, external: false };
+  const local = (file: string, anchor: string): ResolvedLink => {
+    const url = fileUrl(file, anchor, sync);
+    return { href: url, external: !url.startsWith(DOCS_ROOT) };
+  };
+  // survey's own GitHub URLs, on whatever branch they name, go to the pinned commit.
   const blob = SURVEY_BLOB.exec(href);
-  if (blob && IMPORTED.has(blob[1])) return { href: fileUrl(blob[1], (blob[2] ?? "").slice(1), sync), external: false };
+  if (blob) return local(blob[1], (blob[2] ?? "").slice(1));
   if (/^(?:https?:|mailto:)/i.test(href)) return { href, external: true };
   if (/^[a-z][a-z\d+.-]*:/i.test(href) || href.startsWith("//")) return null;
-  const [path, anchor = ""] = href.split("#", 2);
-  const file = resolvePath(from, path);
+  const cut = href.indexOf("#");
+  const file = resolvePath(from, cut < 0 ? href : href.slice(0, cut));
   if (file === null) return null;
-  const url = fileUrl(file, anchor, sync);
-  return { href: url, external: !url.startsWith(DOCS_ROOT) };
+  return local(file, cut < 0 ? "" : href.slice(cut + 1));
 }
 
 /** An image an imported doc shows, served from this origin, or null when it was not imported. */

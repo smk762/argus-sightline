@@ -34,9 +34,11 @@ const FILES = [
   "docs/atlas-showcase.md",
 ];
 
-// Images the docs show, by survey path. They are served from this origin (the CSP allows
-// no other image host), so any docs/img/* a file references is imported with it.
+// Images the docs show, by survey path. The docs page loads images only from this origin,
+// so any docs/img/* a file references is imported with it: by repo path or URL anywhere,
+// or as a relative img/... from a file under docs/.
 const IMAGE_REF = /docs\/img\/([\w.-]+\.(?:png|jpe?g|webp|gif))/g;
+const RELATIVE_IMAGE_REF = /\]\((?:\.\/)?img\/([\w.-]+\.(?:png|jpe?g|webp|gif))/g;
 
 const OPSEC = [
   [/\b(?:10\.\d{1,3}|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b/, "a private IP address"],
@@ -65,11 +67,15 @@ async function main() {
   const { repo, tag } = pins.survey;
   if (!/^[0-9a-f]{40}$/.test(tag)) throw new Error(`survey.tag must be a full commit sha, not ${JSON.stringify(tag)}`);
 
-  const files = new Map();
-  for (const path of FILES) files.set(path, await fetchFile(repo, tag, path));
+  const fetchAll = async (paths) => Promise.all(paths.map(async (path) => [path, await fetchFile(repo, tag, path)]));
+  const files = new Map(await fetchAll(FILES));
   const images = new Set();
-  for (const buf of files.values()) for (const m of buf.toString("utf8").matchAll(IMAGE_REF)) images.add(`docs/img/${m[1]}`);
-  for (const path of [...images].sort()) files.set(path, await fetchFile(repo, tag, path));
+  for (const [path, buf] of files) {
+    const text = buf.toString("utf8");
+    for (const m of text.matchAll(IMAGE_REF)) images.add(`docs/img/${m[1]}`);
+    if (path.startsWith("docs/")) for (const m of text.matchAll(RELATIVE_IMAGE_REF)) images.add(`docs/img/${m[1]}`);
+  }
+  for (const [path, buf] of await fetchAll([...images].sort())) files.set(path, buf);
 
   const problems = [...files].filter(([p]) => p.endsWith(".md")).flatMap(([p, buf]) => opsec(p, buf.toString("utf8")));
   if (problems.length > 0) {

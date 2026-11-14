@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { cache } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { ExternalLink } from "@/components/ui";
 import { DOC_PAGES, DOCS_ROOT, PYPI_URL, shortSha, sourceUrl, SURVEY } from "@/lib/surveyDocs";
@@ -16,7 +15,24 @@ import { docTitle, renderSurveyDoc } from "@/lib/surveyMarkdown";
 
 type Params = Promise<{ slug?: string[] }>;
 
-const readDoc = cache(async (file: string) => readFile(join(process.cwd(), "docs", "survey", file), "utf8"));
+// The imported files never change while the server runs (docs-pull writes them before a build),
+// so each is read, titled and rendered once, not per request. A failed read is not kept.
+function once<T>(make: (file: string) => Promise<T>): (file: string) => Promise<T> {
+  const memo = new Map<string, Promise<T>>();
+  return (file) => {
+    let p = memo.get(file);
+    if (!p) {
+      p = make(file);
+      memo.set(file, p);
+      p.catch(() => memo.delete(file));
+    }
+    return p;
+  };
+}
+
+const readDoc = once((file) => readFile(join(process.cwd(), "docs", "survey", file), "utf8"));
+const titleOf = once(async (file) => docTitle(await readDoc(file), file));
+const rendered = once(async (file) => renderSurveyDoc(await readDoc(file), file, "argus-survey"));
 
 const pageFor = (slug: string[] | undefined) => {
   const key = (slug ?? []).join("/");
@@ -32,10 +48,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function SurveyDocsPage({ params }: { params: Params }) {
   const page = pageFor((await params).slug);
   if (!page) notFound();
-  const nav = await Promise.all(
-    DOC_PAGES.map(async (p) => ({ ...p, title: p.label ?? docTitle(await readDoc(p.file), p.file) })),
-  );
-  const html = renderSurveyDoc(await readDoc(page.file), page.file, "argus-survey");
+  const nav = await Promise.all(DOC_PAGES.map(async (p) => ({ ...p, title: p.label ?? (await titleOf(p.file)) })));
+  const html = await rendered(page.file);
   const link = "text-accent underline-offset-2 hover:underline";
   return (
     <div className="flex min-h-screen flex-col">

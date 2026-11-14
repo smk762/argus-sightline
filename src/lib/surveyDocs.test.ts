@@ -83,6 +83,18 @@ describe("resolveDocLink", () => {
     });
   });
 
+  it("pins survey's GitHub URLs for files that are not imported to the synced commit", () => {
+    expect(resolveDocLink("https://github.com/smk762/argus-survey/blob/main/env/geo.yml#L3", "README.md")).toEqual({
+      href: `https://github.com/smk762/argus-survey/blob/${SURVEY.commit}/env/geo.yml#L3`,
+      external: true,
+    });
+  });
+
+  it("reads a leading slash as the repo root and keeps every # after the first in the anchor", () => {
+    expect(resolveDocLink("/docs/steps.md#volume", "docs/methods.md")).toEqual({ href: "/docs/survey/steps#volume", external: false });
+    expect(resolveDocLink("steps.md#a#b", "docs/methods.md")).toEqual({ href: "/docs/survey/steps#a#b", external: false });
+  });
+
   it("sends the rest off-site in a new tab, at the pinned commit for survey's other files", () => {
     expect(resolveDocLink("https://www.ahn.nl/", "docs/data-sources.md")).toEqual({ href: "https://www.ahn.nl/", external: true });
     expect(resolveDocLink("../env/geo.yml", "docs/runbook.md")).toEqual({
@@ -123,6 +135,7 @@ describe("renderSurveyDoc", () => {
     expect(html).toContain('<h2 id="what-jobjson-records">What <code>job.json</code> records</h2>');
     expect(html).toContain('<h2 id="notes">');
     expect(html).toContain('<h2 id="notes-1">');
+    expect(renderSurveyDoc("## See [Datums](datums.md)\n", "docs/x.md")).toContain('<h2 id="see-datums">');
   });
 
   it("drops raw HTML and unsafe links, keeping their text", () => {

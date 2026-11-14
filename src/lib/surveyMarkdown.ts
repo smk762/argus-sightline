@@ -4,11 +4,11 @@
  * - Headings get GitHub's anchors, so `docsUrl()` and survey's own `#…` links land.
  * - Links between imported files stay in the docs. Everything else opens in a new
  *   tab, and a scheme other than http(s)/mailto is dropped (resolveDocLink).
- * - Images load only from this origin (the CSP allows no other image host). One
- *   that was not imported renders as a link instead.
+ * - Images load only from this origin, so reading the docs fetches nothing from a
+ *   third party. One that was not imported renders as a link instead.
  * - Raw HTML in the markdown is dropped (an inline tag's text stays). The files are
  *   pinned and hash-checked, but the page still shouldn't trust them with markup.
- *   README's logo is the one casualty; its images are on a host the CSP blocks.
+ *   README's logo is the one casualty; its images are off-origin anyway.
  */
 
 import { Marked, type Tokens } from "marked";
@@ -37,7 +37,8 @@ export function renderSurveyDoc(markdown: string, file: string, title = ""): str
   marked.use({
     renderer: {
       heading(this: { parser: { parseInline(t: Tokens.Generic[]): string } }, token: Tokens.Heading) {
-        const base = githubAnchor(token.text);
+        // GitHub slugs the rendered text, so a link in a heading counts by its text only.
+        const base = githubAnchor(token.text.replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1"));
         const n = seen.get(base) ?? 0;
         seen.set(base, n + 1);
         const id = n === 0 ? base : `${base}-${n}`;
@@ -56,7 +57,9 @@ export function renderSurveyDoc(markdown: string, file: string, title = ""): str
         const alt = escapeHtml(token.text);
         if (src) return `<img src="${escapeHtml(src)}" alt="${alt}" loading="lazy" decoding="async">`;
         const to = resolveDocLink(token.href, file);
-        return to ? `<a href="${escapeHtml(to.href)}" target="_blank" rel="noopener noreferrer">${alt || "image"}</a>` : alt;
+        if (!to) return alt;
+        if (!to.external) return `<a href="${escapeHtml(to.href)}">${alt || "image"}</a>`;
+        return `<a href="${escapeHtml(to.href)}" target="_blank" rel="noopener noreferrer">${alt || "image"}<span class="sr-only"> (opens in new tab)</span></a>`;
       },
       html() {
         return "";
