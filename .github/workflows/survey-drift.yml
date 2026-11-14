@@ -35,9 +35,10 @@ jobs:
           Re-sync in one PR:
 
           1. Set \`survey.tag\` in \`schema/pins.json\` to \`${head}\`, run \`npm run wire:pull\`, fix what \`make typecheck\` reports.
-          2. Check out argus-survey at \`${head}\`, then \`make demo-data up\` against it.
-          3. \`make demo-record\` (writes the README table, \`schema/demo-record.json\` and the pin's version).
-          4. \`make check\` must pass.
+          2. \`make docs-pull\` (imports survey's docs at that commit into \`docs/survey/\` and records their hashes).
+          3. Clone argus-survey at \`${head}\` (a clone, not a worktree), then \`make demo-data up SURVEY_SRC=<clone>\`.
+          4. \`make demo-record SURVEY_SRC=<clone>\` (writes the README table, \`schema/demo-record.json\` and the pin's version).
+          5. \`make check\` must pass.
 
           Opened by .github/workflows/survey-drift.yml; it updates this issue while the pin stays behind.
           BODY

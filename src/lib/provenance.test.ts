@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CommandRecord, JobSidecar } from "@/lib/generated/survey";
 import { madeWith, show, toolPackage } from "@/lib/provenance";
-import { docsUrl, shortSha, sourceUrl, SURVEY } from "@/lib/surveyDocs";
 
 const cmd = (step: string, tool: string): CommandRecord => ({
   argv: [tool],
@@ -81,15 +80,5 @@ describe("show / toolPackage", () => {
     expect(toolPackage("gdal_translate")).toBe("gdal");
     expect(toolPackage("projinfo")).toBe("proj");
     expect(toolPackage("untwine")).toBe("untwine");
-  });
-});
-
-describe("surveyDocs", () => {
-  it("links to survey's source at the pinned commit, never a branch", () => {
-    expect(SURVEY.commit).toMatch(/^[0-9a-f]{40}$/);
-    expect(docsUrl("volume")).toBe(`https://github.com/smk762/argus-survey/blob/${SURVEY.commit}/docs/runbook.md#stockpiles`);
-    expect(docsUrl("datum-fault")).toContain("#reading-refusals");
-    expect(sourceUrl()).toBe(`https://github.com/smk762/argus-survey/tree/${SURVEY.commit}`);
-    expect(shortSha(SURVEY.commit)).toHaveLength(7);
   });
 });

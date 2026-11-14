@@ -4,6 +4,18 @@
     "tag": "8d966b6ec7f1cac3f188a705c194ee3c6ad61199",
     "sha256": "363d1d1fce61ee399c98b483f8f3c8aaf63eb37e7a3a611d5fb8e166f31228c6",
     "version": "0.1.dev69+g8d966b6ec",
-    "docs": {}
+    "docs": {
+      "README.md": "4f9118b3743a9a9519e6b0c0a28e2f42d346e3bd9385f06c263188abfe1f1a57",
+      "docs/datums.md": "0825a842f6a52997a280198f92a63e198573fb8114fbdc46e23f116f8e0dbf6d",
+      "docs/steps.md": "92dbb51ffc2bfb567c6f7136e5bf132bb738f648f23670e2bfde6dc30aa66a4c",
+      "docs/methods.md": "6727b64665bc0ae2d46f7fd445111b255e408d718d5f5c74c0f30c10efa89f5f",
+      "docs/provenance.md": "7229dbcf734f651912d5994e03912e817adfc2c9e2482253335eb687020957cd",
+      "docs/api.md": "bf111afe1f8c5fddea5f94c6b57f86abd9d15f8792eb09a33c4f1dc7c5bab90b",
+      "docs/cli.md": "84356e855cab7a1a8cbb7683664576737740b0f17f9c82f5dbf126044716456e",
+      "docs/runbook.md": "d386dc9f7ad0a14271c29a28b7a75dffe35624f54ff9a2d1ca5e5e5764887035",
+      "docs/data-sources.md": "86902eadf9bbb1b1cdb0c9ca0f5eccedbca5da097b4871d3ddf0abf34038dd09",
+      "docs/atlas-showcase.md": "5db2fa11f86fc9cc205eabe3776d6ca390c4a284de932d4c044f4bff73689932",
+      "docs/img/viewer.png": "f370794536b37dcb6088d3aa81b22f2f7b1ba92a4bdd5219564e25b138d8bb45"
+    }
   }
 }

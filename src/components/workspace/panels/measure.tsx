@@ -7,7 +7,8 @@ import { KIT_JOB_1, KIT_JOB_2, KIT_TRUTH, TRUTH_TOLERANCE } from "@/lib/demoKit"
 import { closeRing, lineLength, ringArea } from "@/lib/geo";
 import { cm, count, m, m2, m3, num, pct } from "@/lib/format";
 import { productUrl } from "@/lib/surveyApi";
-import { Banner, Button, cx, Field, KV, NumberInput, Pill, Section, Segmented, Select, Stat, TextInput, Toggle } from "@/components/ui";
+import { docsUrl } from "@/lib/surveyDocs";
+import { Banner, Button, cx, ExternalLink, Field, KV, NumberInput, Pill, Section, Segmented, Select, Stat, TextInput, Toggle } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
 import { DemoTip, RunBar, TruthCheck, useStepRun, type PanelProps } from "@/components/workspace/panels/StepPanel";
 
@@ -99,11 +100,16 @@ export function VolumePanel({ blocked }: PanelProps) {
         <Field
           label="Base"
           hint={
-            base === "plane"
-              ? "A plane fitted to the polygon's boundary heights (its RMS is reported)."
-              : base === "lowest-perimeter"
-                ? "A flat base at the lowest boundary height: conservative on slopes."
-                : "A surveyed base surface (raster under the data root)."
+            <>
+              {base === "plane"
+                ? "A plane fitted to the polygon's boundary heights (its RMS is reported)."
+                : base === "lowest-perimeter"
+                  ? "A flat base at the lowest boundary height: conservative on slopes."
+                  : "A surveyed base surface (raster under the data root)."}{" "}
+              <ExternalLink href={docsUrl("volume-bases")} className="text-accent underline-offset-2 hover:underline">
+                Which base?
+              </ExternalLink>
+            </>
           }
         >
           <Segmented
@@ -358,7 +364,14 @@ export function AccuracyPanel({ blocked }: PanelProps) {
         <Field label="Check point RMSE" hint="their own survey accuracy">
           <NumberInput value={cpRmse} onChange={setCpRmse} step={0.005} min={0} suffix="m" placeholder="unknown" />
         </Field>
-        <Field label="Target class" hint="ASPRS NVA pass/fail">
+        <Field
+          label="Target class"
+          hint={
+            <ExternalLink href={docsUrl("accuracy-method")} className="underline decoration-dotted underline-offset-2 hover:text-ink">
+              ASPRS NVA pass/fail
+            </ExternalLink>
+          }
+        >
           <NumberInput value={classCm} onChange={setClassCm} step={1} min={1} suffix="cm" placeholder="report only" />
         </Field>
       </div>

@@ -22,6 +22,7 @@ It is a thin client. All processing, datum handling and provenance live in the a
 - **Map.** Hillshade, DTM/DSM/CHM, density, change, contours, coverage and gaps over an optional basemap, with opacity, legends, and drawing tools for volume polygons and profile lines.
 - **3D points.** The job's COPC streamed over HTTP range requests (laz-perf WASM, three.js), coloured by class, height or intensity, with a point budget.
 - **Provenance.** A live console of every step and tool call as it runs, and the job's full command log (argv and PDAL pipelines). The products list shows each product's SHA256.
+- **Docs.** argus-survey's docs at the synced commit, at `/docs/survey`. Each step panel, datum chip, demo truth row, volume base and accuracy class links to its section.
 - **Rule 1, always visible.** Horizontal CRS, vertical datum, geoid and epoch chips in the header. An assumed or missing vertical datum is shown in red.
 
 ## Run it
@@ -72,10 +73,11 @@ make install       # npm ci (+ copies laz-perf.wasm into public/)
 make check         # wire types, eslint, tsc, vitest
 make build         # next build
 make wire-local    # after changing argus-survey's wire models: re-pin schema/ from ../argus-survey
+make docs-pull     # import argus-survey's docs at the pinned commit into docs/survey/
 make demo-record   # with `make up` running: re-measure the demo table above against the live API
 ```
 
-The UI is synced to one argus-survey `dev` commit (`schema/pins.json`): the wire types, the demo numbers in this README (`schema/demo-record.json`) and the docs links all describe it, and `make check` fails if they disagree. A daily workflow opens an issue when survey's `dev` moves past the pin; that issue lists the re-sync steps.
+The UI is synced to one argus-survey `dev` commit (`schema/pins.json`): the wire types, the demo numbers in this README (`schema/demo-record.json`) and the imported docs (`docs/survey/`, hashed in the pin) all describe it, and `make check` fails if they disagree. A daily workflow opens an issue when survey's `dev` moves past the pin; that issue lists the re-sync steps.
 
 With Node on the host: `npm ci && npm run dev` (set `ARGUS_SURVEY_URL` in `.env.local`, and add `http://localhost:3000` to the API's `SURVEY_CORS_ORIGINS`).
 

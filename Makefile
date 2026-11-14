@@ -5,7 +5,7 @@ NPM = $(NODE_RUN) $(NODE_IMAGE)
 COMPOSE_BUILD = docker compose -f compose.yaml -f compose.build.yaml
 SURVEY_SRC ?= ../argus-survey
 
-.PHONY: help install check lint typecheck test build wire-check wire-local demo-data demo-record up up-published down logs
+.PHONY: help install check lint typecheck test build wire-check wire-local docs-pull demo-data demo-record up up-published down logs
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -32,6 +32,9 @@ wire-check:  ## Generated types match the pinned schema
 
 wire-local:  ## Re-pin the schema from $(SURVEY_SRC) and regenerate types
 	$(NODE_RUN) -v "$(abspath $(SURVEY_SRC))":/survey:ro $(NODE_IMAGE) node scripts/wire-types.mjs --local /survey
+
+docs-pull:  ## Import argus-survey's docs at the pinned commit into docs/survey/ and record their hashes
+	$(NPM) node scripts/docs-pull.mjs
 
 demo-data:  ## Write the synthetic demo kit (known answers) into data/in/kit
 	$(COMPOSE_BUILD) --profile kit build survey

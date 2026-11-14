@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { HealthInfo } from "@/lib/generated/survey";
 import { runtimeConfig } from "@/lib/runtimeConfig";
+import { DOCS_ROOT } from "@/lib/surveyDocs";
 import { Logo, Pill, ThemeToggle } from "@/components/ui";
 
 export function AppHeader({ health, children }: { health: HealthInfo | null; children?: ReactNode }) {
@@ -25,6 +26,9 @@ export function AppHeader({ health, children }: { health: HealthInfo | null; chi
           {health.read_only ? "read-only" : "processing on"}
         </Pill>
       )}
+      <Link href={DOCS_ROOT} className="text-[12.5px] text-muted hover:text-ink">
+        Docs
+      </Link>
       {studio && (
         <a href={studio} className="hidden text-[12.5px] text-muted hover:text-ink sm:inline">
           Argus Studio ↗
