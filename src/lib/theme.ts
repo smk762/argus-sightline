@@ -31,8 +31,8 @@ export function effectiveScheme(): Scheme {
   return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-/** Server snapshot: unknown, rendered as dark (this UI's default) until hydration reads the real one. */
-export const serverScheme = (): Scheme => "dark";
+/** Server snapshot: unknown, rendered as light (dh-tokens' default) until hydration reads the real one. */
+export const serverScheme = (): Scheme => "light";
 
 /** Calls `listener` when the effective scheme changes (toggle, system, another subdomain). */
 export function subscribeTheme(listener: () => void): () => void {

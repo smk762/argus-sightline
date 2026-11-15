@@ -7,7 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - A hosted demo build (`make pages`, `SIGHTLINE_STATIC=1`): a pure static export that replays one argus-survey job recorded on public USGS 3DEP lidar (`public/data-tape/`, `make tape-data` and `make tape`), with a hash-based CSP on every page (`scripts/csp.mjs`) and a check that the export is static, carries the CSP and has every tape file (`scripts/check-static.mjs`). Running a step replays its recorded console; cut/fill, change and accuracy say what they would need. CI builds it.
 - The Dragonhound shared layer (dh-shared 1.2.4, `vendor/dh/`) with a drift check in CI. The hosted demo carries the family strip (`data-dh-site="sightline"`).
-- `scripts/demo-e2e.mjs`: the hosted demo in a browser at 1440 and 390 px, light and dark, failing on any console error, failed request or CSP violation.
+- `scripts/demo-e2e.mjs`: the hosted demo in a browser at 1440 and 390 px, light and dark, failing on any console error, failed request or CSP violation (Next.js prefetches cancelled by a navigation do not count).
 
 - A docs page at `/docs/survey`: argus-survey's README and reference docs imported at the synced commit (`make docs-pull`), headed with the survey version and short sha, with GitHub and PyPI links. Links between survey's docs stay on the page; other links open in a new tab, and images are served from this origin. A Docs entry is in the header (#7).
 - In-context help to the new reference sections: each step panel to its `docs/steps.md` section, the datum chips to survey's datum rules (an assumed or missing datum to why it's red), the demo's truth rows to the demo kit, the volume base picker to the volume bases, the accuracy class to NVA/VVA, the "Made with" line to what `job.json` records, and a refusal to reading refusals (#23).
@@ -15,6 +15,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - README links this UI's row in the suite's [What to run for which UI](https://docs.dragonhound.dev/setup/which-services/#sightline) matrix.
 
 ### Changed
+- The suite's styling: every UI colour is now a dh-shared token (`vendor/dh/dh-tokens.css`) in light and dark, with the family accent, status inks and system fonts in place of the old orange-and-graphite palette and Geist (whose light-mode orange was 3.6:1 on white). Text meets 4.5:1 and control outlines 3:1 in both schemes; colours that encode data (point classes, raster ramps, map overlays) are unchanged. Light is the default without a saved choice or system preference.
 - Light/dark is the family's `dh-theme.js` in both builds: two states with the system as default, shared across `*.dragonhound.dev` by a `dh-theme` cookie when you toggle it. The old three-state toggle and its `localStorage` key are gone.
 - The point view frames the cloud on its 1st to 99th height percentile (noise classes left out), so a few far outliers no longer put the camera under the ground.
 - `src/proxy.ts` is now `src/proxy.live.ts` and the docs image route `route.live.ts`: routes in the live build only.

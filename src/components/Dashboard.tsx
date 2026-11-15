@@ -248,7 +248,7 @@ function JobCard({ job }: { job: JobDigest }) {
           <div className="num truncate text-[15px] font-semibold group-hover:text-accent">{job.job_id}</div>
           <div className="truncate text-[12.5px] text-muted">{job.crs ?? "no CRS yet"}</div>
         </div>
-        {job.warnings > 0 && <Pill tone="warn">{job.warnings} warn</Pill>}
+        {job.warnings > 0 && <span className="shrink-0 whitespace-nowrap"><Pill tone="warn">{job.warnings} warn</Pill></span>}
       </div>
       <div className="flex gap-1" aria-label={`${done.size} steps done`}>
         {STEPS.map((s) => (

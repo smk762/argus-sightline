@@ -73,6 +73,19 @@ const browser = await chromium.launch({
 const problems = [];
 if (shots) await mkdir(shots, { recursive: true });
 
+/**
+ * A Next.js router fetch: an RSC payload or a prefetch, by its headers or `_rsc` query, the static export's .txt
+ * payloads, or the HEAD a static export's segment prefetch sends to a page URL first (to follow redirects; it
+ * carries no RSC headers). The app itself never sends HEAD.
+ */
+function isNextPrefetch(request) {
+  if (request.resourceType() !== "fetch") return false;
+  const h = request.headers();
+  if (h.rsc === "1" || h["next-router-prefetch"] || h["next-router-state-tree"]) return true;
+  const url = new URL(request.url());
+  return request.method() === "HEAD" || url.searchParams.has("_rsc") || url.pathname.endsWith(".txt");
+}
+
 async function visit(width, scheme) {
   const context = await browser.newContext({ viewport: { width, height: width > 600 ? 900 : 844 }, colorScheme: scheme, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -81,7 +94,13 @@ async function visit(width, scheme) {
     if (m.type() === "error") problems.push(`${tag} console: ${m.text()}`);
   });
   page.on("pageerror", (e) => problems.push(`${tag} pageerror: ${e.message}`));
-  page.on("requestfailed", (r) => problems.push(`${tag} failed: ${r.url()} ${r.failure()?.errorText}`));
+  page.on("requestfailed", (r) => {
+    const error = r.failure()?.errorText ?? "";
+    // Leaving a page cancels Next.js's own prefetch and RSC payload requests (net::ERR_ABORTED): the router
+    // dropping work it no longer needs, not a failure. Anything else that fails, or any abort elsewhere, counts.
+    if (error === "net::ERR_ABORTED" && isNextPrefetch(r)) return;
+    problems.push(`${tag} failed: ${r.url()} ${error}`);
+  });
   page.on("response", (r) => {
     if (r.status() >= 400) problems.push(`${tag} HTTP ${r.status()}: ${r.url()}`);
   });
@@ -121,6 +140,7 @@ async function visit(width, scheme) {
 
   await page.goto(`${base}/docs/survey/steps/`, { waitUntil: "networkidle" });
   await page.locator("article h1, article h2").first().waitFor();
+  await shot("docs");
   await context.close();
 }
 

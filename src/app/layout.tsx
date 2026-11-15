@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { DemoStrip, STRIP_SITE } from "@/components/DemoStrip";
 import { staticDemo } from "@/lib/demo";
@@ -14,9 +13,6 @@ import { runtimeConfig, runtimeConfigScript } from "@/lib/runtimeConfig";
  * segment config must be a literal and the hosted demo (`staticDemo()`) is a
  * static export. src/lib/sync.test.ts checks the live build keeps that call.
  */
-
-const sans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 const DESCRIPTION = "The argus-survey workspace. Point clouds to survey deliverables: datums you can see, accuracy you can defend.";
 const DEMO_DESCRIPTION =
@@ -38,7 +34,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     // by scripts/csp.mjs, next to its Trusted Types policy (React would create it through innerHTML on a
     // client render, which that policy blocks). The config is STATIC_CONFIG (runtimeConfig.ts).
     return (
-      <html lang="en" data-dh-site={STRIP_SITE} className={`${sans.variable} ${mono.variable} h-full antialiased`} suppressHydrationWarning>
+      <html lang="en" data-dh-site={STRIP_SITE} className="h-full antialiased" suppressHydrationWarning>
         <body className="min-h-full font-sans text-[14px] leading-snug">
           <a href="#main" className="skip-link">
             Skip to content
@@ -52,7 +48,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // Set by src/proxy.live.ts. Next.js nonces its own scripts; these two are ours to stamp.
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
-    <html lang="en-AU" className={`${sans.variable} ${mono.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en-AU" className="h-full antialiased" suppressHydrationWarning>
       <head>
         {/*
           The family theme script (public/dh-theme.js, a copy of vendor/dh/dh-theme.js): blocking and first,

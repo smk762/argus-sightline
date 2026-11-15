@@ -24,7 +24,7 @@ export function Pill({ tone = "neutral", children, title }: { tone?: Tone; child
   return (
     <span
       title={title}
-      className={cx("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11.5px] font-medium", TONE[tone])}
+      className={cx("inline-flex w-fit items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11.5px] font-medium", TONE[tone])}
     >
       {children}
     </span>
