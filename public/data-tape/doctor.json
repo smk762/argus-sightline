@@ -1,0 +1,166 @@
+{
+ "ok": true,
+ "versions": {
+  "pdal": "2.10.2",
+  "gdal": "3.13.3",
+  "proj": "9.9.0"
+ },
+ "checks": [
+  {
+   "name": "exe:pdal",
+   "ok": true,
+   "detail": "/opt/geo/bin/pdal",
+   "required": true
+  },
+  {
+   "name": "exe:gdal",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdal",
+   "required": true
+  },
+  {
+   "name": "exe:gdalinfo",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdalinfo",
+   "required": true
+  },
+  {
+   "name": "exe:gdal_translate",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdal_translate",
+   "required": true
+  },
+  {
+   "name": "exe:gdalwarp",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdalwarp",
+   "required": true
+  },
+  {
+   "name": "exe:gdaldem",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdaldem",
+   "required": true
+  },
+  {
+   "name": "exe:gdal_contour",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdal_contour",
+   "required": true
+  },
+  {
+   "name": "exe:gdaltransform",
+   "ok": true,
+   "detail": "/opt/geo/bin/gdaltransform",
+   "required": true
+  },
+  {
+   "name": "exe:ogr2ogr",
+   "ok": true,
+   "detail": "/opt/geo/bin/ogr2ogr",
+   "required": true
+  },
+  {
+   "name": "exe:projinfo",
+   "ok": true,
+   "detail": "/opt/geo/bin/projinfo",
+   "required": true
+  },
+  {
+   "name": "exe:cs2cs",
+   "ok": true,
+   "detail": "/opt/geo/bin/cs2cs",
+   "required": true
+  },
+  {
+   "name": "version:pdal",
+   "ok": true,
+   "detail": "2.10.2",
+   "required": true
+  },
+  {
+   "name": "version:gdal",
+   "ok": true,
+   "detail": "3.13.3",
+   "required": true
+  },
+  {
+   "name": "version:proj",
+   "ok": true,
+   "detail": "9.9.0",
+   "required": true
+  },
+  {
+   "name": "pdal:drivers",
+   "ok": true,
+   "detail": "20 present",
+   "required": true
+  },
+  {
+   "name": "gdal:drivers",
+   "ok": true,
+   "detail": "6 present",
+   "required": true
+  },
+  {
+   "name": "gdal:algorithms",
+   "ok": true,
+   "detail": "6 present",
+   "required": true
+  },
+  {
+   "name": "proj:network",
+   "ok": true,
+   "detail": "off (forced off for every child process)",
+   "required": false
+  },
+  {
+   "name": "grid:au_ga_AUSGeoid2020_20180201.tif",
+   "ok": true,
+   "detail": "/opt/geo/share/proj/au_ga_AUSGeoid2020_20180201.tif",
+   "required": true
+  },
+  {
+   "name": "grid:au_ga_AUSGeoid09_V1.01.tif",
+   "ok": true,
+   "detail": "/opt/geo/share/proj/au_ga_AUSGeoid09_V1.01.tif",
+   "required": true
+  },
+  {
+   "name": "grid:au_icsm_GDA94_GDA2020_conformal_and_distortion.tif",
+   "ok": true,
+   "detail": "/opt/geo/share/proj/au_icsm_GDA94_GDA2020_conformal_and_distortion.tif",
+   "required": true
+  },
+  {
+   "name": "grid:au_ga_AGQG_20201120.tif",
+   "ok": true,
+   "detail": "/opt/geo/share/proj/au_ga_AGQG_20201120.tif",
+   "required": false
+  },
+  {
+   "name": "grid:us_noaa_g2018u0.tif",
+   "ok": true,
+   "detail": "/opt/geo/share/proj/us_noaa_g2018u0.tif",
+   "required": false
+  },
+  {
+   "name": "op:EPSG:7843->EPSG:7850+5711",
+   "ok": true,
+   "detail": "GDA2020 to AHD height (1) + Map Grid of Australia zone 50 (0.15 m)",
+   "required": true
+  },
+  {
+   "name": "op:EPSG:4939->EPSG:28350+5711",
+   "ok": true,
+   "detail": "GDA94 to AHD height (49) + Map Grid of Australia zone 50 (0.15 m)",
+   "required": true
+  },
+  {
+   "name": "op:EPSG:6319->EPSG:6318+5703",
+   "ok": true,
+   "detail": "NAD83(2011) to NAVD88 height (3) (0.015 m)",
+   "required": false
+  }
+ ]
+}

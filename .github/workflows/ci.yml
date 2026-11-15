@@ -26,6 +26,21 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      # The hosted demo (make pages): a pure static export of the committed tape, CSP on every page.
+      - run: npm run build:pages
+
+  # The Dragonhound shared design layer (vendor/dh) is vendored from dragonhound-site/shared and must not be
+  # edited here. Fails if a vendored file changed locally or no longer matches the published v1 manifest; a
+  # newer upstream version is only a warning (re-sync in its own PR).
+  dh-shared:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - run: node vendor/dh/sync-shared.mjs --check . --against https://dragonhound.dev/brand/v1/manifest.json --allow-outdated
 
   image:
     runs-on: ubuntu-latest

@@ -19,7 +19,7 @@ Not checked out? Read https://github.com/smk762/argus-cortex/blob/dev/SUITE.md
 ## Layout
 
 - `src/lib/` holds the pure logic, unit-tested with vitest:
-  - `surveyApi.ts`: the one client. Write gating lives here: `runStep` refuses when `/health.read_only`.
+  - `surveyApi.ts`: the one client. Write gating lives here: `runStep` refuses when `/health.read_only`. In the hosted demo it answers from the tape instead (`staticApi.ts`, `tape.ts`).
   - `sse.ts`: SSE over a POST, since `EventSource` is GET-only.
   - `workflow.ts`: steps, groups and prerequisites. These mirror the server's `require_crs`/`product_path` refusals.
   - `datum.ts`: datum chips and the WA presets.
@@ -47,7 +47,7 @@ Not checked out? Read https://github.com/smk762/argus-cortex/blob/dev/SUITE.md
 - npm 10's arborist crashes (`edgesOut`) when resolving vitest 4's optional peers from scratch. The lockfile was seeded from argus-studio's. If you ever re-resolve, start from an existing lock.
 - Port 3000 is often taken locally (argus-studio, argus-cull). This UI uses 3107 and argus-survey's CORS default is `localhost:3000`, so compose sets `SURVEY_CORS_ORIGINS`.
 
-- **The CSP is strict and nonce-based** (`src/proxy.ts`, `src/lib/csp.ts`). A new inline `<script>` needs `nonce` from `headers().get("x-nonce")`, as in `layout.tsx`. Anything a nonced script loads is trusted (`'strict-dynamic'`). MapLibre needs `worker-src blob:` and laz-perf needs `'wasm-unsafe-eval'`. Watch for `securitypolicyviolation` in the headless check.
+- **The CSP is strict and nonce-based** (`src/proxy.live.ts`, `src/lib/csp.ts`). A new inline `<script>` needs `nonce` from `headers().get("x-nonce")`, as in `layout.tsx`. Anything a nonced script loads is trusted (`'strict-dynamic'`). MapLibre needs `worker-src blob:` and laz-perf needs `'wasm-unsafe-eval'`. Watch for `securitypolicyviolation` in the headless check.
 - **Map keyboard handlers ignore editable targets.** Backspace in a field must not undo a vertex. Keep new map shortcuts behind `isEditable()`.
 - **Field errors go through `<Field error>`**, which sets `aria-invalid`, links the error only while it is shown and announces it via `announce()`. Don't make an error message its own live region.
 
@@ -58,6 +58,16 @@ Frontend work here follows Modern Web Guidance (GoogleChrome/modern-web-guidance
 - **Reduced motion is per rule, never global.** Wrap decorative animation in `@media (prefers-reduced-motion: no-preference)`. Progress indicators (`.sweep`, `Spinner`) slow down under `reduce` rather than stop. MapLibre already skips its camera animations under `reduce`.
 - **Long loops yield** through `yieldToMain()` (`src/lib/yieldToMain.ts`, `scheduler.yield` with a `setTimeout` fallback) on a 50 ms budget.
 - `legacy-scan src` was clean at adoption (2026-11-12), so there are no skipped findings to record.
+
+## The hosted demo (sightline.dragonhound.dev)
+
+- **Two builds from one tree.** `npm run build` is the live standalone server. `make pages` (`npm run build:pages`, `SIGHTLINE_STATIC=1`) is a pure static export to `out/` that replays the recorded tape in `public/data-tape/` and calls no API. `staticDemo()` (`src/lib/demo.ts`) is a build-time constant; branch on it, never on runtime state.
+- **Live-only files are named `*.live.ts`**: `src/proxy.live.ts` (the nonce CSP) and the docs image route. Only the live build's `pageExtensions` treat them as routes. A route-segment export can't depend on env (Next wants literals), so the live layout is dynamic through its `headers()` call, not `force-dynamic`, and `generateStaticParams` is exported only in the static build (`staticDemo() ? fn : undefined`): with it, the live prerender fails on `headers()`.
+- **The data layer is one seam**: `surveyApi.ts` hands every call to `staticApi.ts` in the demo. Running a step replays its recorded events (`tape.ts`, gaps capped at 350 ms); a step the tape lacks says why in its panel (`NOT_RECORDED` in `demo.ts`). Products left out of the tape show without a link (`hasProduct`).
+- **CSP** for the export is `scripts/csp.mjs`: hashes of each page's inline scripts in a `<meta>`, `/dh-theme.js` added blocking, `_headers` for frame-ancestors and a sandboxed policy on the tape's files. No Trusted Types: MapLibre 5 writes controls through `innerHTML` and the docs render through `dangerouslySetInnerHTML`. `scripts/check-static.mjs` fails the build on a missing CSP, an API reference or a missing tape file.
+- **Recording**: `make tape-data` (public USGS 3DEP lidar, see `public/data-tape/PROVENANCE.md`), `make up` on the pinned survey commit, then `make tape` (`scripts/record-tape.mjs`). It runs on CPU in under a minute. Re-record whenever the survey pin moves.
+- **Browser check**: `make pages && PLAYWRIGHT_DIR=… node scripts/demo-e2e.mjs out [shots]` at 1440 and 390, light and dark; it fails on any console error, failed request or CSP violation.
+- **Shared layer**: `vendor/dh/` is dh-shared, vendored unchanged (`make shared-check`; CI's `dh-shared` job). The demo renders the family strip (`DemoStrip`, `data-dh-site="sightline"`) and uses `dh-theme.js` for light/dark in both builds; `public/dh-theme.js` is a copy (`src/lib/shared.test.ts`). The UI keeps its own palette.
 
 ## Checking a change
 

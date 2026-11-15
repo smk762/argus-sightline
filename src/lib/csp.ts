@@ -1,5 +1,5 @@
 /**
- * The Content-Security-Policy, built per request by src/proxy.ts.
+ * The Content-Security-Policy, built per request by src/proxy.live.ts.
  *
  * It is a strict, nonce-based script policy. Next.js reads the nonce back out of
  * the request's CSP header and stamps it on its own scripts. The layout stamps

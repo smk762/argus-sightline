@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { AppHeader } from "@/components/AppHeader";
 import { ExternalLink } from "@/components/ui";
+import { staticDemo } from "@/lib/demo";
 import { DOC_PAGES, DOCS_ROOT, PYPI_URL, shortSha, sourceUrl, SURVEY } from "@/lib/surveyDocs";
 import { docTitle, renderSurveyDoc } from "@/lib/surveyMarkdown";
 
@@ -38,6 +39,16 @@ const pageFor = (slug: string[] | undefined) => {
   const key = (slug ?? []).join("/");
   return DOC_PAGES.find((p) => p.slug === key);
 };
+
+/**
+ * Every imported page, for the hosted demo's static export. The live build renders on request and has no
+ * generateStaticParams: with one, the layout's per-request headers() would fail the prerender.
+ */
+export const generateStaticParams = staticDemo() ? docPages : undefined;
+
+function docPages(): { slug: string[] }[] {
+  return DOC_PAGES.map((p) => ({ slug: p.slug ? p.slug.split("/") : [] }));
+}
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const page = pageFor((await params).slug);
@@ -79,7 +90,7 @@ export default async function SurveyDocsPage({ params }: { params: Params }) {
             })}
           </ul>
         </nav>
-        <main className="min-w-0">
+        <main id="main" className="min-w-0">
           <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-line pb-3 text-[12.5px] text-muted">
             <span>
               <strong className="font-semibold text-ink-2">argus-survey {SURVEY.version}</strong> @{" "}

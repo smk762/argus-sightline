@@ -40,6 +40,8 @@ export interface WorkspaceState {
   kit: DemoKit | null;
   demo: boolean;
   canWrite: boolean;
+  /** The hosted demo: the steps the recording can replay. null against a live API. */
+  recorded: ReadonlySet<string> | null;
   running: { step: StepId; startedAt: number; sub?: string } | null;
   selected: StepDef["id"];
   select: (step: StepDef["id"]) => void;

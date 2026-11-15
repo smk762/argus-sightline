@@ -2,12 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { HealthInfo, JobDigest, JobSidecar } from "@/lib/generated/survey";
+import { staticDemo } from "@/lib/demo";
 import { findKit } from "@/lib/demoKit";
+import { currentTape } from "@/lib/staticApi";
+import { recordedSteps } from "@/lib/tape";
 import {
   getHealth,
   getInputs,
   getJob,
   listJobs,
+  hasProduct,
   productUrl,
   Refused,
   runStep,
@@ -72,7 +76,9 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
         if (!live) return;
         setHealth(h);
         setInputs(i);
-        setSelected((cur) => cur ?? nextStep(s) ?? "report");
+        // The hosted demo opens on its stockpile volume: a recorded result, with its polygon on the map.
+        const start = staticDemo() && s?.steps_done?.includes("volume") ? "volume" : (nextStep(s) ?? "report");
+        setSelected((cur) => cur ?? start);
       })
       .catch((e: Error) => live && setLoadError(e.message));
     return () => {
@@ -129,6 +135,13 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
   );
 
   const kit = findKit(inputs);
+  // The hosted demo shows what a recorded measure step measured (its polygon or line) when it is selected.
+  const overlay = staticDemo() && selected ? currentTape()?.overlays?.[jobId]?.[selected] : undefined;
+  useEffect(() => {
+    if (overlay) setDrawn({ kind: overlay.kind, coords: overlay.coords });
+  }, [overlay]);
+  const tape = staticDemo() && health ? currentTape() : null;
+  const recorded = useMemo(() => (tape ? recordedSteps(tape, jobId) : null), [tape, jobId]);
   const state: WorkspaceState | null = useMemo(
     () =>
       sidecar === undefined || selected === null
@@ -142,6 +155,7 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
             kit,
             demo,
             canWrite: !!health && !health.read_only,
+            recorded,
             running,
             selected,
             select: setSelected,
@@ -162,7 +176,7 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
             mapVersion,
             showPoints: () => setView("points"),
           },
-    [sidecar, selected, jobId, health, inputs, jobs, kit, demo, running, run, results, drawing, drawn, mapVersion],
+    [sidecar, selected, jobId, health, inputs, jobs, kit, demo, recorded, running, run, results, drawing, drawn, mapVersion],
   );
 
   if (loadError) {
@@ -191,7 +205,8 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
   const report = state.sidecar?.products?.report;
   return (
     <WorkspaceContext.Provider value={state}>
-      <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
+      {/* The hosted demo has the family strip above the page, so the workspace fills what is left of the viewport. */}
+      <div className={cx("flex min-h-screen flex-col lg:overflow-hidden", staticDemo() ? "lg:h-[calc(100dvh-var(--dh-strip-h))] lg:min-h-0" : "lg:h-screen")}>
         <AppHeader health={health}>
           <span className="text-line-strong">/</span>
           <span className="num truncate font-medium">{jobId}</span>
@@ -200,7 +215,7 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
             <DatumChips crs={state.sidecar?.crs} sourceType={state.sidecar?.ingest?.source_type} />
           </div>
           <span className="flex-1" />
-          {report && (
+          {report && hasProduct(jobId, "report") && (
             <a href={productUrl(jobId, "report")} target="_blank" rel="noopener" className="hidden sm:block">
               <Button size="sm" variant="outline">
                 Report ↗
@@ -210,7 +225,7 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
         </AppHeader>
         {running && <div className="sweep relative h-0.5 shrink-0 overflow-hidden bg-accent-soft" />}
 
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <main id="main" className="flex min-h-0 flex-1 flex-col lg:flex-row">
           <StepRail />
           <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
             {/* An explicit height below lg: a min-height alone leaves the h-full grid (and the map) at zero. */}
@@ -226,11 +241,14 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
                   ]}
                 />
               </div>
-              <div className={cx("grid h-full", view === "split" ? "grid-cols-2 gap-px bg-line" : "grid-cols-1")}>
-                <div className={cx("relative min-h-0", view === "points" && "hidden")}>
+              {/* Split stacks map over points below lg: side by side, each half is too narrow for its controls.
+                  Each pane is a size container: its floating panel drops below the view toggle when the pane is
+                  narrower than 42rem (a phone, or the map half of Split), so it never covers the toggle. */}
+              <div className={cx("grid h-full", view === "split" ? "grid-rows-2 gap-px bg-line lg:grid-cols-2 lg:grid-rows-1" : "grid-cols-1")}>
+                <div className={cx("@container relative min-h-0", view === "points" && "hidden")}>
                   <MapView />
                 </div>
-                <div className={cx("relative min-h-0", view === "map" && "hidden")}>
+                <div className={cx("@container relative min-h-0", view === "map" && "hidden")}>
                   <PointView active={view !== "map"} />
                 </div>
               </div>
@@ -243,7 +261,7 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
             </div>
             <StepPanel />
           </aside>
-        </div>
+        </main>
       </div>
     </WorkspaceContext.Provider>
   );

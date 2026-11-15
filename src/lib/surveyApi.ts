@@ -7,6 +7,10 @@
  *
  * Writes are gated here, not in components: `runStep` refuses before the wire
  * when the server's last `/health` says it is read-only (studio#75's rule).
+ *
+ * The hosted demo (`staticDemo()`) answers every call from the recorded tape instead
+ * (staticApi.ts), and `runStep` replays the recording; each branch is a build-time
+ * constant, so the live build carries none of it.
  */
 
 import type {
@@ -22,8 +26,10 @@ import type {
   StepEvent,
   WarningEvent,
 } from "@/lib/generated/survey";
+import { staticDemo } from "@/lib/demo";
 import { readSse } from "@/lib/sse";
 import { surveyUrl } from "@/lib/runtimeConfig";
+import * as tape from "@/lib/staticApi";
 
 export type Inputs = { points: string[]; vectors: string[]; rasters: string[]; tables: string[] };
 
@@ -97,16 +103,19 @@ async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
 let lastHealth: HealthInfo | null = null;
 
 export async function getHealth(): Promise<HealthInfo> {
-  lastHealth = await getJson<HealthInfo>("/health");
+  lastHealth = staticDemo() ? await tape.health() : await getJson<HealthInfo>("/health");
   return lastHealth;
 }
 
-export const getDoctor = () => getJson<DoctorReport & { ok: boolean }>("/doctor");
-export const getInputs = () => getJson<Inputs>("/inputs");
-export const listJobs = async (): Promise<JobDigest[]> => (await getJson<{ jobs: JobDigest[] }>("/jobs")).jobs;
+type Doctor = DoctorReport & { ok: boolean };
+export const getDoctor = () => (staticDemo() ? tape.doctor<Doctor>() : getJson<Doctor>("/doctor"));
+export const getInputs = () => (staticDemo() ? tape.inputs<Inputs>() : getJson<Inputs>("/inputs"));
+export const listJobs = async (): Promise<JobDigest[]> =>
+  staticDemo() ? tape.jobs() : (await getJson<{ jobs: JobDigest[] }>("/jobs")).jobs;
 
 /** The sidecar, or `null` when the job does not exist yet (a new survey). */
 export async function getJob(id: string): Promise<JobSidecar | null> {
+  if (staticDemo()) return tape.job(id);
   try {
     return await getJson<JobSidecar>(`/jobs/${encodeURIComponent(id)}`);
   } catch (err) {
@@ -115,16 +124,21 @@ export async function getJob(id: string): Promise<JobSidecar | null> {
   }
 }
 
+/** Where a product downloads from. In the hosted demo, "" for a product the tape leaves out (see `hasProduct`). */
 export const productUrl = (job: string, kind: string): string =>
-  url(`/jobs/${encodeURIComponent(job)}/${encodeURIComponent(kind)}`);
+  staticDemo() ? tape.productUrl(job, kind) : url(`/jobs/${encodeURIComponent(job)}/${encodeURIComponent(kind)}`);
+
+/** Whether a product can be downloaded here: always from a live server, only what the tape carries in the demo. */
+export const hasProduct = (job: string, kind: string): boolean => !staticDemo() || tape.hasProduct(job, kind);
 
 export async function getRasterView(job: string, kind: string): Promise<RasterView & { imageUrl: string }> {
+  if (staticDemo()) return tape.rasterView(job, kind);
   const view = await getJson<RasterView>(`/jobs/${encodeURIComponent(job)}/web/${encodeURIComponent(kind)}`);
   return { ...view, imageUrl: url(view.url) };
 }
 
 export const getVectorView = (job: string, kind: string) =>
-  getJson<GeoJSON.FeatureCollection>(`/jobs/${encodeURIComponent(job)}/web/${encodeURIComponent(kind)}`);
+  staticDemo() ? tape.vectorView(job, kind) : getJson<GeoJSON.FeatureCollection>(`/jobs/${encodeURIComponent(job)}/web/${encodeURIComponent(kind)}`);
 
 /**
  * Run one step and stream its events to `onEvent`. Resolves with the `done`
@@ -139,6 +153,13 @@ export async function runStep(
   signal?: AbortSignal,
 ): Promise<DoneEvent> {
   if (!isSafeJobId(job)) throw new Refused(`"${job}" is not a valid job id (letters, digits, . _ -)`);
+  if (staticDemo()) {
+    try {
+      return await tape.replayStep(job, step, onEvent, signal);
+    } catch (err) {
+      throw err instanceof tape.NotRecorded ? new Refused(err.message) : err;
+    }
+  }
   const health = lastHealth ?? (await getHealth());
   if (health.read_only) {
     throw new Refused("This argus-survey server is read-only (start it with SURVEY_ALLOW_PROCESS=1 to run steps).");

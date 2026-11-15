@@ -126,7 +126,7 @@ export function IngestPanel({ blocked }: PanelProps) {
         </>
       )}
 
-      {exists && (
+      {exists && ws.recorded === null && (
         <Toggle checked={force} onChange={setForce} label={<span>Replace this job&apos;s cloud (re-ingest{rec ? "; select inputs again below" : ""})</span>} />
       )}
       {exists && force && rec && <ReingestPicker points={points} selected={selected} setSelected={setSelected} />}

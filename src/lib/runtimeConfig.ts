@@ -17,6 +17,8 @@
  *                          (whether defaulted or named explicitly, as compose does), none for others.
  */
 
+import { staticDemo } from "@/lib/demo";
+
 export interface RuntimeConfig {
   surveyUrl: string;
   studioUrl: string;
@@ -130,10 +132,18 @@ export function resolveRuntimeConfig(source: Record<string, string | undefined>)
   };
 }
 
+/**
+ * The hosted demo's config, fixed at build time: the API is the tape on this origin (staticApi.ts reads it,
+ * not this), no Studio link, and no basemap, so the page loads nothing from another origin (its CSP is
+ * 'self' only) and puts no load on OpenStreetMap's tile servers.
+ */
+export const STATIC_CONFIG: RuntimeConfig = { surveyUrl: "", studioUrl: "", basemapUrl: "", basemapAttribution: "" };
+
 let serverConfig: RuntimeConfig | undefined;
 let warnedMissingGlobal = false;
 
 export function runtimeConfig(): RuntimeConfig {
+  if (staticDemo()) return STATIC_CONFIG;
   if (typeof window === "undefined") {
     serverConfig ??= resolveRuntimeConfig(process.env as Record<string, string | undefined>);
     return serverConfig;

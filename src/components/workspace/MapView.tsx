@@ -274,8 +274,10 @@ export function MapView() {
           const corners = view.coordinates as [[number, number], [number, number], [number, number], [number, number]];
           extent.push(...(corners as LonLat[]));
           map.addSource(id, { type: "image", url: `${view.imageUrl}?v=${encodeURIComponent(view.png)}`, coordinates: corners });
+          // Linear, not "nearest": MapLibre 5.24 draws an image source resampled "nearest" as black, at any zoom
+          // (seen in Chromium on SwiftShader and on Intel Mesa, in both builds).
           map.addLayer(
-            { id, type: "raster", source: id, layout: { visibility: vis }, paint: { "raster-opacity": st.opacity, "raster-fade-duration": 0, "raster-resampling": "nearest" } },
+            { id, type: "raster", source: id, layout: { visibility: vis }, paint: { "raster-opacity": st.opacity, "raster-fade-duration": 0, "raster-resampling": "linear" } },
             "draw-fill",
           );
         } else {
@@ -295,7 +297,9 @@ export function MapView() {
       const b = bbox(extent);
       if (b && !fitted.current) {
         fitted.current = true;
-        map.fitBounds(b, { padding: 48, duration: 900, maxZoom: 20 });
+        // Keep the job clear of the layer panel (top right) where the map is wide enough to.
+        const wide = map.getContainer().clientWidth > 700;
+        map.fitBounds(b, { padding: { top: 48, bottom: 48, left: 48, right: wide ? 300 : 48 }, duration: 900, maxZoom: 20 });
       }
     })();
     return () => {
@@ -343,7 +347,7 @@ export function MapView() {
 
       {/* layer panel */}
       {available.length > 0 && (
-        <div className="absolute right-12 top-14 z-10 w-60 rounded-lg lg:top-3 border border-line bg-panel/95 text-[12.5px] shadow-panel backdrop-blur">
+        <div className="absolute right-12 top-14 z-10 w-60 max-w-[calc(100%-4rem)] rounded-lg @2xl:top-3 border border-line bg-panel/95 text-[12.5px] shadow-panel backdrop-blur">
           <button type="button" className="flex w-full items-center justify-between px-3 py-2 font-medium" onClick={() => setPanelOpen((o) => !o)}>
             <span>Layers {loading && <Spinner className="ml-1 inline size-3" />}</span>
             <span className="text-muted">{panelOpen ? "–" : "+"}</span>

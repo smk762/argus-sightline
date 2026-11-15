@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { NOT_RECORDED, REPO_URL } from "@/lib/demo";
 import { relError } from "@/lib/demoKit";
 import type { StepId } from "@/lib/surveyApi";
 import { STEPS, stepState } from "@/lib/workflow";
@@ -35,6 +36,8 @@ export function StepPanel() {
   const idx = STEPS.indexOf(def);
   const next = STEPS[idx + 1];
   const made = madeWith(ws.sidecar, def.id);
+  // The hosted demo: a step the recording never ran says what it would need, instead of a form that can't run.
+  const off = ws.recorded !== null && st.status !== "done" ? (NOT_RECORDED[def.id] ?? "The recording did not run this step.") : null;
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
@@ -50,13 +53,25 @@ export function StepPanel() {
             </ExternalLink>
           </p>
         </div>
-        <Pill tone={st.status === "done" ? "ok" : st.status === "ready" ? "accent" : "neutral"}>
-          {st.status === "done" ? "done" : st.status === "ready" ? "ready" : "waiting"}
+        <Pill tone={st.status === "done" ? "ok" : off ? "neutral" : st.status === "ready" ? "accent" : "neutral"}>
+          {st.status === "done" ? "done" : off ? "not recorded" : st.status === "ready" ? "ready" : "waiting"}
         </Pill>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
-        {st.status === "blocked" && st.reason && <Banner tone="warn">{st.reason}</Banner>}
-        <Panel blocked={st.status === "blocked"} />
+        {off ? (
+          <Banner tone="data" title="Not in this demo">
+            {off} With the inputs, it runs against the argus-survey API:{" "}
+            <ExternalLink href={REPO_URL} className="text-accent underline-offset-2 hover:underline">
+              run Sightline yourself
+            </ExternalLink>
+            .
+          </Banner>
+        ) : (
+          <>
+            {st.status === "blocked" && st.reason && <Banner tone="warn">{st.reason}</Banner>}
+            <Panel blocked={st.status === "blocked"} />
+          </>
+        )}
         {made && <MadeWithLine made={made} />}
       </div>
       {next && st.status === "done" && (
@@ -147,15 +162,29 @@ export function RunBar({
   why?: string;
 }) {
   const ws = useWorkspace();
-  const off = disabled || !ws.canWrite || ws.running !== null;
-  const title = !ws.canWrite ? "The server is read-only (SURVEY_ALLOW_PROCESS is off)" : ws.running ? "Another step is running" : why;
+  // The hosted demo replays the recorded run, whatever the fields above say, so only another replay blocks it.
+  const replay = ws.recorded !== null;
+  const off = replay ? ws.running !== null : disabled || !ws.canWrite || ws.running !== null;
+  const title = replay
+    ? ws.running
+      ? "Another step is replaying"
+      : "Replays the recorded run, with the settings under Computed by"
+    : !ws.canWrite
+      ? "The server is read-only (SURVEY_ALLOW_PROCESS is off)"
+      : ws.running
+        ? "Another step is running"
+        : why;
+  if (replay) {
+    label = "Replay the recorded run";
+    why = undefined;
+  }
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
         <Button variant="primary" size="lg" className="flex-1" onClick={onRun} disabled={off} title={title}>
           {busy ? (
             <>
-              <Spinner /> Running…
+              <Spinner /> {replay ? "Replaying…" : "Running…"}
             </>
           ) : (
             label
@@ -164,6 +193,9 @@ export function RunBar({
         {secondary}
       </div>
       {why && !busy && disabled && <span className="text-[12px] text-muted">{why}</span>}
+      {replay && !busy && (
+        <span className="text-[12px] text-muted">The console replays what argus-survey streamed; other settings need a live API.</span>
+      )}
       {/* Always in the page (a region that only appears isn't reliably announced); empty, it cancels the gap. */}
       <div aria-live="polite" className="empty:-mt-2">
         {outcome && !outcome.ok && (
