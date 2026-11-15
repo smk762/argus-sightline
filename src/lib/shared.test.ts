@@ -31,10 +31,10 @@ describe("dh-strip", () => {
     expect(html).not.toContain("target=");
   });
 
-  it("marks Sightline current once the shared list has it, and nothing before", () => {
+  it("marks the Sightline link current, and only it (dh-shared 1.2.5)", () => {
     const html = renderToStaticMarkup(createElement(DemoStrip));
-    const listed = strip.links.some((link) => (link.site as string) === STRIP_SITE);
-    expect(html.includes('aria-current="page"')).toBe(listed);
+    expect(html.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(html).toContain('<a href="https://sightline.dragonhound.dev/" data-dh-site="sightline" aria-current="page">Sightline</a>');
   });
 });
 

@@ -1,14 +1,14 @@
 // The Dragonhound Labs family bar, rendered natively from the vendored source (vendor/dh/dh-strip.mjs,
-// dh-shared 1.2.4): links, labels and mark come from there, so a re-sync updates it with no hand copy.
+// dh-shared 1.2.5): links, labels and mark come from there, so a re-sync updates it with no hand copy.
 // Styles are vendor/dh/dh-strip.css (imported by globals.css). No JS. Only the hosted demo carries it.
 //
-// dh-shared 1.2.4 does not list Sightline yet, so no link is marked current until a later dh-shared adds it;
-// data-dh-site="sightline" is already set here and on <html>, so that re-sync needs no change in this file.
+// dh-shared 1.2.5 lists Sightline, so its link is marked current (data-dh-site="sightline" here and on <html> says the
+// same for dh-strip.css). On phones the link list scrolls sideways; dh-theme.js scrolls the current link into view.
 import { strip } from "../../vendor/dh/dh-strip.mjs";
 
 export const STRIP_SITE = "sightline";
 
-/** The strip, with this site's link marked current once the shared list has one. Same-tab links. */
+/** The strip, with this site's link marked current. Same-tab links. */
 export function DemoStrip({ current = STRIP_SITE }: { current?: string }) {
   const { home } = strip;
   return (
