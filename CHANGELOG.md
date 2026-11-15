@@ -23,6 +23,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The release workflow builds the arm64 image on a native arm64 runner instead of under QEMU: each architecture builds and pushes by digest on its own runner, with its own build cache, and a final job tags the merged multi-platform image `X.Y.Z`, `X.Y` and `latest` (an rc tag moves neither `X.Y` nor `latest`). Follows argus-studio#187, whose QEMU arm64 build crashed during `npm ci`.
 
 ### Fixed
+- The hosted demo's "Open the recorded job" (and the guided demo's start) was a `<button>` inside a link, shown disabled at 45% opacity until the recording loaded, so a page caught early showed a washed-out button. It is a link styled as a button once the job is known, and a disabled button only before.
+- On a phone the 3D view's "Colour by" panel covered the Map / 3D points / Split toggle. It now starts collapsed, and in any pane narrower than 42rem it and the map's Layers panel sit below the toggle. Split stacks map over points below `lg`. `demo-e2e` fails if either panel covers the toggle and screenshots Split.
 - Map rasters (hillshade, DTM, DSM, CHM, density, change) drew black: MapLibre 5.24 renders an image source resampled `nearest` as black. They resample `linear` now.
 
 ### Security

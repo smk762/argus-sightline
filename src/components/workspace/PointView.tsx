@@ -67,6 +67,9 @@ export function PointView({ active }: { active: boolean }) {
   const [size, setSize] = useState(2);
   const [budget, setBudget] = useState<number>(BUDGETS[1]);
   const [classesSeen, setClassesSeen] = useState<number[]>([]);
+  // Below lg the panel starts collapsed; in a narrow pane it sits under the view toggle (as the map's Layers
+  // panel does), so it never covers the Map / 3D points / Split control.
+  const [panelOpen, setPanelOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 1024);
   const products = ws.sidecar?.products ?? {};
   const kind = products.classified ? "classified" : products.copc ? "copc" : null;
   const sha = kind ? products[kind].sha256 : null;
@@ -301,55 +304,67 @@ export function PointView({ active }: { active: boolean }) {
       )}
 
       {kind && (
-        <div className="absolute right-3 top-3 z-10 flex w-56 flex-col gap-2.5 rounded-lg border border-line bg-panel/95 p-3 text-[12.5px] shadow-panel backdrop-blur">
-          <div className="flex items-center justify-between">
-            <span className="font-medium">Colour by</span>
-          </div>
-          <Segmented
-            value={colour}
-            onChange={setColour}
-            options={[
-              { value: "class", label: "Class" },
-              { value: "z", label: "Height" },
-              { value: "intensity", label: "Intensity" },
-            ]}
-          />
-          <label className="flex items-center justify-between gap-2 text-muted">
-            Point size
-            <input type="range" min={1} max={6} step={0.5} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-28 accent-[var(--accent)]" />
-          </label>
-          <label className="flex items-center justify-between gap-2 text-muted">
-            Budget
-            <select
-              className="rounded border border-line bg-panel-2 px-1.5 py-0.5 text-ink"
-              value={budget}
-              onChange={(e) => setBudget(Number(e.target.value))}
-            >
-              {BUDGETS.map((b) => (
-                <option key={b} value={b}>
-                  {num(b / 1e6, 1)} M pts
-                </option>
-              ))}
-            </select>
-          </label>
-          {colour === "class" && classesSeen.length > 0 && (
-            <ul className="grid grid-cols-2 gap-x-2 gap-y-1 border-t border-line pt-2">
-              {classesSeen.map((c) => (
-                <li key={c} className="flex items-center gap-1.5 text-ink-2">
-                  <span
-                    className="size-2.5 rounded-sm"
-                    style={{ background: `rgb(${(CLASSES[c]?.rgb ?? [0.8, 0.8, 0.8]).map((v) => Math.round(v * 255)).join(",")})` }}
-                  />
-                  <span className="truncate">{CLASSES[c]?.name ?? `Class ${c}`}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {s && status.phase === "ready" && (
-            <div className={cx("num border-t border-line pt-2 text-[11.5px] text-muted")}>
-              {count(s.n)} of {count(s.total)} pts · {s.nodes} nodes
-              <br />
-              {kind === "classified" ? "classified cloud" : "ingested cloud"} · drag to orbit
+        <div className="absolute right-3 top-14 z-10 w-56 max-w-[calc(100%-1.5rem)] rounded-lg border border-line bg-panel/95 text-[12.5px] shadow-panel backdrop-blur @2xl:top-3">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-3 py-2 font-medium"
+            aria-expanded={panelOpen}
+            onClick={() => setPanelOpen((o) => !o)}
+          >
+            <span>Colour by</span>
+            <span className="text-muted" aria-hidden="true">
+              {panelOpen ? "–" : "+"}
+            </span>
+          </button>
+          {panelOpen && (
+            <div className="flex flex-col gap-2.5 border-t border-line p-3">
+              <Segmented
+                value={colour}
+                onChange={setColour}
+                options={[
+                  { value: "class", label: "Class" },
+                  { value: "z", label: "Height" },
+                  { value: "intensity", label: "Intensity" },
+                ]}
+              />
+              <label className="flex items-center justify-between gap-2 text-muted">
+                Point size
+                <input type="range" min={1} max={6} step={0.5} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-28 accent-[var(--accent)]" />
+              </label>
+              <label className="flex items-center justify-between gap-2 text-muted">
+                Budget
+                <select
+                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 text-ink"
+                  value={budget}
+                  onChange={(e) => setBudget(Number(e.target.value))}
+                >
+                  {BUDGETS.map((b) => (
+                    <option key={b} value={b}>
+                      {num(b / 1e6, 1)} M pts
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {colour === "class" && classesSeen.length > 0 && (
+                <ul className="grid grid-cols-2 gap-x-2 gap-y-1 border-t border-line pt-2">
+                  {classesSeen.map((c) => (
+                    <li key={c} className="flex items-center gap-1.5 text-ink-2">
+                      <span
+                        className="size-2.5 rounded-sm"
+                        style={{ background: `rgb(${(CLASSES[c]?.rgb ?? [0.8, 0.8, 0.8]).map((v) => Math.round(v * 255)).join(",")})` }}
+                      />
+                      <span className="truncate">{CLASSES[c]?.name ?? `Class ${c}`}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {s && status.phase === "ready" && (
+                <div className={cx("num border-t border-line pt-2 text-[11.5px] text-muted")}>
+                  {count(s.n)} of {count(s.total)} pts · {s.nodes} nodes
+                  <br />
+                  {kind === "classified" ? "classified cloud" : "ingested cloud"} · drag to orbit
+                </div>
+              )}
             </div>
           )}
         </div>

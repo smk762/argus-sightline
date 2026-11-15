@@ -48,6 +48,27 @@ export function Dot({ tone }: { tone: Tone }) {
   return <span className={cx("inline-block size-2 rounded-full", c)} />;
 }
 
+type ButtonVariant = "primary" | "ghost" | "outline" | "danger";
+type ButtonSize = "sm" | "md" | "lg";
+
+/** A button's look, for a <Link> that navigates (a link must not wrap a <button>: nested interactive content). */
+export function buttonClass(variant: ButtonVariant = "ghost", size: ButtonSize = "md", className?: string): string {
+  const v = {
+    primary: "bg-accent text-accent-ink hover:brightness-110 border-transparent shadow-[0_0_0_1px_var(--accent)]",
+    ghost: "bg-transparent text-ink-2 hover:bg-raised hover:text-ink border-transparent",
+    outline: "bg-panel-2 text-ink hover:bg-raised border-line",
+    danger: "bg-bad-soft text-bad hover:brightness-110 border-bad/40",
+  }[variant];
+  const s = { sm: "h-7 px-2.5 text-[12.5px]", md: "h-8 px-3 text-[13px]", lg: "h-10 px-4 text-[14px]" }[size];
+  return cx(
+    "inline-flex items-center justify-center gap-2 rounded-md border font-medium transition",
+    "disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-accent",
+    v,
+    s,
+    className,
+  );
+}
+
 export function Button({
   children,
   onClick,
@@ -60,33 +81,20 @@ export function Button({
 }: {
   children: ReactNode;
   onClick?: () => void;
-  variant?: "primary" | "ghost" | "outline" | "danger";
+  variant?: ButtonVariant;
   disabled?: boolean;
   title?: string;
   type?: "button" | "submit";
-  size?: "sm" | "md" | "lg";
+  size?: ButtonSize;
   className?: string;
 }) {
-  const v = {
-    primary: "bg-accent text-accent-ink hover:brightness-110 border-transparent shadow-[0_0_0_1px_var(--accent)]",
-    ghost: "bg-transparent text-ink-2 hover:bg-raised hover:text-ink border-transparent",
-    outline: "bg-panel-2 text-ink hover:bg-raised border-line",
-    danger: "bg-bad-soft text-bad hover:brightness-110 border-bad/40",
-  }[variant];
-  const s = { sm: "h-7 px-2.5 text-[12.5px]", md: "h-8 px-3 text-[13px]", lg: "h-10 px-4 text-[14px]" }[size];
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-md border font-medium transition",
-        "disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-accent",
-        v,
-        s,
-        className,
-      )}
+      className={buttonClass(variant, size, className)}
     >
       {children}
     </button>

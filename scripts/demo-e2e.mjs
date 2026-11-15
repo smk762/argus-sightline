@@ -87,6 +87,11 @@ function isNextPrefetch(request) {
 }
 
 async function visit(width, scheme) {
+  const noOverlap = async (a, b, what) => {
+    const [ra, rb] = [await a.boundingBox(), await b.boundingBox()];
+    if (ra && rb && ra.x < rb.x + rb.width && rb.x < ra.x + ra.width && ra.y < rb.y + rb.height && rb.y < ra.y + ra.height)
+      problems.push(`${width}-${scheme} layout: ${what} covers the view toggle`);
+  };
   const context = await browser.newContext({ viewport: { width, height: width > 600 ? 900 : 844 }, colorScheme: scheme, deviceScaleFactor: 1 });
   const page = await context.newPage();
   const tag = `${width}-${scheme}`;
@@ -110,6 +115,7 @@ async function visit(width, scheme) {
   const shot = async (name) => shots && page.screenshot({ path: join(shots, `sightline-${name}-${tag}.png`) });
 
   await page.goto(`${base}/`, { waitUntil: "networkidle" });
+  // A link only once the recording's job list has loaded (a disabled button until then).
   await page.getByRole("link", { name: /Open the recorded job/ }).waitFor();
   await page.locator("text=m³").first().waitFor();
   await shot("home");
@@ -120,6 +126,9 @@ async function visit(width, scheme) {
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(1500); // the map's fit animation
   await shot("job");
+  // The Map / 3D points / Split control (a group of buttons).
+  const toggle = page.getByRole("button", { name: "3D points", exact: true }).locator("..");
+  await noOverlap(toggle, page.getByRole("button", { name: /^Layers/ }).locator(".."), "Map: Layers panel");
 
   // A measure step the recording ran: its polygon on the map, and the replay into the console.
   await page.getByRole("button", { name: /Stockpile volume/ }).first().click();
@@ -134,9 +143,26 @@ async function visit(width, scheme) {
 
   // The classified cloud, streamed from the tape by range requests.
   await page.getByRole("radio", { name: "3D points" }).or(page.getByRole("button", { name: "3D points" })).first().click();
+  // Below lg its "Colour by" panel starts collapsed under the view toggle; it must never cover the toggle.
+  const colourBy = page.getByRole("button", { name: "Colour by" });
+  await colourBy.waitFor();
+  await noOverlap(toggle, colourBy, "3D points: Colour by panel");
+  if ((await colourBy.getAttribute("aria-expanded")) === "false") {
+    await page.waitForTimeout(1500);
+    await shot("points-collapsed");
+    await colourBy.click();
+  }
   await page.getByText(/classified cloud/).waitFor({ timeout: 30000 });
+  await noOverlap(toggle, colourBy.locator(".."), "3D points: Colour by panel (open)");
   await page.waitForTimeout(1000);
   await shot("points");
+
+  // Map and points side by side.
+  await page.getByRole("radio", { name: "Split" }).or(page.getByRole("button", { name: "Split" })).first().click();
+  await page.waitForTimeout(1500);
+  await noOverlap(toggle, colourBy.locator(".."), "Split: Colour by panel");
+  await noOverlap(toggle, page.getByRole("button", { name: /^Layers/ }).locator(".."), "Split: map Layers panel");
+  await shot("split");
 
   await page.goto(`${base}/docs/survey/steps/`, { waitUntil: "networkidle" });
   await page.locator("article h1, article h2").first().waitFor();

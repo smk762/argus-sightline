@@ -13,7 +13,7 @@ import { currentTape } from "@/lib/staticApi";
 import type { JobSidecar } from "@/lib/generated/survey";
 import { STEPS } from "@/lib/workflow";
 import { AppHeader } from "@/components/AppHeader";
-import { announce, Banner, Button, cx, Dot, ExternalLink, Pill, Section, Spinner, TextInput } from "@/components/ui";
+import { announce, Banner, Button, buttonClass, cx, Dot, ExternalLink, Pill, Section, Spinner, TextInput } from "@/components/ui";
 
 export function Dashboard() {
   const router = useRouter();
@@ -215,12 +215,14 @@ function DemoCard({
           Two epochs of a cone stockpile on a tilted plane, a building and trees, 40 check points, a design pad.
           Run every step and compare what the toolkit measures with the analytic truth.
         </p>
-        {kit ? (
-          <Link href={`/jobs/${KIT_JOB_1}?demo=1`} className={cx(!canWrite && !started && "pointer-events-none")}>
-            <Button variant="primary" size="lg" className="w-full" disabled={!canWrite && !started}>
-              {started ? "Continue the demo →" : "Start the guided demo →"}
-            </Button>
+        {kit && (canWrite || started) ? (
+          <Link href={`/jobs/${KIT_JOB_1}?demo=1`} className={buttonClass("primary", "lg", "w-full")}>
+            {started ? "Continue the demo →" : "Start the guided demo →"}
           </Link>
+        ) : kit ? (
+          <Button variant="primary" size="lg" className="w-full" disabled>
+            Start the guided demo →
+          </Button>
         ) : loaded ? (
           <Banner tone="data" title="Demo inputs not found">
             Run <code className="num">make demo-data</code> (writes <code className="num">data/in/kit/</code>), then
@@ -317,11 +319,16 @@ function RecordedCard() {
             {error}
           </Banner>
         ) : (
-          <Link href={job ? `/jobs/${encodeURIComponent(job.job_id)}` : "/"} aria-disabled={!job}>
-            <Button variant="primary" size="lg" className="w-full" disabled={!job}>
+          // Disabled (a button, not a link) only until the recording's job list has loaded.
+          job ? (
+            <Link href={`/jobs/${encodeURIComponent(job.job_id)}`} className={buttonClass("primary", "lg", "w-full")}>
+              Open the recorded job →
+            </Link>
+          ) : (
+            <Button variant="primary" size="lg" className="w-full" disabled>
               Open the recorded job →
             </Button>
-          </Link>
+          )
         )}
         <p className="text-[12px] text-muted">
           Data: U.S. Geological Survey, 3D Elevation Program ·{" "}

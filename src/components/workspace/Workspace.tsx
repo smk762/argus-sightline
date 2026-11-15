@@ -241,11 +241,14 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
                   ]}
                 />
               </div>
-              <div className={cx("grid h-full", view === "split" ? "grid-cols-2 gap-px bg-line" : "grid-cols-1")}>
-                <div className={cx("relative min-h-0", view === "points" && "hidden")}>
+              {/* Split stacks map over points below lg: side by side, each half is too narrow for its controls.
+                  Each pane is a size container: its floating panel drops below the view toggle when the pane is
+                  narrower than 42rem (a phone, or the map half of Split), so it never covers the toggle. */}
+              <div className={cx("grid h-full", view === "split" ? "grid-rows-2 gap-px bg-line lg:grid-cols-2 lg:grid-rows-1" : "grid-cols-1")}>
+                <div className={cx("@container relative min-h-0", view === "points" && "hidden")}>
                   <MapView />
                 </div>
-                <div className={cx("relative min-h-0", view === "map" && "hidden")}>
+                <div className={cx("@container relative min-h-0", view === "map" && "hidden")}>
                   <PointView active={view !== "map"} />
                 </div>
               </div>
