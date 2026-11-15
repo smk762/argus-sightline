@@ -1,7 +1,7 @@
 "use client";
 
 import { bytes, seconds } from "@/lib/format";
-import { productUrl } from "@/lib/surveyApi";
+import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { Button, Section } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
 import { DemoTip, RunBar, useStepRun, type PanelProps } from "@/components/workspace/panels/StepPanel";
@@ -23,7 +23,7 @@ export function ReportPanel({ blocked }: PanelProps) {
         disabled={blocked}
         onRun={() => r.run({})}
         secondary={
-          s?.products?.report && (
+          s?.products?.report && hasProduct(ws.jobId, "report") && (
             <a href={productUrl(ws.jobId, "report")} target="_blank" rel="noopener">
               <Button variant="outline" size="lg">
                 Open ↗
@@ -35,17 +35,35 @@ export function ReportPanel({ blocked }: PanelProps) {
       {products.length > 0 && (
         <Section title={`Products · ${products.length}`} aside={<span className="text-[12px] text-muted">SHA256-pinned</span>}>
           <ul className="flex flex-col divide-y divide-line rounded-md border border-line bg-panel-2">
-            {products.map((p) => (
-              <li key={p.kind}>
-                <a href={productUrl(ws.jobId, p.kind)} className="flex items-center justify-between gap-3 px-3 py-2 text-[12.5px] hover:bg-raised" title={p.sha256}>
+            {products.map((p) => {
+              const row = (
+                <>
                   <span className="min-w-0">
                     <span className="num block truncate text-ink">{p.path}</span>
                     <span className="block truncate text-muted">{p.description || p.kind}</span>
                   </span>
-                  <span className="num shrink-0 text-muted">{bytes(p.size)} ↓</span>
-                </a>
-              </li>
-            ))}
+                  <span className="num shrink-0 text-muted">
+                    {bytes(p.size)}
+                    {hasProduct(ws.jobId, p.kind) ? " ↓" : ""}
+                  </span>
+                </>
+              );
+              const cls = "flex items-center justify-between gap-3 px-3 py-2 text-[12.5px]";
+              return (
+                <li key={p.kind}>
+                  {hasProduct(ws.jobId, p.kind) ? (
+                    <a href={productUrl(ws.jobId, p.kind)} className={`${cls} hover:bg-raised`} title={p.sha256}>
+                      {row}
+                    </a>
+                  ) : (
+                    // The hosted demo leaves the larger products out of the tape; the list still shows each one's SHA256.
+                    <div className={cls} title={`${p.sha256} · left out of the demo to keep it small`}>
+                      {row}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </Section>
       )}

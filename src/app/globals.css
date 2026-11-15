@@ -1,5 +1,10 @@
 @import "tailwindcss";
 @import "maplibre-gl/dist/maplibre-gl.css";
+/* The Dragonhound shared layer (vendor/dh, dh-shared): its tokens back the family strip and badge, which only
+   the hosted demo renders. This UI keeps its own palette below; the tokens define custom properties only. */
+@import "../../vendor/dh/dh-tokens.css";
+@import "../../vendor/dh/dh-strip.css";
+@import "../../vendor/dh/dh-badge.css";
 
 /*
  * "Field instrument": graphite surfaces, hi-vis survey orange for action, cyan
@@ -337,4 +342,22 @@ body {
     color: var(--ink);
     font-weight: 600;
   }
+}
+
+/* Skip link (the hosted demo, ahead of the family strip): off screen until focused. */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 100;
+  transform: translateY(-200%);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  font-weight: 600;
+}
+.skip-link:focus-visible {
+  transform: none;
 }

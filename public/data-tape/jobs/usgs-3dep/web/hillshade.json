@@ -1,0 +1,25 @@
+{
+ "kind": "hillshade",
+ "png": "hillshade.80a9f1fa6b0dfbd4.v2.png",
+ "url": "jobs/usgs-3dep/web/hillshade.80a9f1fa6b0dfbd4.v2.png",
+ "coordinates": [
+  [
+   -117.991768,
+   34.088291
+  ],
+  [
+   -117.9884711,
+   34.088291
+  ],
+  [
+   -117.9884711,
+   34.0855605
+  ],
+  [
+   -117.991768,
+   34.0855605
+  ]
+ ],
+ "range": null,
+ "ramp": "hillshade"
+}

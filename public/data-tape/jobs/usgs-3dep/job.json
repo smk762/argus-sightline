@@ -1,0 +1,2349 @@
+{
+ "schema_version": 1,
+ "job_id": "usgs-3dep",
+ "created_at": "2026-11-15T04:15:09.192367Z",
+ "updated_at": "2026-11-15T04:15:50.971134Z",
+ "package_version": "0.1.dev69+g8d966b6ec",
+ "tools": {
+  "pdal": "2.10.2",
+  "gdal": "3.13.3",
+  "proj": "9.9.0"
+ },
+ "crs": {
+  "definition": "EPSG:6340+5703",
+  "name": "NAD83(2011) / UTM zone 11N + NAVD88 height",
+  "horizontal": {
+   "name": "NAD83(2011) / UTM zone 11N",
+   "epsg": 6340,
+   "kind": "ProjectedCRS",
+   "units": "metre",
+   "unit_factor": 1,
+   "north_first": false
+  },
+  "vertical": {
+   "name": "NAVD88 height",
+   "epsg": 5703,
+   "kind": "VerticalCRS",
+   "units": "metre",
+   "unit_factor": 1,
+   "north_first": false
+  },
+  "height_reference": "gravity",
+  "vertical_assumed": "--assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+  "geoid": null,
+  "epoch": null,
+  "source": "transformed"
+ },
+ "inputs": [
+  {
+   "path": "/data/in/usgs-3dep/site.laz",
+   "sha256": "725de7cde3dca0fd078da498d724733dbce6776df4502874f1a8a31c0f0b8b6a",
+   "size": 1786690,
+   "role": "points",
+   "summary": {
+    "count": 450545,
+    "bounds": {
+     "minx": -13134780,
+     "miny": 4040300,
+     "minz": -165.82,
+     "maxx": -13134420,
+     "maxy": 4040660,
+     "maxz": 326.82
+    },
+    "dimensions": [
+     "X",
+     "Y",
+     "Z",
+     "Intensity",
+     "ReturnNumber",
+     "NumberOfReturns",
+     "ScanDirectionFlag",
+     "EdgeOfFlightLine",
+     "Classification",
+     "Synthetic",
+     "KeyPoint",
+     "Withheld",
+     "Overlap",
+     "ScanAngleRank",
+     "UserData",
+     "PointSourceId",
+     "GpsTime",
+     "ScanChannel",
+     "Red",
+     "Green",
+     "Blue"
+    ],
+    "las_version": "1.4",
+    "point_format": 7,
+    "copc": false,
+    "scale": [
+     0.01,
+     0.01,
+     0.01
+    ]
+   }
+  }
+ ],
+ "ingest": {
+  "inputs_count": 450545,
+  "output_count": 450545,
+  "cropped": false,
+  "crop": null,
+  "scale": 0.001,
+  "source_crs": {
+   "definition": "EPSG:3857+5703",
+   "name": "WGS 84 / Pseudo-Mercator + NAVD88 height",
+   "horizontal": {
+    "name": "WGS 84 / Pseudo-Mercator",
+    "epsg": 3857,
+    "kind": "ProjectedCRS",
+    "units": "metre",
+    "unit_factor": 1,
+    "north_first": false
+   },
+   "vertical": {
+    "name": "NAVD88 height",
+    "epsg": 5703,
+    "kind": "VerticalCRS",
+    "units": "metre",
+    "unit_factor": 1,
+    "north_first": false
+   },
+   "height_reference": "gravity",
+   "vertical_assumed": "--assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+   "geoid": null,
+   "epoch": null,
+   "source": "file"
+  },
+  "transform": {
+   "source": "EPSG:3857+5703",
+   "target": "EPSG:6340+5703",
+   "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N",
+   "accuracy_m": 2,
+   "proj": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=utm +zone=11 +ellps=GRS80",
+   "grids": [],
+   "chosen_by": "proj-default",
+   "candidates": [
+    {
+     "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N",
+     "accuracy_m": 2,
+     "grids": [],
+     "missing_grids": []
+    }
+   ]
+  },
+  "source_type": "lidar",
+  "stats": [
+   {
+    "name": "Z",
+    "count": 450545,
+    "minimum": -165.82,
+    "maximum": 326.82,
+    "average": 73.35758672,
+    "stddev": 12.71149564,
+    "counts": {}
+   },
+   {
+    "name": "Intensity",
+    "count": 450545,
+    "minimum": 80,
+    "maximum": 65520,
+    "average": 1019.579327,
+    "stddev": 484.1213708,
+    "counts": {}
+   },
+   {
+    "name": "ReturnNumber",
+    "count": 450545,
+    "minimum": 1,
+    "maximum": 3,
+    "average": 1.006387819,
+    "stddev": 0.08016815113,
+    "counts": {
+     "1": 447685,
+     "2": 2842,
+     "3": 18
+    }
+   },
+   {
+    "name": "NumberOfReturns",
+    "count": 450545,
+    "minimum": 1,
+    "maximum": 3,
+    "average": 1.012782297,
+    "stddev": 0.11339597920000001,
+    "counts": {
+     "1": 444840,
+     "2": 5651,
+     "3": 54
+    }
+   },
+   {
+    "name": "Classification",
+    "count": 450545,
+    "minimum": 1,
+    "maximum": 18,
+    "average": 1.3688199850000002,
+    "stddev": 0.6104687625,
+    "counts": {
+     "1": 291869,
+     "2": 157655,
+     "7": 1,
+     "9": 703,
+     "10": 313,
+     "18": 4
+    }
+   }
+  ],
+  "scale_factors": {
+   "easting": 408656.163,
+   "northing": 3772236.407,
+   "longitude": -117.99011932,
+   "latitude": 34.08692435,
+   "height_m": 73.358,
+   "ellipsoidal_height_m": 39.078,
+   "geoid_separation_m": -34.279,
+   "point_scale": 0.99970285,
+   "point_scale_min": 0.99970251,
+   "point_scale_max": 0.99970319,
+   "convergence_deg": -0.554951,
+   "radius_m": 6370147,
+   "height_factor": 0.99999387,
+   "combined": 0.99969672,
+   "operation": "Inverse of UTM zone 11N + Inverse of NAD83(2011) to NAVD88 height (3)",
+   "method": "point scale k from proj -V at the extent's centroid (range over its corners); height factor R/(R+h), R the Gaussian mean radius at the centroid's latitude, h the ellipsoidal height of the mean point height; combined = k × R/(R+h); ground = grid / combined"
+  }
+ },
+ "qa": {
+  "points": 450545,
+  "bounds": {
+   "minx": 408505.6356,
+   "miny": 3772086.679,
+   "minz": -165.82,
+   "maxx": 408806.6906,
+   "maxy": 3772386.134,
+   "maxz": 326.82
+  },
+  "coverage_area_m2": 81689.35,
+  "coverage_hex_edge": 2.15,
+  "source_type": "lidar",
+  "density": {
+   "res": 1,
+   "mean": 5.497,
+   "p5": 1,
+   "p50": 5,
+   "p95": 11,
+   "covered_cells": 81659
+  },
+  "classes": [
+   {
+    "code": 1,
+    "name": "Unclassified",
+    "count": 291869,
+    "percent": 64.781
+   },
+   {
+    "code": 2,
+    "name": "Ground",
+    "count": 157655,
+    "percent": 34.992
+   },
+   {
+    "code": 7,
+    "name": "Low point (noise)",
+    "count": 1,
+    "percent": 0
+   },
+   {
+    "code": 9,
+    "name": "Water",
+    "count": 703,
+    "percent": 0.156
+   },
+   {
+    "code": 10,
+    "name": "Rail",
+    "count": 313,
+    "percent": 0.069
+   },
+   {
+    "code": 18,
+    "name": "High noise",
+    "count": 4,
+    "percent": 0.001
+   }
+  ],
+  "returns": [
+   {
+    "value": 1,
+    "count": 447685,
+    "percent": 99.365
+   },
+   {
+    "value": 2,
+    "count": 2842,
+    "percent": 0.631
+   },
+   {
+    "value": 3,
+    "count": 18,
+    "percent": 0.004
+   }
+  ],
+  "outliers": {
+   "method": "filters.outlier (statistical)",
+   "params": {
+    "method": "statistical",
+    "mean_k": 8,
+    "multiplier": 3
+   },
+   "count": 75,
+   "percent": 0.0166
+  },
+  "gaps": {
+   "threshold": 1.25,
+   "threshold_rule": "25% of the median density (5.00 pts/m²)",
+   "cells": 4940,
+   "area_m2": 4940,
+   "percent_of_coverage": 6.05
+  },
+  "tiles": 1
+ },
+ "ground": {
+  "method": "smrf",
+  "preset": null,
+  "params": {
+   "slope": 0.15,
+   "window": 18,
+   "threshold": 0.5,
+   "scalar": 1.25,
+   "cell": 1
+  },
+  "outlier_params": {
+   "method": "statistical",
+   "mean_k": 8,
+   "multiplier": 3
+  },
+  "points": 450545,
+  "ground_points": 422800,
+  "ground_percent": 93.842,
+  "noise_points": 76,
+  "ground_density": 5.176,
+  "ground_spacing": 0.44,
+  "reset_classes": true,
+  "normalised_returns": false,
+  "tiles": 1,
+  "tile_size": 301.075,
+  "tile_buffer": 27
+ },
+ "surfaces": {
+  "grid": {
+   "origin_x": 408505.5,
+   "origin_y": 3772086.5,
+   "res": 0.5,
+   "width": 603,
+   "height": 600
+  },
+  "surfaces": {
+   "dtm": {
+    "kind": "dtm",
+    "method": "IDW (power 1) of ground points (class 2) within r = 0.707 m of each cell centre",
+    "output_type": "idw",
+    "radius": 0.707107,
+    "window_size": 0,
+    "points_used": "ground points (class 2)",
+    "void_percent": 3.194,
+    "void_percent_after_fill": null,
+    "filled_max_distance": null,
+    "stats": {
+     "valid_cells": 319867,
+     "total_cells": 361800,
+     "minimum": 53.860000610352,
+     "maximum": 106.25331115723,
+     "mean": 72.081913570626,
+     "stddev": 12.749620574054
+    }
+   },
+   "dsm": {
+    "kind": "dsm",
+    "method": "IDW (power 1) of first returns, noise excluded within r = 0.707 m of each cell centre",
+    "output_type": "idw",
+    "radius": 0.707107,
+    "window_size": 0,
+    "points_used": "first returns, noise excluded",
+    "void_percent": 0.782,
+    "void_percent_after_fill": null,
+    "filled_max_distance": null,
+    "stats": {
+     "valid_cells": 327899,
+     "total_cells": 361800,
+     "minimum": 53.860000610352,
+     "maximum": 107.27097320557,
+     "mean": 72.241700163091,
+     "stddev": 12.793314097015
+    }
+   },
+   "chm": {
+    "kind": "chm",
+    "method": "highest value per cell (binned) of HeightAboveGround (hag_nn) of all non-noise points",
+    "output_type": "max",
+    "radius": null,
+    "window_size": 0,
+    "points_used": "HeightAboveGround (hag_nn) of all non-noise points",
+    "void_percent": 29.41,
+    "void_percent_after_fill": null,
+    "filled_max_distance": null,
+    "stats": {
+     "valid_cells": 231841,
+     "total_cells": 361800,
+     "minimum": -5.8099999427795,
+     "maximum": 13.300000190735,
+     "mean": 0.071541162327368,
+     "stddev": 0.42390704533109
+    }
+   }
+  },
+  "resolution_warning": null
+ },
+ "contours": {
+  "interval": 2,
+  "index_every": 5,
+  "source": "dtm",
+  "features": 544,
+  "min_elev": 54,
+  "max_elev": 106
+ },
+ "volumes": [
+  {
+   "kind": "stockpile",
+   "surface": "DSM (upper) vs base (lower)",
+   "sign_convention": "above = surface above base (stockpile volume); below = surface below base",
+   "res": 0.5,
+   "surface_void_percent": {
+    "dsm": 0.782
+   },
+   "method": "per-cell (upper − lower) × cell area, summed separately for positive and negative cells; boundary cells weighted by the fraction inside the polygon (gdal raster zonal-stats --pixels fractional)",
+   "zones": [
+    {
+     "name": "twin piles",
+     "area_m2": 604.63,
+     "above_m3": 725.788,
+     "below_m3": 56.517,
+     "net_m3": 669.271,
+     "area_above_m2": 396.77,
+     "area_below_m2": 207.86,
+     "void_percent": 0,
+     "base": "least-squares plane through 199 boundary heights: z = 57.854 + 0.01604·(E − 408734.526) + -0.03008·(N − 3772286.010)",
+     "ground_area_m2": 604.997,
+     "ground_above_m3": 726.228,
+     "ground_below_m3": 56.551,
+     "ground_net_m3": 669.677,
+     "base_fit_rms_m": 0.6911,
+     "boundary_samples": 199
+    }
+   ],
+   "resampled": null,
+   "allow_voids": false,
+   "combined_scale_factor": 0.99969672
+  }
+ ],
+ "change": null,
+ "changes": [],
+ "accuracy": null,
+ "profiles": [
+  {
+   "line": "drawn line",
+   "length_m": 102.481,
+   "step_m": 0.5,
+   "samples": 206,
+   "surfaces": [
+    "dtm",
+    "dsm"
+   ]
+  }
+ ],
+ "exports": [],
+ "commands": [
+  {
+   "step": "ingest",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "info",
+    "--summary",
+    "/data/in/usgs-3dep/site.laz"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:09.194136Z",
+   "seconds": 0.063,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-o",
+    "PROJJSON",
+    "-q",
+    "EPSG:3857+5703"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:09.265856Z",
+   "seconds": 0.028,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-o",
+    "PROJJSON",
+    "-q",
+    "EPSG:6340+5703"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:09.294612Z",
+   "seconds": 0.027,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "gdaltransform",
+   "argv": [
+    "gdaltransform",
+    "-s_srs",
+    "EPSG:3857+5703",
+    "-t_srs",
+    "EPSG:4326",
+    "-output_xy"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:09.322724Z",
+   "seconds": 0.122,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-s",
+    "EPSG:3857+5703",
+    "-t",
+    "EPSG:6340+5703",
+    "--spatial-test",
+    "intersects",
+    "--hide-ballpark",
+    "-o",
+    "PROJ",
+    "--bbox",
+    "-117.991736,34.085587,-117.988502,34.088265"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:09.445731Z",
+   "seconds": 0.548,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-8ipgbc0y/metadata.json",
+    "--stream"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.las",
+     "filename": "/data/in/usgs-3dep/site.laz",
+     "override_srs": "EPSG:3857+5703"
+    },
+    {
+     "type": "filters.projpipeline",
+     "coord_op": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=utm +zone=11 +ellps=GRS80",
+     "out_srs": "EPSG:6340+5703"
+    },
+    {
+     "type": "filters.stats",
+     "dimensions": "Z,Intensity,ReturnNumber,NumberOfReturns,Classification",
+     "count": "ReturnNumber,NumberOfReturns,Classification"
+    },
+    {
+     "type": "writers.las",
+     "filename": "/data/jobs/usgs-3dep/.ingest-parts/part-0000.laz",
+     "compression": true,
+     "forward": "major_version,minor_version,dataformat_id",
+     "extra_dims": "all",
+     "scale_x": 0.001,
+     "scale_y": 0.001,
+     "scale_z": 0.001,
+     "offset_x": "auto",
+     "offset_y": "auto",
+     "offset_z": "auto",
+     "a_srs": "EPSG:6340+5703"
+    }
+   ],
+   "started_at": "2026-11-15T04:15:09.995765Z",
+   "seconds": 2.293,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "untwine",
+   "argv": [
+    "untwine",
+    "-i",
+    "/data/jobs/usgs-3dep/.ingest-parts",
+    "-o",
+    "/data/jobs/usgs-3dep/points.copc.laz",
+    "--temp_dir",
+    "/data/jobs/usgs-3dep/.untwine-tmp"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:12.291056Z",
+   "seconds": 3.262,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "info",
+    "--summary",
+    "/data/jobs/usgs-3dep/points.copc.laz"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:15.555638Z",
+   "seconds": 0.409,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-o",
+    "PROJJSON",
+    "-q",
+    "EPSG:6340+5703"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:15.967588Z",
+   "seconds": 0.056,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-o",
+    "PROJ",
+    "-q",
+    "{\"type\": \"ProjectedCRS\", \"name\": \"NAD83(2011) / UTM zone 11N\", \"base_crs\": {\"type\": \"GeographicCRS\", \"name\": \"NAD83(2011)\", \"datum\": {\"type\": \"GeodeticReferenceFrame\", \"name\": \"NAD83 (National Spatial Reference System 2011)\", \"anchor_epoch\": 2010, \"ellipsoid\": {\"name\": \"GRS 1980\", \"semi_major_axis\": 6378137, \"inverse_flattening\": 298.257222101}}, \"coordinate_system\": {\"subtype\": \"ellipsoidal\", \"axis\": [{\"name\": \"Geodetic latitude\", \"abbreviation\": \"Lat\", \"direction\": \"north\", \"unit\": \"degree\"}, {\"name\": \"Geodetic longitude\", \"abbreviation\": \"Lon\", \"direction\": \"east\", \"unit\": \"degree\"}]}, \"id\": {\"authority\": \"EPSG\", \"code\": 6318}, \"remarks\": \"Note: this CRS includes longitudes which are POSITIVE EAST. Replaces NAD83(CORS96) and NAD83(NSRS2007) (CRS codes 6783 and 4759).\"}, \"conversion\": {\"name\": \"UTM zone 11N\", \"method\": {\"name\": \"Transverse Mercator\", \"id\": {\"authority\": \"EPSG\", \"code\": 9807}}, \"parameters\": [{\"name\": \"Latitude of natural origin\", \"value\": 0, \"unit\": \"degree\", \"id\": {\"authority\": \"EPSG\", \"code\": 8801}}, {\"name\": \"Longitude of natural origin\", \"value\": -117, \"unit\": \"degree\", \"id\": {\"authority\": \"EPSG\", \"code\": 8802}}, {\"name\": \"Scale factor at natural origin\", \"value\": 0.9996, \"unit\": \"unity\", \"id\": {\"authority\": \"EPSG\", \"code\": 8805}}, {\"name\": \"False easting\", \"value\": 500000, \"unit\": \"metre\", \"id\": {\"authority\": \"EPSG\", \"code\": 8806}}, {\"name\": \"False northing\", \"value\": 0, \"unit\": \"metre\", \"id\": {\"authority\": \"EPSG\", \"code\": 8807}}]}, \"coordinate_system\": {\"subtype\": \"Cartesian\", \"axis\": [{\"name\": \"Easting\", \"abbreviation\": \"E\", \"direction\": \"east\", \"unit\": \"metre\"}, {\"name\": \"Northing\", \"abbreviation\": \"N\", \"direction\": \"north\", \"unit\": \"metre\"}]}, \"id\": {\"authority\": \"EPSG\", \"code\": 6340}}"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.027234Z",
+   "seconds": 0.2,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "proj",
+   "argv": [
+    "proj",
+    "-I",
+    "-f",
+    "%.10f",
+    "+proj=utm",
+    "+zone=11",
+    "+ellps=GRS80",
+    "+towgs84=0,0,0,0,0,0,0",
+    "+units=m",
+    "+no_defs"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.228702Z",
+   "seconds": 0.02,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "proj",
+   "argv": [
+    "proj",
+    "-V",
+    "+proj=utm",
+    "+zone=11",
+    "+ellps=GRS80",
+    "+towgs84=0,0,0,0,0,0,0",
+    "+units=m",
+    "+no_defs"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.251360Z",
+   "seconds": 0.016,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "--3d",
+    "-o",
+    "WKT2_2019",
+    "--single-line",
+    "-q",
+    "EPSG:6318"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.269854Z",
+   "seconds": 0.043,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-o",
+    "PROJJSON",
+    "-q",
+    "GEOGCRS[\"NAD83(2011)\",DATUM[\"NAD83 (National Spatial Reference System 2011)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]],ANCHOREPOCH[2010]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,3],AXIS[\"geodetic latitude (Lat)\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"geodetic longitude (Lon)\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"ellipsoidal height (h)\",up,ORDER[3],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Geodesy.\"],AREA[\"Puerto Rico - onshore and offshore. United States (USA) - Alaska and conterminous (contiguous) lower 48 states (CONUS) - onshore and offshore.\"],BBOX[14.92,167.65,74.71,-63.88]],ID[\"EPSG\",6319],REMARK[\"Note: this CRS includes longitudes which are POSITIVE EAST. Replaces NAD83(CORS96) and NAD83(NSRS2007) (CRS codes 6782 and 4893).\"]]"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.315483Z",
+   "seconds": 0.04,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "projinfo",
+   "argv": [
+    "projinfo",
+    "-s",
+    "EPSG:6340+5703",
+    "-t",
+    "GEOGCRS[\"NAD83(2011)\",DATUM[\"NAD83 (National Spatial Reference System 2011)\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]],ANCHOREPOCH[2010]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],CS[ellipsoidal,3],AXIS[\"geodetic latitude (Lat)\",north,ORDER[1],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"geodetic longitude (Lon)\",east,ORDER[2],ANGLEUNIT[\"degree\",0.0174532925199433]],AXIS[\"ellipsoidal height (h)\",up,ORDER[3],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Geodesy.\"],AREA[\"Puerto Rico - onshore and offshore. United States (USA) - Alaska and conterminous (contiguous) lower 48 states (CONUS) - onshore and offshore.\"],BBOX[14.92,167.65,74.71,-63.88]],ID[\"EPSG\",6319],REMARK[\"Note: this CRS includes longitudes which are POSITIVE EAST. Replaces NAD83(CORS96) and NAD83(NSRS2007) (CRS codes 6782 and 4893).\"]]",
+    "--spatial-test",
+    "intersects",
+    "--hide-ballpark",
+    "-o",
+    "PROJ",
+    "--bbox",
+    "-117.991766,34.085561,-117.988472,34.088288"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.358161Z",
+   "seconds": 0.077,
+   "returncode": 0
+  },
+  {
+   "step": "ingest",
+   "tool": "cct",
+   "argv": [
+    "cct",
+    "-d",
+    "4",
+    "+proj=pipeline",
+    "+step",
+    "+inv",
+    "+proj=utm",
+    "+zone=11",
+    "+ellps=GRS80",
+    "+step",
+    "+proj=vgridshift",
+    "+grids=us_noaa_g2018u0.tif",
+    "+multiplier=1",
+    "+step",
+    "+proj=unitconvert",
+    "+xy_in=rad",
+    "+xy_out=deg",
+    "+step",
+    "+proj=axisswap",
+    "+order=2,1",
+    "+step",
+    "+proj=axisswap",
+    "+order=2,1"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:16.436318Z",
+   "seconds": 0.013,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-5ds_jp_r/metadata.json",
+    "--stream"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/points.copc.laz"
+    },
+    {
+     "type": "filters.stats",
+     "dimensions": "Z,ReturnNumber,NumberOfReturns,Classification",
+     "count": "ReturnNumber,NumberOfReturns,Classification"
+    },
+    {
+     "type": "filters.hexbin",
+     "edge_size": 2.15,
+     "threshold": 15
+    },
+    {
+     "type": "writers.gdal",
+     "filename": "/data/jobs/usgs-3dep/density_count.tif",
+     "output_type": "count",
+     "binmode": true,
+     "data_type": "float32",
+     "nodata": -9999,
+     "gdalopts": "COMPRESS=DEFLATE,PREDICTOR=3,TILED=YES",
+     "resolution": 1,
+     "origin_x": 408505,
+     "origin_y": 3772086,
+     "width": 302,
+     "height": 301
+    }
+   ],
+   "started_at": "2026-11-15T04:15:16.467815Z",
+   "seconds": 0.91,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "ogr2ogr",
+   "argv": [
+    "ogr2ogr",
+    "-f",
+    "GeoJSON",
+    "/data/jobs/usgs-3dep/boundary.geojson",
+    "/tmp/argus-survey-wkt-38j5od9r/geoms.csv",
+    "-oo",
+    "GEOM_POSSIBLE_NAMES=WKT",
+    "-oo",
+    "KEEP_GEOM_COLUMNS=NO",
+    "-a_srs",
+    "EPSG:6340"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:17.380551Z",
+   "seconds": 0.081,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdal_rasterize",
+   "argv": [
+    "gdal_rasterize",
+    "-q",
+    "-burn",
+    "1",
+    "-init",
+    "0",
+    "-ot",
+    "Byte",
+    "-te",
+    "408505.0",
+    "3772086.0",
+    "408807.0",
+    "3772387.0",
+    "-tr",
+    "1.0",
+    "1.0",
+    "-co",
+    "COMPRESS=DEFLATE",
+    "/data/jobs/usgs-3dep/boundary.geojson",
+    "/data/jobs/usgs-3dep/coverage.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:17.463218Z",
+   "seconds": 0.089,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "edit",
+    "--crs",
+    "EPSG:6340+5703",
+    "/data/jobs/usgs-3dep/coverage.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:17.554017Z",
+   "seconds": 0.145,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "calc",
+    "--overwrite",
+    "--ot",
+    "Float32",
+    "--calc",
+    "B == 1 ? A / 1.0 : -9999.0",
+    "-o",
+    "/data/jobs/usgs-3dep/density.tif",
+    "-i",
+    "A=/data/jobs/usgs-3dep/density_count.tif",
+    "-i",
+    "B=/data/jobs/usgs-3dep/coverage.tif",
+    "--nodata",
+    "-9999.0",
+    "--co",
+    "COMPRESS=DEFLATE",
+    "--co",
+    "TILED=YES"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:17.701225Z",
+   "seconds": 0.283,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "/data/jobs/usgs-3dep/density.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:17.986226Z",
+   "seconds": 0.243,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-of",
+    "ENVI",
+    "-ot",
+    "Float32",
+    "-b",
+    "1",
+    "-co",
+    "INTERLEAVE=BSQ",
+    "/data/jobs/usgs-3dep/density.tif",
+    "/tmp/argus-survey-raw-d8plz8s9/band.bin"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:18.231092Z",
+   "seconds": 0.104,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "calc",
+    "--overwrite",
+    "--ot",
+    "Byte",
+    "--calc",
+    "isnodata(A) ? 0 : (A < 1.25 ? 1 : 0)",
+    "-o",
+    "/data/jobs/usgs-3dep/gaps_mask.tif",
+    "-i",
+    "A=/data/jobs/usgs-3dep/density.tif",
+    "--nodata",
+    "0",
+    "--co",
+    "COMPRESS=DEFLATE",
+    "--co",
+    "TILED=YES"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:18.358545Z",
+   "seconds": 0.142,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "polygonize",
+    "-i",
+    "/data/jobs/usgs-3dep/gaps_mask.tif",
+    "-o",
+    "/data/jobs/usgs-3dep/gaps.geojson",
+    "--of",
+    "GeoJSON",
+    "--attribute-name",
+    "gap",
+    "--overwrite"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:18.502223Z",
+   "seconds": 0.165,
+   "returncode": 0
+  },
+  {
+   "step": "qa",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-ytgt8xgp/metadata.json"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/points.copc.laz",
+     "bounds": "([408500.62559999997, 408811.7006], [3772081.669, 3772391.144])"
+    },
+    {
+     "type": "filters.outlier",
+     "method": "statistical",
+     "mean_k": 8,
+     "multiplier": 3
+    },
+    {
+     "type": "filters.expression",
+     "expression": "X >= 408505.62559999997 && X < 408806.7006 && Y >= 3772086.669 && Y < 3772386.144"
+    },
+    {
+     "type": "filters.stats",
+     "dimensions": "Classification",
+     "count": "Classification"
+    }
+   ],
+   "started_at": "2026-11-15T04:15:18.670026Z",
+   "seconds": 6.884,
+   "returncode": 0
+  },
+  {
+   "step": "ground",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-mvo26oxi/metadata.json"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/points.copc.laz",
+     "bounds": "([408478.62559999997, 408833.7006], [3772059.669, 3772413.144])"
+    },
+    {
+     "type": "filters.assign",
+     "value": [
+      "Classification = 1"
+     ]
+    },
+    {
+     "type": "filters.outlier",
+     "method": "statistical",
+     "mean_k": 8,
+     "multiplier": 3
+    },
+    {
+     "type": "filters.smrf",
+     "ignore": "Classification[7:7]",
+     "returns": "last,only",
+     "slope": 0.15,
+     "window": 18,
+     "threshold": 0.5,
+     "scalar": 1.25,
+     "cell": 1
+    },
+    {
+     "type": "filters.expression",
+     "expression": "X >= 408505.62559999997 && X < 408806.7006 && Y >= 3772086.669 && Y < 3772386.144"
+    },
+    {
+     "type": "writers.las",
+     "filename": "/data/jobs/usgs-3dep/.ground-parts/tile-000-000.laz",
+     "compression": true,
+     "forward": "all",
+     "extra_dims": "all"
+    }
+   ],
+   "started_at": "2026-11-15T04:15:25.588554Z",
+   "seconds": 9.186,
+   "returncode": 0
+  },
+  {
+   "step": "ground",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "info",
+    "--summary",
+    "/data/jobs/usgs-3dep/.ground-parts/tile-000-000.laz"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:34.778444Z",
+   "seconds": 0.395,
+   "returncode": 0
+  },
+  {
+   "step": "ground",
+   "tool": "untwine",
+   "argv": [
+    "untwine",
+    "-i",
+    "/data/jobs/usgs-3dep/.ground-parts",
+    "-o",
+    "/data/jobs/usgs-3dep/ground.copc.laz",
+    "--temp_dir",
+    "/data/jobs/usgs-3dep/.ground-untwine"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:35.176151Z",
+   "seconds": 3.281,
+   "returncode": 0
+  },
+  {
+   "step": "ground",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-3cizxnvf/metadata.json",
+    "--stream"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/ground.copc.laz"
+    },
+    {
+     "type": "filters.stats",
+     "dimensions": "Classification",
+     "count": "Classification"
+    }
+   ],
+   "started_at": "2026-11-15T04:15:38.460630Z",
+   "seconds": 0.581,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdal_rasterize",
+   "argv": [
+    "gdal_rasterize",
+    "-q",
+    "-burn",
+    "1",
+    "-init",
+    "0",
+    "-ot",
+    "Byte",
+    "-te",
+    "408505.5",
+    "3772086.5",
+    "408807.0",
+    "3772386.5",
+    "-tr",
+    "0.5",
+    "0.5",
+    "-co",
+    "COMPRESS=DEFLATE",
+    "/data/jobs/usgs-3dep/boundary.geojson",
+    "/data/jobs/usgs-3dep/coverage_0p5.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:39.057565Z",
+   "seconds": 0.083,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "edit",
+    "--crs",
+    "EPSG:6340+5703",
+    "/data/jobs/usgs-3dep/coverage_0p5.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:39.141541Z",
+   "seconds": 0.115,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-glv2buaw/metadata.json",
+    "--stream"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/ground.copc.laz"
+    },
+    {
+     "type": "filters.range",
+     "limits": "Classification[2:2]"
+    },
+    {
+     "type": "writers.gdal",
+     "filename": "/data/jobs/usgs-3dep/dtm.tif",
+     "output_type": "idw",
+     "dimension": "Z",
+     "data_type": "float32",
+     "nodata": -9999,
+     "gdalopts": "COMPRESS=DEFLATE,PREDICTOR=3,TILED=YES",
+     "resolution": 0.5,
+     "origin_x": 408505.5,
+     "origin_y": 3772086.5,
+     "width": 603,
+     "height": 600,
+     "radius": 0.707107,
+     "window_size": 0
+    }
+   ],
+   "started_at": "2026-11-15T04:15:39.258590Z",
+   "seconds": 0.936,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-4q72o7lz/metadata.json",
+    "--stream"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/ground.copc.laz"
+    },
+    {
+     "type": "filters.range",
+     "limits": "Classification![7:7]"
+    },
+    {
+     "type": "filters.range",
+     "limits": "ReturnNumber[1:1]"
+    },
+    {
+     "type": "writers.gdal",
+     "filename": "/data/jobs/usgs-3dep/dsm.tif",
+     "output_type": "idw",
+     "dimension": "Z",
+     "data_type": "float32",
+     "nodata": -9999,
+     "gdalopts": "COMPRESS=DEFLATE,PREDICTOR=3,TILED=YES",
+     "resolution": 0.5,
+     "origin_x": 408505.5,
+     "origin_y": 3772086.5,
+     "width": 603,
+     "height": 600,
+     "radius": 0.707107,
+     "window_size": 0
+    }
+   ],
+   "started_at": "2026-11-15T04:15:40.197759Z",
+   "seconds": 1.372,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-vknxn7nf/metadata.json"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.copc",
+     "filename": "/data/jobs/usgs-3dep/ground.copc.laz",
+     "bounds": "([408485.62559999997, 408826.7006], [3772066.669, 3772406.144])"
+    },
+    {
+     "type": "filters.hag_nn"
+    },
+    {
+     "type": "filters.expression",
+     "expression": "X >= 408505.62559999997 && X < 408806.7006 && Y >= 3772086.669 && Y < 3772386.144"
+    },
+    {
+     "type": "writers.las",
+     "filename": "/data/jobs/usgs-3dep/.chm-parts/tile-000-000.laz",
+     "compression": true,
+     "forward": "all",
+     "extra_dims": "all"
+    }
+   ],
+   "started_at": "2026-11-15T04:15:41.575565Z",
+   "seconds": 1.9,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "info",
+    "--summary",
+    "/data/jobs/usgs-3dep/.chm-parts/tile-000-000.laz"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:43.479343Z",
+   "seconds": 0.242,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "pdal",
+   "argv": [
+    "pdal",
+    "pipeline",
+    "--stdin",
+    "--metadata",
+    "/tmp/argus-survey-h6ujkll6/metadata.json",
+    "--stream"
+   ],
+   "pipeline": [
+    {
+     "type": "readers.las",
+     "filename": "/data/jobs/usgs-3dep/.chm-parts/tile-000-000.laz"
+    },
+    {
+     "type": "filters.range",
+     "limits": "Classification![7:7]"
+    },
+    {
+     "type": "writers.gdal",
+     "filename": "/data/jobs/usgs-3dep/chm.tif",
+     "output_type": "max",
+     "dimension": "HeightAboveGround",
+     "data_type": "float32",
+     "nodata": -9999,
+     "gdalopts": "COMPRESS=DEFLATE,PREDICTOR=3,TILED=YES",
+     "resolution": 0.5,
+     "origin_x": 408505.5,
+     "origin_y": 3772086.5,
+     "width": 603,
+     "height": 600,
+     "binmode": true
+    }
+   ],
+   "started_at": "2026-11-15T04:15:43.723949Z",
+   "seconds": 0.939,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "edit",
+    "--crs",
+    "EPSG:6340+5703",
+    "/data/jobs/usgs-3dep/chm.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:44.665879Z",
+   "seconds": 0.116,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "calc",
+    "--overwrite",
+    "--ot",
+    "Byte",
+    "--calc",
+    "B == 1 ? (isnodata(A) ? 1 : 0) : 255",
+    "-o",
+    "/data/jobs/usgs-3dep/dtm_voids.tif",
+    "-i",
+    "A=/data/jobs/usgs-3dep/dtm.tif",
+    "-i",
+    "B=/data/jobs/usgs-3dep/coverage_0p5.tif",
+    "--nodata",
+    "255",
+    "--co",
+    "COMPRESS=DEFLATE",
+    "--co",
+    "TILED=YES"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:44.784320Z",
+   "seconds": 0.211,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "-stats",
+    "/data/jobs/usgs-3dep/dtm_voids.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:44.997436Z",
+   "seconds": 0.18,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "-stats",
+    "/data/jobs/usgs-3dep/dtm.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:45.179359Z",
+   "seconds": 0.194,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "calc",
+    "--overwrite",
+    "--ot",
+    "Byte",
+    "--calc",
+    "B == 1 ? (isnodata(A) ? 1 : 0) : 255",
+    "-o",
+    "/data/jobs/usgs-3dep/dsm_voids.tif",
+    "-i",
+    "A=/data/jobs/usgs-3dep/dsm.tif",
+    "-i",
+    "B=/data/jobs/usgs-3dep/coverage_0p5.tif",
+    "--nodata",
+    "255",
+    "--co",
+    "COMPRESS=DEFLATE",
+    "--co",
+    "TILED=YES"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:45.381348Z",
+   "seconds": 0.173,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "-stats",
+    "/data/jobs/usgs-3dep/dsm_voids.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:45.555408Z",
+   "seconds": 0.223,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "-stats",
+    "/data/jobs/usgs-3dep/dsm.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:45.779877Z",
+   "seconds": 0.26,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "calc",
+    "--overwrite",
+    "--ot",
+    "Byte",
+    "--calc",
+    "B == 1 ? (isnodata(A) ? 1 : 0) : 255",
+    "-o",
+    "/data/jobs/usgs-3dep/chm_voids.tif",
+    "-i",
+    "A=/data/jobs/usgs-3dep/chm.tif",
+    "-i",
+    "B=/data/jobs/usgs-3dep/coverage_0p5.tif",
+    "--nodata",
+    "255",
+    "--co",
+    "COMPRESS=DEFLATE",
+    "--co",
+    "TILED=YES"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:46.049470Z",
+   "seconds": 0.255,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "-stats",
+    "/data/jobs/usgs-3dep/chm_voids.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:46.306707Z",
+   "seconds": 0.24,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "-stats",
+    "/data/jobs/usgs-3dep/chm.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:46.548166Z",
+   "seconds": 0.267,
+   "returncode": 0
+  },
+  {
+   "step": "surfaces",
+   "tool": "gdaldem",
+   "argv": [
+    "gdaldem",
+    "hillshade",
+    "-compute_edges",
+    "-multidirectional",
+    "-co",
+    "COMPRESS=DEFLATE",
+    "/data/jobs/usgs-3dep/dtm.tif",
+    "/data/jobs/usgs-3dep/hillshade.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:46.827243Z",
+   "seconds": 0.165,
+   "returncode": 0
+  },
+  {
+   "step": "contours",
+   "tool": "gdal_contour",
+   "argv": [
+    "gdal_contour",
+    "-q",
+    "-a",
+    "ELEV",
+    "-i",
+    "2.0",
+    "-nln",
+    "contours",
+    "-f",
+    "GPKG",
+    "/data/jobs/usgs-3dep/dtm.tif",
+    "/data/jobs/usgs-3dep/.contours_raw.gpkg"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:47.006828Z",
+   "seconds": 0.206,
+   "returncode": 0
+  },
+  {
+   "step": "contours",
+   "tool": "ogr2ogr",
+   "argv": [
+    "ogr2ogr",
+    "-f",
+    "GPKG",
+    "/data/jobs/usgs-3dep/contours.gpkg",
+    "/data/jobs/usgs-3dep/.contours_raw.gpkg",
+    "-dialect",
+    "SQLite",
+    "-sql",
+    "SELECT *, CASE WHEN ABS(ELEV / 10.0 - ROUND(ELEV / 10.0)) < 1e-6 THEN 1 ELSE 0 END AS idx FROM contours",
+    "-nln",
+    "contours"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:47.215225Z",
+   "seconds": 0.154,
+   "returncode": 0
+  },
+  {
+   "step": "contours",
+   "tool": "ogr2ogr",
+   "argv": [
+    "ogr2ogr",
+    "-f",
+    "GeoJSON",
+    "/data/jobs/usgs-3dep/contours.geojson",
+    "/data/jobs/usgs-3dep/contours.gpkg",
+    "contours"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:47.373670Z",
+   "seconds": 0.334,
+   "returncode": 0
+  },
+  {
+   "step": "contours",
+   "tool": "ogrinfo",
+   "argv": [
+    "ogrinfo",
+    "-json",
+    "-features",
+    "-ro",
+    "/data/jobs/usgs-3dep/contours.gpkg",
+    "-sql",
+    "SELECT COUNT(*) AS n, MIN(ELEV) AS lo, MAX(ELEV) AS hi FROM contours"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:47.709588Z",
+   "seconds": 0.059,
+   "returncode": 0
+  },
+  {
+   "step": "report",
+   "tool": "gdaldem",
+   "argv": [
+    "gdaldem",
+    "color-relief",
+    "-q",
+    "-alpha",
+    "/data/jobs/usgs-3dep/density.tif",
+    "/tmp/argus-survey-thumb-oh0k454p/ramp.txt",
+    "/tmp/argus-survey-thumb-oh0k454p/c.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:47.788398Z",
+   "seconds": 0.132,
+   "returncode": 0
+  },
+  {
+   "step": "report",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-of",
+    "PNG",
+    "-outsize",
+    "760",
+    "0",
+    "/tmp/argus-survey-thumb-oh0k454p/c.tif",
+    "/tmp/argus-survey-thumb-oh0k454p/t.png"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:47.923087Z",
+   "seconds": 0.154,
+   "returncode": 0
+  },
+  {
+   "step": "report",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-of",
+    "PNG",
+    "-outsize",
+    "760",
+    "0",
+    "/data/jobs/usgs-3dep/hillshade.tif",
+    "/tmp/argus-survey-thumb-55i9u2n2/t.png"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.081276Z",
+   "seconds": 0.175,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "ogrinfo",
+   "argv": [
+    "ogrinfo",
+    "-json",
+    "-so",
+    "-al",
+    "/data/in/usgs-3dep/pile.geojson"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.273456Z",
+   "seconds": 0.057,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "ogr2ogr",
+   "argv": [
+    "ogr2ogr",
+    "-f",
+    "CSV",
+    "/vsistdout/",
+    "/data/in/usgs-3dep/pile.geojson",
+    "-t_srs",
+    "EPSG:6340+5703",
+    "-lco",
+    "GEOMETRY=AS_WKT"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.332205Z",
+   "seconds": 0.087,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-srcwin",
+    "428",
+    "179",
+    "63",
+    "46",
+    "-co",
+    "COMPRESS=DEFLATE",
+    "-co",
+    "TILED=YES",
+    "/data/jobs/usgs-3dep/dsm.tif",
+    "/data/jobs/usgs-3dep/.volume-work/upper_0.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.421733Z",
+   "seconds": 0.097,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "/data/jobs/usgs-3dep/.volume-work/upper_0.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.520902Z",
+   "seconds": 0.227,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "pixel-info",
+    "-i",
+    "/data/jobs/usgs-3dep/.volume-work/upper_0.tif",
+    "--position-dataset",
+    "/tmp/argus-survey-sample-06do84h1/points.geojson",
+    "--position-crs",
+    "EPSG:6340+5703",
+    "-r",
+    "bilinear",
+    "-f",
+    "GeoJSON",
+    "-o",
+    "/tmp/argus-survey-sample-06do84h1/sampled.geojson"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.753107Z",
+   "seconds": 0.225,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-of",
+    "GTiff",
+    "-a_srs",
+    "EPSG:6340+5703",
+    "-a_nodata",
+    "-9999.0",
+    "-co",
+    "COMPRESS=DEFLATE",
+    "/tmp/argus-survey-write-az02ks9o/r.bin",
+    "/data/jobs/usgs-3dep/.volume-work/lower_0.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:48.983897Z",
+   "seconds": 0.097,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "edit",
+    "--crs",
+    "EPSG:6340+5703",
+    "/data/jobs/usgs-3dep/.volume-work/lower_0.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.083906Z",
+   "seconds": 0.098,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "ogr2ogr",
+   "argv": [
+    "ogr2ogr",
+    "-f",
+    "GPKG",
+    "/data/jobs/usgs-3dep/.volume-work/zone_0.gpkg",
+    "/tmp/argus-survey-zones-7822dl_o/zones.csv",
+    "-oo",
+    "GEOM_POSSIBLE_NAMES=WKT",
+    "-oo",
+    "KEEP_GEOM_COLUMNS=NO",
+    "-a_srs",
+    "EPSG:6340+5703",
+    "-nln",
+    "zones"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.184196Z",
+   "seconds": 0.067,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "calc",
+    "--overwrite",
+    "--ot",
+    "Float64",
+    "--nodata",
+    "nan",
+    "-o",
+    "/data/jobs/usgs-3dep/.volume-work/difference_bands.tif",
+    "-i",
+    "U=/data/jobs/usgs-3dep/.volume-work/upper_0.tif",
+    "-i",
+    "L=/data/jobs/usgs-3dep/.volume-work/lower_0.tif",
+    "--calc",
+    "isnodata(U) || isnodata(L) ? 0 : ((U - L) > 0 ? (U - L) : 0)",
+    "--calc",
+    "isnodata(U) || isnodata(L) ? 0 : ((U - L) < 0 ? -(U - L) : 0)",
+    "--calc",
+    "isnodata(U) || isnodata(L) ? 0 : ((U - L) > 0 ? 1 : 0)",
+    "--calc",
+    "isnodata(U) || isnodata(L) ? 0 : ((U - L) < 0 ? 1 : 0)",
+    "--calc",
+    "isnodata(U) || isnodata(L) ? 1 : 0",
+    "--calc",
+    "isnodata(U) ? 1 : 1"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.253206Z",
+   "seconds": 0.131,
+   "returncode": 0
+  },
+  {
+   "step": "volume",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "zonal-stats",
+    "-i",
+    "/data/jobs/usgs-3dep/.volume-work/difference_bands.tif",
+    "--zones",
+    "/data/jobs/usgs-3dep/.volume-work/zone_0.gpkg",
+    "--stat",
+    "sum",
+    "--pixels",
+    "fractional",
+    "--include-field",
+    "name",
+    "-f",
+    "CSV",
+    "-o",
+    "/vsistdout/"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.385430Z",
+   "seconds": 0.078,
+   "returncode": 0
+  },
+  {
+   "step": "profile",
+   "tool": "ogr2ogr",
+   "argv": [
+    "ogr2ogr",
+    "-f",
+    "CSV",
+    "/vsistdout/",
+    "/data/jobs/usgs-3dep/.drawn-line-3bf2450b90b19215.geojson",
+    "-s_srs",
+    "EPSG:4326",
+    "-t_srs",
+    "EPSG:6340+5703",
+    "-lco",
+    "GEOMETRY=AS_WKT"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.474068Z",
+   "seconds": 0.066,
+   "returncode": 0
+  },
+  {
+   "step": "profile",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "/data/jobs/usgs-3dep/dtm.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.543010Z",
+   "seconds": 0.171,
+   "returncode": 0
+  },
+  {
+   "step": "profile",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "pixel-info",
+    "-i",
+    "/data/jobs/usgs-3dep/dtm.tif",
+    "--position-dataset",
+    "/tmp/argus-survey-sample-g8pwjglc/points.geojson",
+    "--position-crs",
+    "EPSG:6340",
+    "-r",
+    "bilinear",
+    "-f",
+    "GeoJSON",
+    "-o",
+    "/tmp/argus-survey-sample-g8pwjglc/sampled.geojson"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:49.718989Z",
+   "seconds": 0.319,
+   "returncode": 0
+  },
+  {
+   "step": "profile",
+   "tool": "gdalinfo",
+   "argv": [
+    "gdalinfo",
+    "-json",
+    "/data/jobs/usgs-3dep/dsm.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:50.048746Z",
+   "seconds": 0.218,
+   "returncode": 0
+  },
+  {
+   "step": "profile",
+   "tool": "gdal",
+   "argv": [
+    "gdal",
+    "raster",
+    "pixel-info",
+    "-i",
+    "/data/jobs/usgs-3dep/dsm.tif",
+    "--position-dataset",
+    "/tmp/argus-survey-sample-ye_0fl7y/points.geojson",
+    "--position-crs",
+    "EPSG:6340",
+    "-r",
+    "bilinear",
+    "-f",
+    "GeoJSON",
+    "-o",
+    "/tmp/argus-survey-sample-ye_0fl7y/sampled.geojson"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:50.269519Z",
+   "seconds": 0.204,
+   "returncode": 0
+  },
+  {
+   "step": "report",
+   "tool": "gdaldem",
+   "argv": [
+    "gdaldem",
+    "color-relief",
+    "-q",
+    "-alpha",
+    "/data/jobs/usgs-3dep/density.tif",
+    "/tmp/argus-survey-thumb-4djvavyr/ramp.txt",
+    "/tmp/argus-survey-thumb-4djvavyr/c.tif"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:50.490167Z",
+   "seconds": 0.082,
+   "returncode": 0
+  },
+  {
+   "step": "report",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-of",
+    "PNG",
+    "-outsize",
+    "760",
+    "0",
+    "/tmp/argus-survey-thumb-4djvavyr/c.tif",
+    "/tmp/argus-survey-thumb-4djvavyr/t.png"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:50.574984Z",
+   "seconds": 0.169,
+   "returncode": 0
+  },
+  {
+   "step": "report",
+   "tool": "gdal_translate",
+   "argv": [
+    "gdal_translate",
+    "-q",
+    "-of",
+    "PNG",
+    "-outsize",
+    "760",
+    "0",
+    "/data/jobs/usgs-3dep/hillshade.tif",
+    "/tmp/argus-survey-thumb-ujikgg35/t.png"
+   ],
+   "pipeline": null,
+   "started_at": "2026-11-15T04:15:50.748640Z",
+   "seconds": 0.21,
+   "returncode": 0
+  }
+ ],
+ "products": {
+  "copc": {
+   "path": "points.copc.laz",
+   "sha256": "fe603fa6cbd493bf35515c068d16b3afc7f72cd4be7565c1881e0714bc105ab5",
+   "size": 1660470,
+   "kind": "copc",
+   "step": "ingest",
+   "description": "Point cloud (COPC) in the job CRS",
+   "meta": {
+    "count": 450545,
+    "bounds": {
+     "minx": 408505.6356,
+     "miny": 3772086.679,
+     "minz": -165.82,
+     "maxx": 408806.6906,
+     "maxy": 3772386.134,
+     "maxz": 326.82
+    },
+    "source_type": "lidar",
+    "source_type_reason": "multiple returns per pulse (max NumberOfReturns 3)"
+   }
+  },
+  "qa": {
+   "path": "qa.json",
+   "sha256": "3e5ce6ef5217dc3e2735171b447983919aa0d2b1a8238b82c622565cd0b27484",
+   "size": 1664,
+   "kind": "qa",
+   "step": "qa",
+   "description": "QA figures (JSON)",
+   "meta": {}
+  },
+  "density": {
+   "path": "density.tif",
+   "sha256": "58784286ccfeca9cc8eac5ffd9ca8babc31e5e079f6786f4ac71650bf6d19d79",
+   "size": 52972,
+   "kind": "density",
+   "step": "qa",
+   "description": "Point density (pts/m²)",
+   "meta": {
+    "res": 1,
+    "grid": {
+     "origin_x": 408505,
+     "origin_y": 3772086,
+     "res": 1,
+     "width": 302,
+     "height": 301
+    }
+   }
+  },
+  "boundary": {
+   "path": "boundary.geojson",
+   "sha256": "1b69548c93b8462aa139c07c0787bcbe0ccec3635aea5c99d21a4c07b6c89a7b",
+   "size": 3569,
+   "kind": "boundary",
+   "step": "qa",
+   "description": "Coverage boundary (hexbin)",
+   "meta": {}
+  },
+  "coverage": {
+   "path": "coverage.tif",
+   "sha256": "5de94afd6ec471ca14c7059f8766258e51504ac7e2c0252dd7ee875f5373abd2",
+   "size": 2182,
+   "kind": "coverage",
+   "step": "qa",
+   "description": "Coverage mask on the density grid",
+   "meta": {}
+  },
+  "gaps": {
+   "path": "gaps.geojson",
+   "sha256": "256a56cd96d3d344beb1e38e3391bdafd8af69a44434478364066d44263d65a3",
+   "size": 584462,
+   "kind": "gaps",
+   "step": "qa",
+   "description": "Cells below 1.25 pts/m²",
+   "meta": {}
+  },
+  "classified": {
+   "path": "ground.copc.laz",
+   "sha256": "3bb939400ab09ffd18677fb246b5c321b92fb39730c5d12b08199f5a5f7adc0c",
+   "size": 1650684,
+   "kind": "classified",
+   "step": "ground",
+   "description": "Point cloud classified by SMRF (COPC)",
+   "meta": {}
+  },
+  "dtm": {
+   "path": "dtm.tif",
+   "sha256": "0bd39a53e7a7fa4a7ffea49fabc70bdb9be635c42ea03317d78c6a855032c585",
+   "size": 1268495,
+   "kind": "dtm",
+   "step": "surfaces",
+   "description": "DTM at 0.5 m",
+   "meta": {
+    "res": 0.5,
+    "grid": {
+     "origin_x": 408505.5,
+     "origin_y": 3772086.5,
+     "res": 0.5,
+     "width": 603,
+     "height": 600
+    },
+    "void_percent": 3.194
+   }
+  },
+  "dtm_voids": {
+   "path": "dtm_voids.tif",
+   "sha256": "9ec4141bfcef498e542ba6cf822141be2dee51d4d9c9e5ee573bd8be62cf225a",
+   "size": 9433,
+   "kind": "dtm_voids",
+   "step": "surfaces",
+   "description": "DTM void mask (1 void, 0 data, 255 outside coverage)",
+   "meta": {}
+  },
+  "dsm": {
+   "path": "dsm.tif",
+   "sha256": "c0d9a624ad3b851320c94508d10c4b60507395e4006c72bf48a713c008b61cc0",
+   "size": 1273116,
+   "kind": "dsm",
+   "step": "surfaces",
+   "description": "DSM at 0.5 m",
+   "meta": {
+    "res": 0.5,
+    "grid": {
+     "origin_x": 408505.5,
+     "origin_y": 3772086.5,
+     "res": 0.5,
+     "width": 603,
+     "height": 600
+    },
+    "void_percent": 0.782
+   }
+  },
+  "dsm_voids": {
+   "path": "dsm_voids.tif",
+   "sha256": "199f57d180ea95234797cc0a68c16d191352815d9e393a3e48d03699f4951c88",
+   "size": 4899,
+   "kind": "dsm_voids",
+   "step": "surfaces",
+   "description": "DSM void mask (1 void, 0 data, 255 outside coverage)",
+   "meta": {}
+  },
+  "chm": {
+   "path": "chm.tif",
+   "sha256": "3618d6e5c17d664f43581054924510a321f7ebbc822513fc87f61a3e5f27a4d4",
+   "size": 464556,
+   "kind": "chm",
+   "step": "surfaces",
+   "description": "CHM at 0.5 m",
+   "meta": {
+    "res": 0.5,
+    "grid": {
+     "origin_x": 408505.5,
+     "origin_y": 3772086.5,
+     "res": 0.5,
+     "width": 603,
+     "height": 600
+    },
+    "void_percent": 29.41
+   }
+  },
+  "chm_voids": {
+   "path": "chm_voids.tif",
+   "sha256": "af0ecd4f9f50be3dac64d64c8f65e443ff01e68d26c6bbbfc874636cecbba05c",
+   "size": 47176,
+   "kind": "chm_voids",
+   "step": "surfaces",
+   "description": "CHM void mask (1 void, 0 data, 255 outside coverage)",
+   "meta": {}
+  },
+  "hillshade": {
+   "path": "hillshade.tif",
+   "sha256": "80a9f1fa6b0dfbd447829439d5cefdef2937cebb83e1664b0188af41ce2b4715",
+   "size": 273231,
+   "kind": "hillshade",
+   "step": "surfaces",
+   "description": "Multidirectional hillshade of the DTM",
+   "meta": {}
+  },
+  "contours": {
+   "path": "contours.gpkg",
+   "sha256": "1c2ae2ef0097a575132a98f5f5cb023bce1abd30f47644089eb18cbc25b8e80b",
+   "size": 847872,
+   "kind": "contours",
+   "step": "contours",
+   "description": "Contours every 2.0 m (GPKG)",
+   "meta": {
+    "interval": 2,
+    "index": 5
+   }
+  },
+  "contours_geojson": {
+   "path": "contours.geojson",
+   "sha256": "7b839729b17b8d4de8195f5d20f5061ac15307e2ad80f8e34eb13cf5f90d4f79",
+   "size": 1342146,
+   "kind": "contours_geojson",
+   "step": "contours",
+   "description": "Contours (GeoJSON)",
+   "meta": {}
+  },
+  "report": {
+   "path": "report.html",
+   "sha256": "27bc6965a12ab4770ab7ce1a1ae6d5dda5a3415101896d63086b366d67a2c5e7",
+   "size": 546100,
+   "kind": "report",
+   "step": "report",
+   "description": "Survey report (HTML, printable)",
+   "meta": {}
+  },
+  "volume": {
+   "path": "volume.json",
+   "sha256": "1a0a2bc5a76e205a8e7424a97819ab5fd1cf2a234935f9ad76acb0648bd581fd",
+   "size": 1111,
+   "kind": "volume",
+   "step": "volume",
+   "description": "Stockpile volumes vs plane base",
+   "meta": {}
+  },
+  "profile": {
+   "path": "profile.csv",
+   "sha256": "fa727054e77f5ae5626cd1a93e5fea147c69bd8581a1fa987996c3ec622dc755",
+   "size": 9174,
+   "kind": "profile",
+   "step": "profile",
+   "description": "Profile along drawn line (CSV)",
+   "meta": {}
+  },
+  "profile_svg": {
+   "path": "profile.svg",
+   "sha256": "96a483ddb015ac9b198a5c50914a49f75783abee5ae46a9c8024e02e40617678",
+   "size": 6929,
+   "kind": "profile_svg",
+   "step": "profile",
+   "description": "Profile along drawn line (SVG)",
+   "meta": {}
+  }
+ },
+ "timings": {
+  "ingest": 7.272,
+  "qa": 9.111,
+  "ground": 13.469,
+  "surfaces": 7.946,
+  "contours": 0.779,
+  "report": 0.482,
+  "volume": 1.045,
+  "profile": 0.941
+ },
+ "warnings": [
+  "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+  "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade",
+  "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))",
+  "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
+ ],
+ "steps_done": [
+  "ingest",
+  "qa",
+  "ground",
+  "surfaces",
+  "contours",
+  "report",
+  "volume",
+  "profile"
+ ]
+}

@@ -3,7 +3,7 @@
 /** Small primitives shared by every panel. Tailwind classes resolve the theme tokens in globals.css. */
 
 import { createContext, useContext, useEffect, useId, useSyncExternalStore, type ReactNode } from "react";
-import { applyTheme, nextTheme, readTheme, serverTheme, subscribeTheme, type Theme } from "@/lib/theme";
+import { effectiveScheme, serverScheme, subscribeTheme } from "@/lib/theme";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -382,13 +382,29 @@ export function Logo({ size = 22 }: { size?: number }) {
   );
 }
 
+/**
+ * The family's two-state theme toggle. public/dh-theme.js handles its clicks, stores the choice in the shared
+ * `dh-theme` cookie and keeps `aria-pressed` (pressed = dark) in step, so React only renders the label.
+ */
 export function ThemeToggle() {
-  const theme = useSyncExternalStore<Theme>(subscribeTheme, readTheme, serverTheme);
-  const label = { system: "Auto", light: "Light", dark: "Dark" }[theme];
+  const dark = useSyncExternalStore(subscribeTheme, effectiveScheme, serverScheme) === "dark";
   return (
-    <Button size="sm" variant="ghost" onClick={() => applyTheme(nextTheme(theme))} title="Theme: system → light → dark">
-      <span aria-hidden>{theme === "light" ? "☀" : theme === "dark" ? "☾" : "◐"}</span>
-      <span className="hidden sm:inline">{label}</span>
-    </Button>
+    <button
+      type="button"
+      data-dh-theme-toggle=""
+      aria-label="Dark theme"
+      // Owned by dh-theme.js, which sets it before hydration; React never updates it.
+      aria-pressed="false"
+      suppressHydrationWarning
+      title={dark ? "Dark theme on" : "Dark theme off"}
+      className="inline-flex h-7 items-center gap-1.5 rounded-md border border-transparent px-2.5 text-[12.5px] text-ink-2 hover:bg-raised hover:text-ink"
+    >
+      <span aria-hidden suppressHydrationWarning>
+        {dark ? "☾" : "☀"}
+      </span>
+      <span className="hidden sm:inline" suppressHydrationWarning>
+        {dark ? "Dark" : "Light"}
+      </span>
+    </button>
   );
 }

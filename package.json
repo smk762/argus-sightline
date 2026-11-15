@@ -8,6 +8,7 @@
     "postinstall": "node scripts/copy-wasm.mjs",
     "dev": "next dev",
     "build": "next build",
+    "build:pages": "SIGHTLINE_STATIC=1 next build && SIGHTLINE_STATIC=1 node scripts/csp.mjs out && node scripts/check-static.mjs out",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",

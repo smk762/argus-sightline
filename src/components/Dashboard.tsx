@@ -4,13 +4,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { DoctorReport, HealthInfo, JobDigest } from "@/lib/generated/survey";
+import { REPO_URL, staticDemo, tapeBase } from "@/lib/demo";
 import { findKit, KIT_JOB_1, KIT_TRUTH, type DemoKit } from "@/lib/demoKit";
-import { ago, count, num } from "@/lib/format";
+import { ago, count, m, m3, num } from "@/lib/format";
 import { runtimeConfig } from "@/lib/runtimeConfig";
-import { getDoctor, getHealth, getInputs, isSafeJobId, listJobs, type Inputs } from "@/lib/surveyApi";
+import { getDoctor, getHealth, getInputs, getJob, isSafeJobId, listJobs, type Inputs } from "@/lib/surveyApi";
+import { currentTape } from "@/lib/staticApi";
+import type { JobSidecar } from "@/lib/generated/survey";
 import { STEPS } from "@/lib/workflow";
 import { AppHeader } from "@/components/AppHeader";
-import { announce, Banner, Button, cx, Dot, Pill, Section, Spinner, TextInput } from "@/components/ui";
+import { announce, Banner, Button, cx, Dot, ExternalLink, Pill, Section, Spinner, TextInput } from "@/components/ui";
 
 export function Dashboard() {
   const router = useRouter();
@@ -50,7 +53,7 @@ export function Dashboard() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader health={health} />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6">
+      <main id="main" className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6">
         <section className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
           <div className="flex flex-col justify-center gap-4">
             <Pill tone="data">LiDAR · drone photogrammetry · LAS/LAZ/COPC</Pill>
@@ -62,6 +65,16 @@ export function Dashboard() {
               ASPRS accuracy statement. Every datum is visible, every number carries its uncertainty, and every
               command is in the job&apos;s provenance log.
             </p>
+            {staticDemo() ? (
+              <p className="max-w-xl text-[13px] text-muted">
+                This demo replays one recorded argus-survey job on public LiDAR. To run the steps on your own point
+                clouds, run{" "}
+                <ExternalLink href={REPO_URL} className="text-accent underline-offset-2 hover:underline">
+                  Sightline and argus-survey
+                </ExternalLink>{" "}
+                yourself.
+              </p>
+            ) : (
             <form
               className="flex flex-wrap items-center gap-2"
               onSubmit={(e) => {
@@ -87,18 +100,24 @@ export function Dashboard() {
                 </span>
               )}
             </form>
+            )}
           </div>
-          <DemoCard kit={kit} canWrite={canWrite} jobs={jobs} loaded={inputs !== null} />
+          {staticDemo() ? <RecordedCard /> : <DemoCard kit={kit} canWrite={canWrite} jobs={jobs} loaded={inputs !== null} />}
         </section>
 
-        {error && (
+        {error && staticDemo() && (
+          <Banner tone="bad" title="Cannot read the recording">
+            {error}
+          </Banner>
+        )}
+        {error && !staticDemo() && (
           <Banner tone="bad" title="Cannot reach argus-survey">
             {error}. Start it with <code className="num">make up</code> here, or set{" "}
             <code className="num">ARGUS_SURVEY_URL</code> (now{" "}
             <code className="num">{runtimeConfig().surveyUrl || "same origin"}</code>).
           </Banner>
         )}
-        {health?.read_only && (
+        {health?.read_only && !staticDemo() && (
           <Banner tone="warn" title="Read-only server">
             You can browse jobs, maps, the point cloud and reports. To run steps, start argus-survey with{" "}
             <code className="num">SURVEY_ALLOW_PROCESS=1</code>.
@@ -245,5 +264,72 @@ function JobCard({ job }: { job: JobDigest }) {
         <span>{ago(job.updated_at)}</span>
       </div>
     </Link>
+  );
+}
+
+/** The hosted demo's card: the one recorded job, with its numbers read from its job.json. */
+function RecordedCard() {
+  const [job, setJob] = useState<JobSidecar | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    listJobs()
+      .then((jobs) => (jobs[0] ? getJob(jobs[0].job_id) : null))
+      .then((j) => live && setJob(j))
+      .catch((e: Error) => live && setError(e.message));
+    return () => {
+      live = false;
+    };
+  }, []);
+  const zone = job?.volumes?.filter((v) => v.kind === "stockpile").at(-1)?.zones[0];
+  const profile = job?.profiles?.at(-1);
+  const tape = currentTape();
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-line bg-panel p-5 shadow-panel">
+      <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-accent-soft blur-2xl" />
+      <div className="relative flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <span className="dh-badge" title="Recorded output from a real run; nothing runs while you browse">
+            Recorded
+          </span>
+          <span className="text-[12.5px] text-muted">USGS 3DEP lidar, public domain</span>
+        </div>
+        <h2 className="text-[18px] font-semibold">An aggregate yard in Los Angeles County, California</h2>
+        <ul className="grid grid-cols-3 gap-2 text-center">
+          {[
+            ["Points", job?.qa ? count(job.qa.points) : "…"],
+            ["Stockpiles", zone ? m3(zone.above_m3, 0) : "…"],
+            ["Profile", profile ? m(profile.length_m, 0) : "…"],
+          ].map(([k, v]) => (
+            <li key={k} className="rounded-md border border-line bg-panel-2 px-2 py-2">
+              <div className="text-[11px] uppercase tracking-wide text-muted">{k}</div>
+              <div className="num text-[15px] font-semibold text-data">{v}</div>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[13px] text-ink-2">
+          A file with no vertical datum, taken to UTM 11N + NAVD88 with the assumption flagged in red; then ground,
+          a 0.5 m DTM and DSM, contours, the volume of two piles above a fitted base and a section across the yard,
+          as argus-survey {tape?.survey.version ?? ""} ran them.
+        </p>
+        {error ? (
+          <Banner tone="bad" title="Cannot read the recording">
+            {error}
+          </Banner>
+        ) : (
+          <Link href={job ? `/jobs/${encodeURIComponent(job.job_id)}` : "/"} aria-disabled={!job}>
+            <Button variant="primary" size="lg" className="w-full" disabled={!job}>
+              Open the recorded job →
+            </Button>
+          </Link>
+        )}
+        <p className="text-[12px] text-muted">
+          Data: U.S. Geological Survey, 3D Elevation Program ·{" "}
+          <ExternalLink href={`${REPO_URL}/blob/dev/public${tapeBase()}/PROVENANCE.md`} className="underline decoration-dotted underline-offset-2 hover:text-ink">
+            provenance and licence
+          </ExternalLink>
+        </p>
+      </div>
+    </div>
   );
 }

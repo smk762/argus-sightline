@@ -1,0 +1,11 @@
+{
+ "status": "ok",
+ "service": "argus-survey",
+ "version": "0.1.dev69+g8d966b6ec",
+ "read_only": false,
+ "tools": {
+  "pdal": "2.10.2",
+  "gdal": "3.13.3",
+  "proj": "9.9.0"
+ }
+}

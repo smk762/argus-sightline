@@ -25,6 +25,17 @@ It is a thin client. All processing, datum handling and provenance live in the a
 - **Docs.** argus-survey's docs at the synced commit, at `/docs/survey`. Each step panel, datum chip, demo truth row, volume base and accuracy class links to its section.
 - **Rule 1, always visible.** Horizontal CRS, vertical datum, geoid and epoch chips in the header. An assumed or missing vertical datum is shown in red.
 
+## Hosted demo
+
+[sightline.dragonhound.dev](https://sightline.dragonhound.dev) replays one recorded argus-survey job on public USGS 3DEP lidar (an aggregate yard in Los Angeles County, California; public domain): ingest with an assumed vertical datum, QA, ground, surfaces, contours, a stockpile volume, a profile and the report, with the map, the 3D points and the console. It is a static site with no API; cut/fill, change and accuracy need inputs the public tile doesn't have. Data, licence and how it was recorded: [`public/data-tape/PROVENANCE.md`](public/data-tape/PROVENANCE.md).
+
+```bash
+make tape-data     # fetch the public tile into data/in/usgs-3dep
+make up            # argus-survey at the pinned commit, processing on
+make tape          # record public/data-tape/
+make pages         # static export to out/, hash CSP on every page, then the static check
+```
+
 ## Run it
 
 What this UI needs live, what its mock or recording stands in for, and the no-GPU command are in [What to run for which UI](https://docs.dragonhound.dev/setup/which-services/#sightline). Each external service it depends on has a setup page under the suite's [Setup and services](https://docs.dragonhound.dev/setup/).

@@ -274,8 +274,10 @@ export function MapView() {
           const corners = view.coordinates as [[number, number], [number, number], [number, number], [number, number]];
           extent.push(...(corners as LonLat[]));
           map.addSource(id, { type: "image", url: `${view.imageUrl}?v=${encodeURIComponent(view.png)}`, coordinates: corners });
+          // Linear, not "nearest": MapLibre 5.24 draws an image source resampled "nearest" as black, at any zoom
+          // (seen in Chromium on SwiftShader and on Intel Mesa, in both builds).
           map.addLayer(
-            { id, type: "raster", source: id, layout: { visibility: vis }, paint: { "raster-opacity": st.opacity, "raster-fade-duration": 0, "raster-resampling": "nearest" } },
+            { id, type: "raster", source: id, layout: { visibility: vis }, paint: { "raster-opacity": st.opacity, "raster-fade-duration": 0, "raster-resampling": "linear" } },
             "draw-fill",
           );
         } else {
@@ -295,7 +297,9 @@ export function MapView() {
       const b = bbox(extent);
       if (b && !fitted.current) {
         fitted.current = true;
-        map.fitBounds(b, { padding: 48, duration: 900, maxZoom: 20 });
+        // Keep the job clear of the layer panel (top right) where the map is wide enough to.
+        const wide = map.getContainer().clientWidth > 700;
+        map.fitBounds(b, { padding: { top: 48, bottom: 48, left: 48, right: wide ? 300 : 48 }, duration: 900, maxZoom: 20 });
       }
     })();
     return () => {

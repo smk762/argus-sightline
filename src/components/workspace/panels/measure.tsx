@@ -6,7 +6,7 @@ import type { AccuracyGroup, CheckResidual, VolumeReport } from "@/lib/generated
 import { KIT_JOB_1, KIT_JOB_2, KIT_TRUTH, TRUTH_TOLERANCE } from "@/lib/demoKit";
 import { closeRing, lineLength, ringArea } from "@/lib/geo";
 import { cm, count, m, m2, m3, num, pct } from "@/lib/format";
-import { productUrl } from "@/lib/surveyApi";
+import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { docsUrl } from "@/lib/surveyDocs";
 import { Banner, Button, cx, ExternalLink, Field, KV, NumberInput, Pill, Section, Segmented, Select, Stat, TextInput, Toggle } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
@@ -505,7 +505,7 @@ export function ProfilePanel({ blocked }: PanelProps) {
         onRun={() => r.run({ line: { type: "LineString", coordinates: drawn }, step: step ?? 0.5 })}
       />
       {p && svg && (
-        <Section title={`${num(p.length_m, 1)} m · ${count(p.samples)} samples`} aside={<a className="text-[12.5px] text-data hover:underline" href={productUrl(ws.jobId, "profile")}>CSV ↓</a>}>
+        <Section title={`${num(p.length_m, 1)} m · ${count(p.samples)} samples`} aside={hasProduct(ws.jobId, "profile") ? <a className="text-[12.5px] text-data hover:underline" href={productUrl(ws.jobId, "profile")}>CSV ↓</a> : undefined}>
           {/* eslint-disable-next-line @next/next/no-img-element -- an SVG product from the API, not a static asset */}
           <img src={`${productUrl(ws.jobId, "profile_svg")}?v=${svg.sha256.slice(0, 12)}`} alt={`Profile along ${p.line}`} className={cx("w-full rounded-md border border-line bg-white")} />
           <span className="text-[12px] text-muted">Surfaces: {p.surfaces.map((s) => s.toUpperCase()).join(", ")} · voids break the line</span>

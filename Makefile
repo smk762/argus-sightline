@@ -5,7 +5,7 @@ NPM = $(NODE_RUN) $(NODE_IMAGE)
 COMPOSE_BUILD = docker compose -f compose.yaml -f compose.build.yaml
 SURVEY_SRC ?= ../argus-survey
 
-.PHONY: help install check lint typecheck test build wire-check wire-local docs-pull demo-data demo-record up up-published down logs
+.PHONY: help install check lint typecheck test build wire-check wire-local docs-pull demo-data demo-record tape-data tape pages shared-check up up-published down logs
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -42,6 +42,26 @@ demo-data:  ## Write the synthetic demo kit (known answers) into data/in/kit
 
 demo-record:  ## Record the demo's measured numbers against the running API (README, schema/demo-record.json, pin version)
 	$(NODE_RUN) --network host -e ARGUS_SURVEY_URL -e SURVEY_COMMIT=$(shell git -C "$(SURVEY_SRC)" rev-parse HEAD) $(NODE_IMAGE) node scripts/demo-record.mjs
+
+# The hosted demo (sightline.dragonhound.dev): one recorded job on public USGS 3DEP lidar, replayed as static files.
+TAPE_EPT = https://s3-us-west-2.amazonaws.com/usgs-lidar-public/USGS_LPC_CA_LosAngeles_2016_LAS_2018/ept.json
+TAPE_BOUNDS = ([-13134780, -13134420], [4040300, 4040660])
+
+tape-data:  ## Fetch the hosted demo's public LiDAR (USGS 3DEP) into data/in/usgs-3dep with its polygon and line
+	$(COMPOSE_BUILD) --profile kit build survey
+	mkdir -p data/in/usgs-3dep
+	cp scripts/tape-data/pile.geojson scripts/tape-data/xs1.geojson data/in/usgs-3dep/
+	docker run --rm -u $(shell id -u):$(shell id -g) -e HOME=/tmp -v "$(CURDIR)/data/in/usgs-3dep:/out" argus-survey:local \
+		pdal translate "$(TAPE_EPT)" /out/site.laz --readers.ept.bounds="$(TAPE_BOUNDS)"
+
+tape:  ## With `make up` running on the pinned survey commit: record the hosted demo's tape into public/data-tape
+	$(NODE_RUN) --network host -e ARGUS_SURVEY_URL -e SURVEY_COMMIT=$(shell git -C "$(SURVEY_SRC)" rev-parse HEAD) $(NODE_IMAGE) node scripts/record-tape.mjs
+
+pages:  ## The hosted demo: static export of the tape to out/, with a hash CSP on every page, then the static check
+	$(NPM) npm run build:pages
+
+shared-check:  ## The vendored Dragonhound shared layer is unedited and matches the published v1 manifest
+	node vendor/dh/sync-shared.mjs --check . --against https://dragonhound.dev/brand/v1/manifest.json --allow-outdated
 
 up:  ## Build $(SURVEY_SRC) and this UI, start both on http://localhost:3107
 	$(COMPOSE_BUILD) up -d --build

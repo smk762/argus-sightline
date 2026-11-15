@@ -1,0 +1,11 @@
+{
+ "points": [
+  "usgs-3dep/site.laz"
+ ],
+ "vectors": [
+  "usgs-3dep/pile.geojson",
+  "usgs-3dep/xs1.geojson"
+ ],
+ "rasters": [],
+ "tables": []
+}

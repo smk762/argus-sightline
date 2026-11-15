@@ -1,0 +1,44 @@
+{
+ "jobs": [
+  {
+   "job_id": "usgs-3dep",
+   "created_at": "2026-11-15T04:15:09.192367Z",
+   "updated_at": "2026-11-15T04:15:50.971134Z",
+   "crs": "NAD83(2011) / UTM zone 11N + NAVD88 height",
+   "points": 450545,
+   "steps_done": [
+    "ingest",
+    "qa",
+    "ground",
+    "surfaces",
+    "contours",
+    "report",
+    "volume",
+    "profile"
+   ],
+   "products": [
+    "boundary",
+    "chm",
+    "chm_voids",
+    "classified",
+    "contours",
+    "contours_geojson",
+    "copc",
+    "coverage",
+    "density",
+    "dsm",
+    "dsm_voids",
+    "dtm",
+    "dtm_voids",
+    "gaps",
+    "hillshade",
+    "profile",
+    "profile_svg",
+    "qa",
+    "report",
+    "volume"
+   ],
+   "warnings": 4
+  }
+ ]
+}

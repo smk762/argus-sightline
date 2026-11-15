@@ -120,7 +120,8 @@ export function PointView({ active }: { active: boolean }) {
     const stale = () => gen !== loadGen.current;
     scene.current?.dispose();
     scene.current = null;
-    const url = productUrl(ws.jobId, kind);
+    // Absolute: copc.js reads a string that doesn't start with "http" as a local file path (the hosted demo's are root-relative).
+    const url = new URL(productUrl(ws.jobId, kind), window.location.href).href;
     setStatus({ phase: "loading", text: "Reading the COPC header…", frac: 0 });
     try {
       const [THREE, { OrbitControls }, { Copc }, { createLazPerf }] = await Promise.all([
@@ -167,7 +168,7 @@ export function PointView({ active }: { active: boolean }) {
         for (let p = 0; p < view.pointCount; p++, n++) {
           const z = gz(p);
           pos[3 * n] = gx(p) - cx0;
-          pos[3 * n + 1] = z - minz;
+          pos[3 * n + 1] = z; // made relative to the ground below, once every point is in
           pos[3 * n + 2] = -(gy(p) - cy0);
           raw.z[n] = z;
           raw.cls[n] = gc(p);
@@ -175,6 +176,10 @@ export function PointView({ active }: { active: boolean }) {
           seen.add(raw.cls[n]);
         }
       }
+      // Frame on the bulk of the cloud, not the header's extent: a few noise returns (classes 7 and 18) far
+      // above or below the site would otherwise put the camera under the ground.
+      const [zlo, zhi] = robustRange(raw.z, raw.cls, n) ?? [minz, maxz];
+      for (let p = 0; p < n; p++) pos[3 * p + 1] -= zlo;
       const el = host.current;
       if (!el || stale()) return;
       const geom = new THREE.BufferGeometry();
@@ -191,7 +196,7 @@ export function PointView({ active }: { active: boolean }) {
       camera.position.set(span * 0.55, span * 0.45, span * 0.65);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.target.set(0, (maxz - minz) / 4, 0);
+      controls.target.set(0, (zhi - zlo) / 4, 0);
       const material = new THREE.PointsMaterial({ size: sizeRef.current, sizeAttenuation: false, vertexColors: true });
       three.add(new THREE.Points(geom, material));
       const frame = () => {
@@ -351,4 +356,14 @@ export function PointView({ active }: { active: boolean }) {
       )}
     </div>
   );
+}
+
+/** The 1st to 99th percentile of the heights of points that aren't noise, from a sample; null if there are none. */
+function robustRange(z: Float32Array, cls: Uint8Array, n: number): [number, number] | null {
+  const step = Math.max(1, Math.floor(n / 20000));
+  const sample: number[] = [];
+  for (let i = 0; i < n; i += step) if (cls[i] !== 7 && cls[i] !== 18) sample.push(z[i]);
+  if (sample.length === 0) return null;
+  sample.sort((a, b) => a - b);
+  return [sample[Math.floor(sample.length * 0.01)], sample[Math.floor(sample.length * 0.99)]];
 }
