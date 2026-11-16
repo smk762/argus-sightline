@@ -31,7 +31,7 @@ describe("dh-strip", () => {
     expect(html).not.toContain("target=");
   });
 
-  it("marks the Sightline link current, and only it (dh-shared 1.2.5)", () => {
+  it("marks the Sightline link current, and only it (dh-shared 1.2.8)", () => {
     const html = renderToStaticMarkup(createElement(DemoStrip));
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     expect(html).toContain('<a href="https://sightline.dragonhound.dev/" data-dh-site="sightline" aria-current="page">Sightline</a>');

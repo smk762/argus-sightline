@@ -1,5 +1,5 @@
 // The Dragonhound Labs family bar, rendered natively from the vendored source (vendor/dh/dh-strip.mjs,
-// dh-shared 1.2.5): links, labels and mark come from there, so a re-sync updates it with no hand copy.
+// dh-shared 1.2.8): links, labels and mark come from there, so a re-sync updates it with no hand copy.
 // Styles are vendor/dh/dh-strip.css (imported by globals.css). No JS. Only the hosted demo carries it.
 //
 // dh-shared 1.2.5 lists Sightline, so its link is marked current (data-dh-site="sightline" here and on <html> says the

@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - A hosted demo build (`make pages`, `SIGHTLINE_STATIC=1`): a pure static export that replays one argus-survey job recorded on public USGS 3DEP lidar (`public/data-tape/`, `make tape-data` and `make tape`), with a hash-based CSP on every page (`scripts/csp.mjs`) and a check that the export is static, carries the CSP and has every tape file (`scripts/check-static.mjs`). Running a step replays its recorded console; cut/fill, change and accuracy say what they would need. CI builds it.
-- The Dragonhound shared layer (dh-shared 1.2.5, `vendor/dh/`) with a drift check in CI. The hosted demo carries the family strip (`data-dh-site="sightline"`, Sightline's own link marked current since 1.2.5).
+- The Dragonhound shared layer (dh-shared 1.2.8, `vendor/dh/`) with a drift check in CI. The hosted demo carries the family strip (`data-dh-site="sightline"`, Sightline's own link marked current since 1.2.5).
 - `scripts/demo-e2e.mjs`: the hosted demo in a browser at 1440 and 390 px, light and dark, failing on any console error, failed request or CSP violation (Next.js prefetches cancelled by a navigation do not count).
 
 - A docs page at `/docs/survey`: argus-survey's README and reference docs imported at the synced commit (`make docs-pull`), headed with the survey version and short sha, with GitHub and PyPI links. Links between survey's docs stay on the page; other links open in a new tab, and images are served from this origin. A Docs entry is in the header (#7).
