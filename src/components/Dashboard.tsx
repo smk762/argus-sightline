@@ -54,7 +54,7 @@ export function Dashboard() {
     <div className="flex min-h-screen flex-col">
       <AppHeader health={health} />
       <main id="main" className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6">
-        <section className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_1fr]">
           <div className="flex flex-col justify-center gap-4">
             <Pill tone="data">LiDAR · drone photogrammetry · LAS/LAZ/COPC</Pill>
             <h1 className="text-[34px] font-semibold leading-[1.1] tracking-tight sm:text-[42px]">
@@ -131,13 +131,13 @@ export function Dashboard() {
             </div>
           )}
           {jobs?.length === 0 && <p className="text-muted">No jobs yet. Start the guided demo or a new survey above.</p>}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {jobs?.map((j) => <JobCard key={j.job_id} job={j} />)}
           </div>
         </Section>
 
         <Section title="Toolchain">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-lg border border-line bg-panel p-4">
               <div className="mb-2 flex items-center justify-between">
                 <span className="font-medium">argus-survey {health?.version ?? ""}</span>
