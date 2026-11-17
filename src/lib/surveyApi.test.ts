@@ -1,5 +1,6 @@
 // The live client's guards: read paths refuse job ids and kinds that URL normalisation would rewrite,
-// and a cancelled step stays an AbortError rather than looking like a dead server.
+// a cancelled step stays an AbortError rather than looking like a dead server, and a read-only server
+// gets no POST at all.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiError, getJob, getRasterView, getVectorView, productUrl, runStep } from "@/lib/surveyApi";
 
@@ -63,5 +64,43 @@ describe("runStep", () => {
       throw new TypeError("Failed to fetch");
     });
     await expect(runStep("job-1", "qa", {}, () => {})).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+// `lastHealth` is module state: each case gets a fresh module, so an earlier test's cached `read_only: false`
+// can't stand in for this server's answer.
+describe("runStep on a read-only server", () => {
+  const requests: { url: string; method: string }[] = [];
+  const readOnly = () => {
+    requests.length = 0;
+    vi.stubGlobal("fetch", async (input: string, init?: RequestInit) => {
+      requests.push({ url: String(input), method: init?.method ?? "GET" });
+      if (String(input).endsWith("/health")) return new Response(JSON.stringify({ read_only: true }), { status: 200 });
+      return new Response("{}", { status: 200 });
+    });
+  };
+  const fresh = async () => {
+    vi.resetModules();
+    return import("@/lib/surveyApi");
+  };
+
+  it("asks /health and refuses before the wire", async () => {
+    readOnly();
+    const api = await fresh();
+    const seen: unknown[] = [];
+    await expect(api.runStep("job-1", "qa", {}, (e) => seen.push(e))).rejects.toBeInstanceOf(api.Refused);
+    expect(requests.map((r) => r.method)).toEqual(["GET"]);
+    expect(requests[0].url).toMatch(/\/health$/);
+    expect(seen).toEqual([]);
+  });
+
+  it("refuses on the cached /health without asking again", async () => {
+    readOnly();
+    const api = await fresh();
+    expect((await api.getHealth()).read_only).toBe(true);
+    for (const step of api.STEP_IDS) {
+      await expect(api.runStep("job-1", step, {}, () => {}), step).rejects.toBeInstanceOf(api.Refused);
+    }
+    expect(requests).toEqual([{ url: expect.stringMatching(/\/health$/), method: "GET" }]);
   });
 });
