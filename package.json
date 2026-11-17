@@ -22,7 +22,7 @@
   "dependencies": {
     "copc": "0.0.9",
     "laz-perf": "0.0.7",
-    "maplibre-gl": "5.24.0",
+    "maplibre-gl": "6.16.0",
     "marked": "18.1.0",
     "next": "16.4.5",
     "react": "19.2.4",

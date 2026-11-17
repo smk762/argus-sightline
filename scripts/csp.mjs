@@ -9,10 +9,10 @@
 //
 // Where it differs from Cull's:
 //   - 'wasm-unsafe-eval': laz-perf compiles /laz-perf.wasm (the 3D view).
-//   - worker-src blob: and img-src blob: data:: MapLibre starts its workers from blob: URLs.
+//   - worker-src 'self': MapLibre 6 starts its worker module from /maplibre-gl-worker.mjs (scripts/copy-wasm.mjs).
+//   - img-src blob: data:: MapLibre decodes images through blob: URLs.
 //   - style-src 'unsafe-inline': React and MapLibre set inline styles (the live build leaves styles open too).
-//   - No Trusted Types. MapLibre 5 writes its scale and attribution controls through innerHTML and starts
-//     workers from blob: URLs, and the survey docs pages render through dangerouslySetInnerHTML on a
+//   - No Trusted Types. MapLibre writes its scale and attribution controls through innerHTML, and the survey docs pages render through dangerouslySetInnerHTML on a
 //     client-side navigation, so `require-trusted-types-for 'script'` would need a policy that passes HTML
 //     through, which protects nothing. Script execution stays locked to 'self' plus the hashes.
 //   - The recorded report under the tape is not one of this site's pages: it keeps its inline styles and
@@ -52,7 +52,7 @@ export function policy(hashes) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "connect-src 'self'",
-    "worker-src 'self' blob:",
+    "worker-src 'self'",
     "font-src 'self'",
     "object-src 'none'",
     "base-uri 'none'",

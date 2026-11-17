@@ -13,7 +13,7 @@ describe("csp", () => {
 
   it("allows what the map and point view need, and eval only in dev", () => {
     expect(buildCsp("n")).toContain("'wasm-unsafe-eval'");
-    expect(buildCsp("n")).toContain("worker-src 'self' blob:");
+    expect(buildCsp("n")).toContain("worker-src 'self';");
     expect(buildCsp("n")).not.toContain("'unsafe-eval'");
     expect(buildCsp("n", { dev: true })).toContain("'unsafe-eval'");
   });

@@ -110,8 +110,12 @@ export function MapView() {
     let map: MlMap | null = null;
     let unsubscribeTheme = () => {};
     (async () => {
-      const maplibregl = (await import("maplibre-gl")).default;
+      const maplibregl = await import("maplibre-gl");
       if (disposed || !box.current) return;
+      // MapLibre 6 looks for its worker module next to its own bundle; bundled, that is a chunk URL with no
+      // worker beside it. postinstall copies it to public/ (scripts/copy-wasm.mjs): same origin, so it starts
+      // as a module worker under worker-src 'self'. The version busts a cached worker across upgrades.
+      maplibregl.setWorkerUrl(`/maplibre-gl-worker.mjs?v=${maplibregl.getVersion()}`);
       const cfg = runtimeConfig();
       const bg = getComputedStyle(document.documentElement).getPropertyValue("--map-bg").trim() || "#0e1217";
       map = new maplibregl.Map({
@@ -165,9 +169,11 @@ export function MapView() {
         const bgNow = getComputedStyle(document.documentElement).getPropertyValue("--map-bg").trim();
         if (bgNow) map.setPaintProperty("bg", "background-color", bgNow);
         if (!map.getLayer("basemap")) return;
-        for (const [k, v] of Object.entries(basemapPaint(isDark()))) map.setPaintProperty("basemap", k, v);
+        const paint = basemapPaint(isDark());
+        map.setPaintProperty("basemap", "raster-brightness-max", paint["raster-brightness-max"]);
+        map.setPaintProperty("basemap", "raster-contrast", paint["raster-contrast"]);
       });
-      map.on("error", (e) => console.error(`[map] ${(e as { error?: Error }).error?.message ?? "error"}`));
+      map.on("error", (e) => console.error(`[map] ${e.error?.message ?? "error"}`));
       map.on("mousemove", (e: MapMouseEvent) => setCursor([e.lngLat.lng, e.lngLat.lat]));
       map.on("mouseout", () => setCursor(null));
       map.on("click", (e: MapMouseEvent) => {
