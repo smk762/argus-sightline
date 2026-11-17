@@ -112,7 +112,12 @@ await mkdir(out, { recursive: true });
 // The server's own posture is recorded as it was; the static data layer answers read_only for the replay.
 await save("health.json", health);
 await save("doctor.json", await getJson("/doctor"));
-await save("inputs.json", inputs);
+// Only the tape's own inputs: anything else under the data root (the demo kit, a client's files) stays out of a
+// public tape, and the replay must not offer the kit's tips against a job that is not the kit.
+await save(
+  "inputs.json",
+  Object.fromEntries(Object.entries(inputs).map(([k, files]) => [k, files.filter((f) => f.startsWith(DIR))])),
+);
 await save("jobs.json", await getJson("/jobs"));
 
 const sidecar = await getJson(`/jobs/${JOB}`);
