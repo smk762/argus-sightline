@@ -18,18 +18,18 @@ Not checked out? Read https://github.com/smk762/argus-cortex/blob/dev/SUITE.md
 
 ## Must never happen
 
-Each rule names what fails when it is broken. **UNENFORCED** rows link the issue that adds a check. A rule about code shape can instead go in argus-ci's suite-rules catalogue (smk762/argus-ci#16).
+Each rule names what fails when it is broken. An **UNENFORCED** row links the issue that adds a check. A rule about code shape can instead go in argus-ci's suite-rules catalogue (smk762/argus-ci#16).
 
 | Must never happen | Enforced by |
 |---|---|
-| Processing, datum logic or file paths in the UI: the server is the authority, and inputs are names from `/inputs` | **UNENFORCED**: #36 |
+| Processing, datum logic or file paths in the UI: the server is the authority, and inputs are names from `/inputs` | `src/lib/rules.test.ts:72-98`: trig only in `geo.ts`, EPSG codes only in the chips/presets/kit/refusal files and no projection definition, product data decoded only in `PointView.tsx`, no absolute server path literal. A shape check: a breach outside those patterns needs review |
 | The demo tape (`public/data-tape/`) holds anything but public data (USGS 3DEP), such as a client's survey | `src/lib/tapeProvenance.test.ts:52-111`: every input in `inputs.json`, each step's request and `job.json` is a file of an allowlisted public dataset; the Makefile's source and tile match |
 | `runStep` POSTs to a read-only server (`/health.read_only`) | live: `src/lib/surveyApi.test.ts:72-106`; hosted demo: `src/lib/static.test.ts:102` |
 | `src/lib/generated/survey.ts` is hand-edited | CI `npm run wire:check` (`.github/workflows/ci.yml:23-24`; `make check`) |
 | `docs/survey/` is hand-edited | `src/lib/sync.test.ts:63-77` (pinned hashes, no unpinned file) |
 | Imported docs carry a private IP, a home path or an email address | opsec gate in `scripts/docs-pull.mjs:43,79-84`, at import time only |
 | Config is read at client module scope (call `surveyUrl()` at use time) | `src/lib/rules.test.ts:40-43`; `process.env` readers pinned at `:45-48` |
-| Code branches on runtime state instead of `staticDemo()` | Partial: `src/lib/rules.test.ts:45-48` (no new env switch); runtime-state branches **UNENFORCED**: #38 |
+| Code branches on runtime state instead of `staticDemo()` | `src/lib/rules.test.ts:45-48` (no new env switch), `:100-127` (no branch on `location.host*` or the hosted domain; the tape is named only in `demo.ts` and the static page list, reached only through `staticApi.ts`, and every hand-off in `surveyApi.ts` sits under `staticDemo()`) |
 | `geo.ts` lengths or areas feed a deliverable (they are approximate, for drawing) | `src/lib/rules.test.ts:52-55` (who may call `lineLength`/`ringArea`) |
 | A map shortcut fires in an editable target (Backspace in a field undoes a vertex) | `src/lib/rules.test.ts:59-63` (page-wide key listeners call `isEditable()`) |
 | The CSP loosens (`'unsafe-inline'`, no nonce, a page without CSP) | `src/lib/csp.test.ts:5`, `src/lib/pagesCsp.test.ts:5,16`, `scripts/check-static.mjs:34` |
@@ -37,7 +37,7 @@ Each rule names what fails when it is broken. **UNENFORCED** rows link the issue
 | `vendor/dh/` is edited | CI `dh-shared` (`ci.yml:35-43`); `public/dh-theme.js` copy: `src/lib/shared.test.ts:42` |
 | A dependency beyond next/react/maplibre-gl/three/copc/laz-perf/marked is added without asking | `src/lib/rules.test.ts:21-26` |
 | A server-side proxy to the API (the browser calls it directly, over CORS) | `src/lib/rules.test.ts:30-36` (no route but the docs images, no rewrites) |
-| The lockfile is re-resolved from scratch (npm 10 crashes on vitest 4's optional peers; it was seeded from argus-studio's, so start from an existing lock) | Partial: `npm ci` (`ci.yml:22`) refuses a lock out of step with `package.json`; a regenerated lock **UNENFORCED**: #37 |
+| The lockfile is re-resolved from scratch (npm 10 crashes on vitest 4's optional peers; it was seeded from argus-studio's, so start from an existing lock) | `npm ci` (`ci.yml:22`) refuses a lock out of step with `package.json`; CI `lock-drift.yml` (`scripts/lock-drift.mjs`, `make lock-check`) fails a PR whose lock moves more than 60 entries against its base, or changes `lockfileVersion`, unless labelled `deps:lock` |
 
 ## Layout
 
