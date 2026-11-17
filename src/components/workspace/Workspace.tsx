@@ -62,10 +62,19 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
     setLog((l) => [...l.slice(-800), { id: ++logId.current, at: Date.now(), kind, text, detail }]);
   }, []);
 
+  // The job this workspace shows now. The page keys <Workspace> by job, so a new job remounts it; this guard keeps
+  // a late response for another job (a refresh after a step, a slow first load) out of the state even without that.
+  const currentJob = useRef(jobId);
+  useEffect(() => {
+    currentJob.current = jobId;
+  }, [jobId]);
+
   const refresh = useCallback(async () => {
     const [s, j] = await Promise.all([getJob(jobId), listJobs().catch(() => [] as JobDigest[])]);
-    setSidecar(s);
-    setJobs(j);
+    if (currentJob.current === jobId) {
+      setSidecar(s);
+      setJobs(j);
+    }
     return s;
   }, [jobId]);
 
@@ -117,9 +126,15 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
         const done = await runStep(jobId, step, body, onEvent);
         setResults((r) => ({ ...r, [step]: done.result }));
         push("done", `✓ ${step} finished · products: ${done.products.length}`);
-        const s = await refresh();
+        // The step has succeeded whatever happens next: a failed reload of the job is a warning, not a failed
+        // step (which would invite re-running an expensive one), and the map still reloads its products.
+        try {
+          const s = await refresh();
+          if (step === "ingest" || step === "run") setSelected(nextStep(s) ?? "report");
+        } catch (err) {
+          push("warning", `  ⚠ ${step} finished, but reloading the job failed: ${(err as Error).message}`);
+        }
         setMapVersion((v) => v + 1);
-        if (step === "ingest" || step === "run") setSelected(nextStep(s) ?? "report");
         return { ok: true, result: done.result };
       } catch (err) {
         const e = err as Error;

@@ -3,16 +3,27 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { AccuracyGroup, CheckResidual, VolumeReport } from "@/lib/generated/survey";
-import { KIT_JOB_1, KIT_JOB_2, KIT_TRUTH, TRUTH_TOLERANCE } from "@/lib/demoKit";
+import { changeTruth, KIT_JOB_1, KIT_JOB_2, KIT_TRUTH, stockpileTruth, TRUTH_TOLERANCE, type Truth } from "@/lib/demoKit";
 import { closeRing, lineLength, ringArea } from "@/lib/geo";
 import { cm, count, m, m2, m3, num, pct } from "@/lib/format";
 import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { docsUrl } from "@/lib/surveyDocs";
+import { latestVolume as latest } from "@/lib/volumes";
 import { Banner, Button, cx, ExternalLink, Field, KV, NumberInput, Pill, Section, Segmented, Select, Stat, TextInput, Toggle } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
 import { DemoTip, RunBar, TruthCheck, useStepRun, type PanelProps } from "@/components/workspace/panels/StepPanel";
 
 const vectorsOf = (v: string[] | undefined) => (v ?? []).filter((p) => !p.endsWith("kit-truth.json"));
+
+/**
+ * A field whose default comes from workspace data (inputs, jobs, the sidecar) that can change after the panel
+ * mounts: it follows `fallback` until the user picks a value, then keeps theirs. A `useState(fallback)` would
+ * freeze whatever the data was at mount, leaving a Select showing options while its value is "".
+ */
+function useDefaulted<T>(fallback: T): [T, (v: T) => void] {
+  const [picked, setPicked] = useState<{ v: T } | null>(null);
+  return [picked ? picked.v : fallback, (v: T) => setPicked({ v })];
+}
 
 // ── polygon source: a file under the data root, or drawn on the map ───────────
 
@@ -21,8 +32,8 @@ type Zone = { polygon: string } | { polygon_geojson: GeoJSON.Polygon; name: stri
 function useZone(defaultFile: string | null, optional: boolean) {
   const ws = useWorkspace();
   const files = vectorsOf(ws.inputs?.vectors);
-  const [mode, setMode] = useState<"file" | "draw" | "none">(defaultFile ? "file" : files.length ? "file" : "draw");
-  const [file, setFile] = useState<string>(defaultFile ?? files[0] ?? "");
+  const [mode, setMode] = useDefaulted<"file" | "draw" | "none">(defaultFile || files.length ? "file" : "draw");
+  const [file, setFile] = useDefaulted<string>(defaultFile ?? files[0] ?? "");
   const [name, setName] = useState("drawn polygon");
   const drawn = ws.drawn?.kind === "polygon" ? ws.drawn.coords : null;
   const zone: Zone =
@@ -73,17 +84,13 @@ function useZone(defaultFile: string | null, optional: boolean) {
   return { zone, missing, ui };
 }
 
-function latest(volumes: VolumeReport[] | undefined, kind: VolumeReport["kind"]): VolumeReport | undefined {
-  return [...(volumes ?? [])].reverse().find((v) => v.kind === kind);
-}
-
 // ── Stockpile volume ──────────────────────────────────────────────────────────
 
 export function VolumePanel({ blocked }: PanelProps) {
   const ws = useWorkspace();
   const { zone, missing, ui } = useZone(ws.kit?.stockpile ?? null, false);
   const [base, setBase] = useState<"plane" | "lowest-perimeter" | "surface">("plane");
-  const [baseSurface, setBaseSurface] = useState(ws.inputs?.rasters[0] ?? "");
+  const [baseSurface, setBaseSurface] = useDefaulted(ws.inputs?.rasters[0] ?? "");
   const [surface, setSurface] = useState<"dsm" | "dtm">("dsm");
   const [allowVoids, setAllowVoids] = useState(false);
   const r = useStepRun("volume");
@@ -141,29 +148,33 @@ export function VolumePanel({ blocked }: PanelProps) {
         why={missing ? "Choose a polygon file or draw one." : undefined}
         onRun={() => r.run({ ...zone, base: baseArg, surface, allow_voids: allowVoids })}
       />
-      {v && <VolumeResult report={v} truth={ws.kit && ws.jobId.startsWith("kit-") ? (ws.jobId === KIT_JOB_2 ? KIT_TRUTH.stockpileVolumeE2 : KIT_TRUTH.stockpileVolume) : null} />}
+      {v && <VolumeResult report={v} truthFor={(zone) => stockpileTruth(ws.kit, ws.jobId, zone)} />}
     </>
   );
 }
 
-function VolumeResult({ report, truth }: { report: VolumeReport; truth: number | null }) {
+/** `truthFor` gives a zone's analytic answer, or null for a zone it doesn't describe (a ring the user drew). */
+function VolumeResult({ report, truthFor }: { report: VolumeReport; truthFor: (zone: string) => Truth | null }) {
   return (
     <Section title="Result">
-      {report.zones.map((z) => (
-        <div key={z.name} className="flex flex-col gap-2">
-          <div className="grid grid-cols-2 gap-2">
-            <Stat label={`${z.name} · above base`} value={m3(z.above_m3, 1)} big tone="data" sub={`below base ${m3(z.below_m3, 1)}`} />
-            <Stat label="Area" value={m2(z.area_m2, 1)} sub={`voids ${pct(z.void_percent, 2)}`} tone={z.void_percent > 0 ? "warn" : undefined} />
+      {report.zones.map((z) => {
+        const truth = truthFor(z.name);
+        return (
+          <div key={z.name} className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <Stat label={`${z.name} · above base`} value={m3(z.above_m3, 1)} big tone="data" sub={`below base ${m3(z.below_m3, 1)}`} />
+              <Stat label="Area" value={m2(z.area_m2, 1)} sub={`voids ${pct(z.void_percent, 2)}`} tone={z.void_percent > 0 ? "warn" : undefined} />
+            </div>
+            {truth && <TruthCheck label="vs the analytic cone" measured={z.above_m3} truth={truth.truth} unit="m³" tolerance={truth.tolerance} />}
+            <KV
+              rows={[
+                ["Base", z.base],
+                ...(z.base_fit_rms_m !== null && z.base_fit_rms_m !== undefined ? ([["Base fit RMS", `${m(z.base_fit_rms_m, 3)} over ${z.boundary_samples} samples`]] as [string, string][]) : []),
+              ]}
+            />
           </div>
-          {truth !== null && <TruthCheck label="vs the analytic cone" measured={z.above_m3} truth={truth} unit="m³" tolerance={TRUTH_TOLERANCE["stockpile-e1"]} />}
-          <KV
-            rows={[
-              ["Base", z.base],
-              ...(z.base_fit_rms_m !== null && z.base_fit_rms_m !== undefined ? ([["Base fit RMS", `${m(z.base_fit_rms_m, 3)} over ${z.boundary_samples} samples`]] as [string, string][]) : []),
-            ]}
-          />
-        </div>
-      ))}
+        );
+      })}
       <Uncertainty report={report} />
     </Section>
   );
@@ -193,7 +204,7 @@ function Uncertainty({ report }: { report: VolumeReport }) {
 export function CutfillPanel({ blocked }: PanelProps) {
   const ws = useWorkspace();
   const rasters = ws.inputs?.rasters ?? [];
-  const [design, setDesign] = useState(ws.kit?.design ?? rasters[0] ?? "");
+  const [design, setDesign] = useDefaulted(ws.kit?.design ?? rasters[0] ?? "");
   const { zone, ui } = useZone(ws.kit?.pad ?? null, true);
   const [designVertical, setDesignVertical] = useState("");
   const [resample, setResample] = useState(false);
@@ -251,14 +262,15 @@ export function CutfillPanel({ blocked }: PanelProps) {
 export function ChangePanel({ blocked }: PanelProps) {
   const ws = useWorkspace();
   const others = ws.jobs.filter((j) => j.job_id !== ws.jobId && j.steps_done.includes("surfaces"));
-  const [against, setAgainst] = useState(others.find((j) => j.job_id === KIT_JOB_1)?.job_id ?? others[0]?.job_id ?? "");
+  const [against, setAgainst] = useDefaulted(others.find((j) => j.job_id === KIT_JOB_1)?.job_id ?? others[0]?.job_id ?? "");
   const [surface, setSurface] = useState<"dsm" | "dtm">("dsm");
   const inDemo = !!ws.kit && ws.jobId === KIT_JOB_2;
   const [lodMode, setLodMode] = useState<"value" | "accuracy">("value");
-  const [lod, setLod] = useState<number | null>(inDemo ? 0 : 0.1);
-  const [polygon, setPolygon] = useState(inDemo ? (ws.kit?.stockpile ?? "") : "");
+  const [lod, setLod] = useDefaulted<number | null>(inDemo ? 0 : 0.1);
+  const [polygon, setPolygon] = useDefaulted(inDemo ? (ws.kit?.stockpile ?? "") : "");
   const r = useStepRun("change");
   const c = ws.sidecar?.change;
+  const gainTruth = c ? changeTruth(ws.kit, ws.jobId, c) : null;
   const isKit1 = ws.jobId === KIT_JOB_1;
   const kit2 = ws.jobs.find((j) => j.job_id === KIT_JOB_2);
   return (
@@ -314,9 +326,7 @@ export function ChangePanel({ blocked }: PanelProps) {
             <Stat label="Loss" value={m3(c.loss_m3, 1)} tone="data" sub={m2(c.loss_area_m2, 0)} />
             <Stat label="Net" value={m3(c.net_m3, 1)} sub={`${m2(c.compared_area_m2, 0)} compared`} />
           </div>
-          {ws.kit && ws.jobId === KIT_JOB_2 && c.lod_m === 0 && c.area !== "whole overlap of the two epochs" && (
-            <TruthCheck label="gain vs the grown cone" measured={c.gain_m3} truth={KIT_TRUTH.changeGain} unit="m³" tolerance={TRUTH_TOLERANCE["change-gain"]} />
-          )}
+          {gainTruth && <TruthCheck label="gain vs the grown cone" measured={c.gain_m3} truth={gainTruth.truth} unit="m³" tolerance={gainTruth.tolerance} />}
           <KV
             rows={[
               ["LoD", `${m(c.lod_m, 3)} · ${c.lod_rule}`],
@@ -336,8 +346,8 @@ export function ChangePanel({ blocked }: PanelProps) {
 export function AccuracyPanel({ blocked }: PanelProps) {
   const ws = useWorkspace();
   const tables = ws.inputs?.tables ?? [];
-  const [checks, setChecks] = useState(ws.kit?.checks ?? tables[0] ?? "");
-  const [crs, setCrs] = useState(ws.sidecar?.crs?.definition ?? "");
+  const [checks, setChecks] = useDefaulted(ws.kit?.checks ?? tables[0] ?? "");
+  const [crs, setCrs] = useDefaulted(ws.sidecar?.crs?.definition ?? "");
   const [cols, setCols] = useState("id,x,y,z");
   const [cpRmse, setCpRmse] = useState<number | null>(null);
   const [classCm, setClassCm] = useState<number | null>(10);
@@ -383,7 +393,7 @@ export function AccuracyPanel({ blocked }: PanelProps) {
         busy={r.busy}
         outcome={r.outcome}
         disabled={blocked || !checks || !crs || colList.length !== 4}
-        why={!checks ? "Choose a check point CSV." : colList.length !== 4 ? "Columns: exactly four names." : undefined}
+        why={!checks ? "Choose a check point CSV." : !crs ? "Enter the check points' CRS." : colList.length !== 4 ? "Columns: exactly four names." : undefined}
         onRun={() => r.run({ checks, crs, cols: colList, checkpoint_rmse: cpRmse, class_cm: classCm, surface })}
       />
       {a && (

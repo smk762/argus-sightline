@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { share } from "@/lib/bars";
 import { KIT_JOB_2, KIT_TRUTH } from "@/lib/demoKit";
 import { VERTICAL_PRESETS, WA_PRESETS } from "@/lib/datum";
 import { bytes, count, m2, num, pct } from "@/lib/format";
@@ -290,12 +291,15 @@ export function QaPanel({ blocked }: PanelProps) {
 }
 
 function DensityBar({ p5, p50, p95 }: { p5: number | null; p50: number; p95: number }) {
+  // Positions on a 0…p95 scale: null (no mark) when p95 is 0 (a sparse cloud), or for a missing p5.
+  const from = share(p5, p95);
+  const median = share(p50, p95);
   return (
     <div className="flex items-center gap-3 text-[12px] text-muted">
       <span className="num">p5 {p5 !== null ? num(p5, 1) : "—"}</span>
       <div className="relative h-1.5 flex-1 rounded-full bg-raised">
-        <div className="absolute inset-y-0 rounded-full bg-data/50" style={{ left: `${p5 !== null ? (p5 / p95) * 100 : 0}%`, right: 0 }} />
-        <div className="absolute -top-1 h-3.5 w-0.5 bg-data" style={{ left: `${(p50 / p95) * 100}%` }} />
+        {from !== null && <div className="absolute inset-y-0 rounded-full bg-data/50" style={{ left: `${from}%`, right: 0 }} />}
+        {median !== null && <div className="absolute -top-1 h-3.5 w-0.5 bg-data" style={{ left: `${median}%` }} />}
       </div>
       <span className="num">p95 {num(p95, 1)}</span>
     </div>
