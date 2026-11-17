@@ -2,6 +2,7 @@
 //
 //   - no route handler was exported and no page points at an argus-survey API (:8107)
 //   - every page carries the hash-based CSP <meta>, and _headers is there for the host
+//   - the files the browser loads by URL are there: MapLibre's worker and laz-perf's WebAssembly
 //   - the tape is in the export, with every file it names (map views, products), and no file is over
 //     the host's 25 MiB limit
 //
@@ -23,6 +24,8 @@ if (files.length > MAX_FILES) problems.push(`${files.length} files: more than th
 for (const f of files) if (statSync(f).size > MAX_FILE) problems.push(`${f} is over 25 MiB`);
 if (existsSync(join(out, "api"))) problems.push("out/api exists: an API route was exported");
 if (!existsSync(join(out, "_headers"))) problems.push("no _headers file");
+// Copied into public/ by postinstall (scripts/copy-wasm.mjs); without them the map or the 3D view is blank.
+for (const f of ["maplibre-gl-worker.mjs", "laz-perf.wasm"]) if (!existsSync(join(out, f))) problems.push(`no ${f} (npm postinstall)`);
 // The imported survey docs name the API's port in their prose ("serve on :8107"), so there only an href or
 // src that points at it counts; anywhere else, any mention does.
 const docsDir = join(out, "docs");

@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated from the pinned wire schema (npm run wire:types); never hand-edited.
     "src/lib/generated/**",
+    // MapLibre's worker bundle, copied in by postinstall (scripts/copy-wasm.mjs).
+    "public/maplibre-gl-worker.mjs",
+    // Claude Code's agent worktrees: other checkouts of this repo, linted in their own right.
+    ".claude/**",
   ]),
 ]);
 

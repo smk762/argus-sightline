@@ -9,7 +9,7 @@
  * the API URL.
  *
  *   'wasm-unsafe-eval'   laz-perf compiles /laz-perf.wasm (the point view)
- *   worker-src blob:     MapLibre starts its workers from a blob: URL
+ *   worker-src 'self'    MapLibre 6's worker module, served from /maplibre-gl-worker.mjs (scripts/copy-wasm.mjs)
  *   'unsafe-eval'        dev only: React rebuilds server error stacks with eval
  *
  * Styles, images and connections are left open on purpose. The API and basemap
@@ -29,7 +29,7 @@ export function buildCsp(nonce: string, { dev = false }: { dev?: boolean } = {})
   const script = [`'nonce-${nonce}'`, "'strict-dynamic'", "'wasm-unsafe-eval'", "'report-sample'", ...(dev ? ["'unsafe-eval'"] : [])];
   return [
     `script-src ${script.join(" ")}`,
-    "worker-src 'self' blob:",
+    "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'none'",
     "frame-ancestors 'none'",
