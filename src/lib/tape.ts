@@ -107,8 +107,20 @@ export function replaySchedule(events: readonly TapeEvent[], maxGap = 350): numb
   return at;
 }
 
-/** A path inside the tape, made safe to join under the tape's base (no scheme, no parent segments). */
+const ESCAPES = /^[a-z][a-z0-9+.-]*:|^\/\/|(^|\/)\.\.(\/|$)|\\|[\u0000-\u001f\u007f]/i;
+
+/**
+ * A path inside the tape, made safe to join under the tape's base (no scheme, no parent segments). Checked
+ * as written and percent-decoded, since a browser's URL parser reads `%2e%2e` as `..`, `\` as `/` and drops
+ * tabs and newlines; any of those is refused.
+ */
 export function tapePath(rel: string): string {
-  if (/^[a-z][a-z0-9+.-]*:|^\/\/|(^|\/)\.\.(\/|$)/i.test(rel)) throw new Error(`Not a tape path: ${rel}`);
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(rel);
+  } catch {
+    throw new Error(`Not a tape path: ${rel}`);
+  }
+  if (ESCAPES.test(rel) || ESCAPES.test(decoded)) throw new Error(`Not a tape path: ${rel}`);
   return rel.replace(/^\/+/, "");
 }

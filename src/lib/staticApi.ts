@@ -89,17 +89,23 @@ export class NotRecorded extends Error {
 
 const wait = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) return reject(signal.reason);
     if (ms <= 0) return resolve();
-    const timer = setTimeout(resolve, ms);
-    signal?.addEventListener("abort", () => {
+    const onAbort = () => {
       clearTimeout(timer);
-      reject(signal.reason);
-    });
+      reject(signal!.reason);
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener("abort", onAbort, { once: true });
   });
 
 /** Replay the recorded events for `step` with their rhythm (gaps capped), then resolve with its `done`. */
 export async function replayStep(id: string, step: string, onEvent: (e: SurveyEvent) => void, signal?: AbortSignal): Promise<DoneEvent> {
   const tape = await loadTape();
+  signal?.throwIfAborted();
   const events = eventsFor(tape, id, step);
   if (!events) throw new NotRecorded(step);
   const at = replaySchedule(events);
@@ -108,6 +114,7 @@ export async function replayStep(id: string, step: string, onEvent: (e: SurveyEv
   for (const [i, e] of events.entries()) {
     await wait(at[i] - clock, signal);
     clock = at[i];
+    signal?.throwIfAborted();
     onEvent({ event: e.event, data: e.data } as SurveyEvent);
     if (e.event === "done") done = e.data as DoneEvent;
   }
