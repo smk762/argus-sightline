@@ -25,5 +25,8 @@ export default async function JobPage({
   const { id } = await params;
   // A static export has no query string at build time; the guided-demo flag is a live-API feature anyway.
   const demo = staticDemo() ? false : (await searchParams).demo === "1";
-  return <Workspace jobId={decodeURIComponent(id)} demo={demo} />;
+  // Keyed by job: a new job is a fresh workspace (sidecar, results, drawing, map framing), and anything still in
+  // flight for the previous one lands on an unmounted component instead of beside the new job id.
+  const jobId = decodeURIComponent(id);
+  return <Workspace key={jobId} jobId={jobId} demo={demo} />;
 }

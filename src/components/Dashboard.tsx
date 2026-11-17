@@ -11,6 +11,7 @@ import { runtimeConfig } from "@/lib/runtimeConfig";
 import { getDoctor, getHealth, getInputs, getJob, isSafeJobId, listJobs, type Inputs } from "@/lib/surveyApi";
 import { currentTape } from "@/lib/staticApi";
 import type { JobSidecar } from "@/lib/generated/survey";
+import { stockpileTotal } from "@/lib/volumes";
 import { STEPS } from "@/lib/workflow";
 import { AppHeader } from "@/components/AppHeader";
 import { announce, Banner, Button, buttonClass, cx, Dot, ExternalLink, Pill, Section, Spinner, TextInput } from "@/components/ui";
@@ -276,14 +277,21 @@ function RecordedCard() {
   useEffect(() => {
     let live = true;
     listJobs()
-      .then((jobs) => (jobs[0] ? getJob(jobs[0].job_id) : null))
+      .then(async (jobs) => {
+        // An empty recording (or a job it lists but doesn't hold) is an error to show, not a load that never ends.
+        if (!jobs[0]) throw new Error("The recording holds no jobs.");
+        const j = await getJob(jobs[0].job_id);
+        if (!j) throw new Error(`The recording lists ${jobs[0].job_id} but has no job.json for it.`);
+        return j;
+      })
       .then((j) => live && setJob(j))
       .catch((e: Error) => live && setError(e.message));
     return () => {
       live = false;
     };
   }, []);
-  const zone = job?.volumes?.filter((v) => v.kind === "stockpile").at(-1)?.zones[0];
+  // Every pile the latest stockpile run measured (one zone each), not just the first.
+  const stockpiles = stockpileTotal(job?.volumes);
   const profile = job?.profiles?.at(-1);
   const tape = currentTape();
   return (
@@ -299,9 +307,10 @@ function RecordedCard() {
         <h2 className="text-[18px] font-semibold">An aggregate yard in Los Angeles County, California</h2>
         <ul className="grid grid-cols-3 gap-2 text-center">
           {[
-            ["Points", job?.qa ? count(job.qa.points) : "…"],
-            ["Stockpiles", zone ? m3(zone.above_m3, 0) : "…"],
-            ["Profile", profile ? m(profile.length_m, 0) : "…"],
+            // "…" while the job loads; "—" for a number the loaded job doesn't have.
+            ["Points", !job ? "…" : job.qa ? count(job.qa.points) : "—"],
+            ["Stockpiles", !job ? "…" : stockpiles !== null ? m3(stockpiles, 0) : "—"],
+            ["Profile", !job ? "…" : profile ? m(profile.length_m, 0) : "—"],
           ].map(([k, v]) => (
             <li key={k} className="rounded-md border border-line bg-panel-2 px-2 py-2">
               <div className="text-[11px] uppercase tracking-wide text-muted">{k}</div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { share } from "@/lib/bars";
 import { bytes, seconds } from "@/lib/format";
 import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { Button, Section } from "@/components/ui";
@@ -74,7 +75,7 @@ export function ReportPanel({ blocked }: PanelProps) {
               <li key={k} className="grid grid-cols-[6rem_1fr_4rem] items-center gap-2">
                 <span className="text-ink-2">{k}</span>
                 <div className="h-1.5 rounded-full bg-raised">
-                  <div className="h-full rounded-full bg-data" style={{ width: `${Math.max(2, (v / total) * 100)}%` }} />
+                  <div className="h-full rounded-full bg-data" style={{ width: `${Math.max(2, share(v, total) ?? 0)}%` }} />
                 </div>
                 <span className="num text-right text-muted">{seconds(v)}</span>
               </li>

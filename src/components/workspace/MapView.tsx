@@ -66,11 +66,19 @@ export function MapView() {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const [ready, setReady] = useState(false);
-  const [layers, setLayers] = useState<Partial<Record<LayerKind, LayerState>>>({});
+  const [layers, setLayersState] = useState<Partial<Record<LayerKind, LayerState>>>({});
+  // The latest layer state, written alongside every change: the reload reads it after its fetches resolve, so a
+  // toggle or opacity drag made while views were loading is carried over rather than reverted.
+  const layersRef = useRef<Partial<Record<LayerKind, LayerState>>>({});
+  const setLayers = (next: Partial<Record<LayerKind, LayerState>>) => {
+    layersRef.current = next;
+    setLayersState(next);
+  };
   const [loading, setLoading] = useState(false);
   const [cursor, setCursor] = useState<LonLat | null>(null);
   const [panelOpen, setPanelOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 1024);
-  const fitted = useRef(false);
+  // The job the map was framed on: a new job (MapView can outlive a job change) is framed again.
+  const fittedFor = useRef<string | null>(null);
 
   // drawing state lives in refs: MapLibre handlers are registered once
   const drawingRef = useRef(ws.drawing);
@@ -264,7 +272,7 @@ export function MapView() {
       for (const f of fetched) {
         if (f.status !== "fulfilled") continue; // a view that cannot be derived is skipped; the product still downloads
         const { l } = f.value;
-        const prev = layers[l.kind];
+        const prev = layersRef.current[l.kind];
         const st: LayerState = { on: prev?.on ?? l.on, opacity: prev?.opacity ?? l.opacity };
         const id = `job-${l.kind}`;
         const vis = st.on ? "visible" : "none";
@@ -295,8 +303,8 @@ export function MapView() {
       setLayers(next);
       setLoading(false);
       const b = bbox(extent);
-      if (b && !fitted.current) {
-        fitted.current = true;
+      if (b && fittedFor.current !== ws.jobId) {
+        fittedFor.current = ws.jobId;
         // Keep the job clear of the layer panel (top right) where the map is wide enough to.
         const wide = map.getContainer().clientWidth > 700;
         map.fitBounds(b, { padding: { top: 48, bottom: 48, left: 48, right: wide ? 300 : 48 }, duration: 900, maxZoom: 20 });
@@ -305,24 +313,22 @@ export function MapView() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `layers` is read for carry-over only
   }, [productKey, ready, ws.jobId, ws.mapVersion]);
 
   const setLayer = (kind: LayerKind, patch: Partial<LayerState>) => {
     const map = mapRef.current;
-    setLayers((all) => {
-      const cur = all[kind];
-      if (!cur) return all;
-      const next = { ...cur, ...patch };
-      const id = `job-${kind}`;
-      if (map?.getLayer(id)) {
-        map.setLayoutProperty(id, "visibility", next.on ? "visible" : "none");
-        const def = LAYERS.find((l) => l.kind === kind);
-        if (def?.raster) map.setPaintProperty(id, "raster-opacity", next.opacity);
-        else if (kind === "gaps") map.setPaintProperty(id, "fill-opacity", next.opacity);
-      }
-      return { ...all, [kind]: next };
-    });
+    const all = layersRef.current;
+    const cur = all[kind];
+    if (!cur) return;
+    const next = { ...cur, ...patch };
+    const id = `job-${kind}`;
+    if (map?.getLayer(id)) {
+      map.setLayoutProperty(id, "visibility", next.on ? "visible" : "none");
+      const def = LAYERS.find((l) => l.kind === kind);
+      if (def?.raster) map.setPaintProperty(id, "raster-opacity", next.opacity);
+      else if (kind === "gaps") map.setPaintProperty(id, "fill-opacity", next.opacity);
+    }
+    setLayers({ ...all, [kind]: next });
   };
 
   const legendKind = (["dod_lod", "chm", "density", "dsm", "dtm"] as LayerKind[]).find((k) => layers[k]?.on && layers[k]?.view?.range);
