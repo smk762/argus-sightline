@@ -26,7 +26,10 @@ const crsName = (c: CrsRecord | null | undefined): string | null =>
 /** A value as one short string; objects compactly, so `{slope: 0.15}` reads as `slope=0.15`. */
 export function show(value: unknown): string | null {
   if (value === null || value === undefined || value === "") return null;
-  if (typeof value === "number") return Number.isInteger(value) ? String(value) : String(Number(value.toPrecision(6)));
+  // Small parameters (res, slope) to 6 significant digits; anything from 1 up to 6 decimals, so projected
+  // coordinates (a crop's easting/northing) keep every metre and centimetre the server used.
+  if (typeof value === "number")
+    return Number.isInteger(value) ? String(value) : String(Number(Math.abs(value) < 1 ? value.toPrecision(6) : value.toFixed(6)));
   if (typeof value === "string" || typeof value === "boolean") return String(value);
   if (Array.isArray(value)) return value.map(show).filter(Boolean).join(", ") || null;
   const entries = Object.entries(value as Record<string, unknown>)
