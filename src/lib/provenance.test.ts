@@ -75,6 +75,13 @@ describe("show / toolPackage", () => {
     expect(show({ k: 8, m: 3.0000001 })).toBe("k=8 m=3");
   });
 
+  it("keeps projected coordinates whole, rounding only small parameters to 6 significant digits", () => {
+    expect(show([512345.67, 5412345.67])).toBe("512345.67, 5412345.67");
+    expect(show(0.15)).toBe("0.15");
+    expect(show(0.000123456789)).toBe("0.000123457");
+    expect(show(-1.5)).toBe("-1.5");
+  });
+
   it("maps GDAL's and PROJ's binaries to their package", () => {
     expect(toolPackage("ogr2ogr")).toBe("gdal");
     expect(toolPackage("gdal_translate")).toBe("gdal");

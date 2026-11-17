@@ -53,6 +53,7 @@ export async function* readSse(response: Response): AsyncGenerator<SseMessage> {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let finished = false;
   try {
     for (;;) {
       const { value, done } = await reader.read();
@@ -62,9 +63,13 @@ export async function* readSse(response: Response): AsyncGenerator<SseMessage> {
       buffer = rest;
       yield* messages;
     }
+    finished = true;
     const { messages } = splitSse(buffer + decoder.decode() + "\n\n");
     yield* messages;
   } finally {
+    // Stopped early (a `break`, a throw in the consumer, `return()`): cancel the body, which closes the
+    // connection and so ends the server's stream, instead of only letting go of the reader.
+    if (!finished) await reader.cancel().catch(() => {});
     reader.releaseLock();
   }
 }

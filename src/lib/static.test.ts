@@ -60,6 +60,45 @@ describe("static demo api", () => {
     vi.useRealTimers();
   });
 
+  it("stops a replay cancelled before it starts or from inside an event", async () => {
+    vi.useFakeTimers();
+    const api = await import("./surveyApi");
+    const [job] = await api.listJobs();
+    const early = new AbortController();
+    early.abort();
+    const seen: string[] = [];
+    await expect(api.runStep(job.job_id, "volume", {}, (e) => seen.push(e.event), early.signal)).rejects.toThrow();
+    expect(seen).toEqual([]);
+
+    const mid = new AbortController();
+    const run = api.runStep(job.job_id, "volume", {}, (e) => {
+      seen.push(e.event);
+      mid.abort();
+    }, mid.signal);
+    const settled = run.then(() => "resolved", () => "rejected");
+    await vi.runAllTimersAsync();
+    expect(await settled).toBe("rejected");
+    expect(seen).toHaveLength(1);
+    vi.useRealTimers();
+  });
+
+  it("leaves no abort listener behind for the events it waited on", async () => {
+    vi.useFakeTimers();
+    const api = await import("./surveyApi");
+    const [job] = await api.listJobs();
+    const ctl = new AbortController();
+    let live = 0;
+    const add = ctl.signal.addEventListener.bind(ctl.signal);
+    const remove = ctl.signal.removeEventListener.bind(ctl.signal);
+    ctl.signal.addEventListener = ((...a: Parameters<AbortSignal["addEventListener"]>) => (live++, add(...a))) as AbortSignal["addEventListener"];
+    ctl.signal.removeEventListener = ((...a: Parameters<AbortSignal["removeEventListener"]>) => (live--, remove(...a))) as AbortSignal["removeEventListener"];
+    const done = api.runStep(job.job_id, "volume", {}, () => {}, ctl.signal);
+    await vi.runAllTimersAsync();
+    await done;
+    expect(live).toBe(0);
+    vi.useRealTimers();
+  });
+
   it("refuses a step the recording has no run for, without a request past the tape", async () => {
     const api = await import("./surveyApi");
     const [job] = await api.listJobs();

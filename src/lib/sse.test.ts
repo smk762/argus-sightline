@@ -38,4 +38,22 @@ describe("readSse", () => {
       { event: "done", data: {} },
     ]);
   });
+
+  it("cancels the body when the consumer stops early", async () => {
+    let cancelled: unknown = "no";
+    const body = new ReadableStream({
+      start(c) {
+        c.enqueue(new TextEncoder().encode("event: step\ndata: {}\n\n"));
+        // left open: the server is still streaming
+      },
+      cancel(reason) {
+        cancelled = reason;
+      },
+    });
+    for await (const m of readSse(new Response(body))) {
+      expect(m.event).toBe("step");
+      break;
+    }
+    expect(cancelled).not.toBe("no");
+  });
 });

@@ -77,6 +77,17 @@ export class Refused extends Error {
 const JOB_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 export const isSafeJobId = (id: string): boolean => JOB_ID.test(id) && id.length <= 128;
 
+/**
+ * The path for `segments` under `/jobs/`, or an `ApiError` (400) before the wire. `encodeURIComponent` leaves
+ * `.` and `..` alone, and URL normalisation would turn `/jobs/../web/x` into `/web/x`: the read paths check
+ * the job id (and product kind) the way `runStep` does.
+ */
+function jobPath(job: string, ...rest: string[]): string {
+  if (!isSafeJobId(job)) throw new ApiError(`"${job}" is not a valid job id (letters, digits, . _ -)`, 400);
+  for (const part of rest) if (!isSafeJobId(part)) throw new ApiError(`"${part}" is not a valid product kind`, 400);
+  return `/jobs/${[job, ...rest].map(encodeURIComponent).join("/")}`;
+}
+
 const url = (path: string): string => `${surveyUrl()}${path}`;
 
 async function detail(resp: Response): Promise<string> {
@@ -115,30 +126,39 @@ export const listJobs = async (): Promise<JobDigest[]> =>
 
 /** The sidecar, or `null` when the job does not exist yet (a new survey). */
 export async function getJob(id: string): Promise<JobSidecar | null> {
+  const path = jobPath(id);
   if (staticDemo()) return tape.job(id);
   try {
-    return await getJson<JobSidecar>(`/jobs/${encodeURIComponent(id)}`);
+    return await getJson<JobSidecar>(path);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) return null;
     throw err;
   }
 }
 
-/** Where a product downloads from. In the hosted demo, "" for a product the tape leaves out (see `hasProduct`). */
-export const productUrl = (job: string, kind: string): string =>
-  staticDemo() ? tape.productUrl(job, kind) : url(`/jobs/${encodeURIComponent(job)}/${encodeURIComponent(kind)}`);
+/**
+ * Where a product downloads from. In the hosted demo, "" for a product the tape leaves out (see `hasProduct`),
+ * and "" for a job id or kind that is not one.
+ */
+export const productUrl = (job: string, kind: string): string => {
+  if (!isSafeJobId(job) || !isSafeJobId(kind)) return "";
+  return staticDemo() ? tape.productUrl(job, kind) : url(jobPath(job, kind));
+};
 
 /** Whether a product can be downloaded here: always from a live server, only what the tape carries in the demo. */
 export const hasProduct = (job: string, kind: string): boolean => !staticDemo() || tape.hasProduct(job, kind);
 
 export async function getRasterView(job: string, kind: string): Promise<RasterView & { imageUrl: string }> {
+  const path = jobPath(job, "web", kind);
   if (staticDemo()) return tape.rasterView(job, kind);
-  const view = await getJson<RasterView>(`/jobs/${encodeURIComponent(job)}/web/${encodeURIComponent(kind)}`);
+  const view = await getJson<RasterView>(path);
   return { ...view, imageUrl: url(view.url) };
 }
 
-export const getVectorView = (job: string, kind: string) =>
-  staticDemo() ? tape.vectorView(job, kind) : getJson<GeoJSON.FeatureCollection>(`/jobs/${encodeURIComponent(job)}/web/${encodeURIComponent(kind)}`);
+export async function getVectorView(job: string, kind: string): Promise<GeoJSON.FeatureCollection> {
+  const path = jobPath(job, "web", kind);
+  return staticDemo() ? tape.vectorView(job, kind) : getJson<GeoJSON.FeatureCollection>(path);
+}
 
 /**
  * Run one step and stream its events to `onEvent`. Resolves with the `done`
@@ -173,6 +193,8 @@ export async function runStep(
       signal,
     });
   } catch (err) {
+    // A cancel is the caller's own doing: hand it back as the AbortError it is, as a cancel mid-stream does.
+    if (signal?.aborted || (err instanceof Error && err.name === "AbortError")) throw err;
     throw new ApiError(`cannot reach argus-survey (${String(err)})`, 0);
   }
   if (resp.status === 403 || resp.status === 409) throw new Refused(await detail(resp));

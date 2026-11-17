@@ -58,4 +58,10 @@ describe("parseTape and tapePath", () => {
     expect(tapePath("jobs/a/web/x.png")).toBe("jobs/a/web/x.png");
     for (const bad of ["../x", "a/../../x", "https://example.com/x", "//example.com/x"]) expect(() => tapePath(bad), bad).toThrow();
   });
+
+  it("refuses what a browser's URL parser reads as a parent segment or another host", () => {
+    for (const bad of ["..\\..\\x", "a\\..\\x", "%2e%2e/x", "a/%2E%2e/x", ".%2e/x", "\\\\evil.example/x", "/\\evil.example/x", "a/.\t./x", "%2f%2fevil.example", "%zz"])
+      expect(() => tapePath(bad), bad).toThrow();
+    expect(tapePath("jobs/a%20b/x.json")).toBe("jobs/a%20b/x.json");
+  });
 });
