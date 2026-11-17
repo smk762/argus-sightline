@@ -1,0 +1,30 @@
+name: Lock drift
+
+# CLAUDE.md, "Must never happen": the lockfile is re-resolved from scratch. `npm ci` (ci.yml) refuses a lock out of
+# step with package.json; this catches a lock that was deleted and regenerated, which moves every transitive
+# version. A deliberate large move is labelled deps:lock.
+on:
+  pull_request:
+    branches: [main, dev]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    paths: [package-lock.json]
+
+permissions:
+  contents: read
+
+jobs:
+  lock-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+      - run: git fetch --depth=1 origin "$BASE"
+        env:
+          BASE: ${{ github.base_ref }}
+      - run: node scripts/lock-drift.mjs "origin/$BASE"
+        env:
+          BASE: ${{ github.base_ref }}
+          LOCK_CHURN_OK: ${{ contains(github.event.pull_request.labels.*.name, 'deps:lock') && '1' || '0' }}

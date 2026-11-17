@@ -4,8 +4,9 @@ NODE_RUN = docker run --rm -u $(shell id -u):$(shell id -g) -e HOME=/tmp -e NEXT
 NPM = $(NODE_RUN) $(NODE_IMAGE)
 COMPOSE_BUILD = docker compose -f compose.yaml -f compose.build.yaml
 SURVEY_SRC ?= ../argus-survey
+LOCK_BASE ?= origin/dev
 
-.PHONY: help install check lint typecheck test build wire-check wire-local docs-pull demo-data demo-record tape-data tape pages shared-check up up-published down logs
+.PHONY: help install check lint typecheck test build wire-check wire-local docs-pull demo-data demo-record tape-data tape pages shared-check lock-check up up-published down logs
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -59,6 +60,9 @@ tape:  ## With `make up` running on the pinned survey commit: record the hosted 
 
 pages:  ## The hosted demo: static export of the tape to out/, with a hash CSP on every page, then the static check
 	$(NPM) npm run build:pages
+
+lock-check:  ## package-lock.json moves no more than a dependency change explains, against $(LOCK_BASE) (CI: lock-drift.yml)
+	node scripts/lock-drift.mjs $(LOCK_BASE)
 
 shared-check:  ## The vendored Dragonhound shared layer is unedited and matches the published v1 manifest
 	node vendor/dh/sync-shared.mjs --check . --against https://dragonhound.dev/brand/v1/manifest.json --allow-outdated
