@@ -32,8 +32,8 @@ Each rule names what fails when it is broken. **UNENFORCED** rows link the issue
 | Code branches on runtime state instead of `staticDemo()` | Partial: `src/lib/rules.test.ts:45-48` (no new env switch); runtime-state branches **UNENFORCED**: #38 |
 | `geo.ts` lengths or areas feed a deliverable (they are approximate, for drawing) | `src/lib/rules.test.ts:52-55` (who may call `lineLength`/`ringArea`) |
 | A map shortcut fires in an editable target (Backspace in a field undoes a vertex) | `src/lib/rules.test.ts:59-63` (page-wide key listeners call `isEditable()`) |
-| The CSP loosens (`'unsafe-inline'`, no nonce, a page without CSP) | `src/lib/csp.test.ts:5`, `src/lib/pagesCsp.test.ts:5,16`, `scripts/check-static.mjs:31` |
-| The static export ships an API route or points at an API | `scripts/check-static.mjs:24,32-33` (CI `build:pages`, `ci.yml:30`) |
+| The CSP loosens (`'unsafe-inline'`, no nonce, a page without CSP) | `src/lib/csp.test.ts:5`, `src/lib/pagesCsp.test.ts:5,16`, `scripts/check-static.mjs:34` |
+| The static export ships an API route or points at an API | `scripts/check-static.mjs:25,35-36` (CI `build:pages`, `ci.yml:30`) |
 | `vendor/dh/` is edited | CI `dh-shared` (`ci.yml:35-43`); `public/dh-theme.js` copy: `src/lib/shared.test.ts:42` |
 | A dependency beyond next/react/maplibre-gl/three/copc/laz-perf/marked is added without asking | `src/lib/rules.test.ts:21-26` |
 | A server-side proxy to the API (the browser calls it directly, over CORS) | `src/lib/rules.test.ts:30-36` (no route but the docs images, no rewrites) |

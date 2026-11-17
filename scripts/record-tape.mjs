@@ -118,7 +118,10 @@ await save(
   "inputs.json",
   Object.fromEntries(Object.entries(inputs).map(([k, files]) => [k, files.filter((f) => f.startsWith(DIR))])),
 );
-await save("jobs.json", await getJson("/jobs"));
+// Only the tape's own job, as for inputs.json: other jobs on the server (the demo kit's) have no pages in the
+// export and no place in a public tape.
+const { jobs } = await getJson("/jobs");
+await save("jobs.json", { jobs: jobs.filter((j) => j.job_id === JOB) });
 
 const sidecar = await getJson(`/jobs/${JOB}`);
 await save(`jobs/${JOB}/job.json`, sidecar);
