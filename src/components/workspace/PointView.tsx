@@ -9,6 +9,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREEType from "three";
+import { chooseNodes } from "@/lib/copcHierarchy";
 import { count, num } from "@/lib/format";
 import { productUrl } from "@/lib/surveyApi";
 import { TASK_BUDGET_MS, yieldToMain } from "@/lib/yieldToMain";
@@ -29,6 +30,24 @@ const CLASSES: Record<number, { name: string; rgb: [number, number, number] }> =
 };
 
 const BUDGETS = [500_000, 1_500_000, 4_000_000] as const;
+
+type LazPerf = Awaited<ReturnType<(typeof import("laz-perf"))["createLazPerf"]>>;
+let lazPerfInstance: Promise<LazPerf> | null = null;
+
+/**
+ * The one laz-perf WASM instance, made on first use and shared by every load: each `createLazPerf` is a new
+ * module with its own linear memory, which nothing frees, so one per Retry or budget change grows the tab.
+ * A failed instantiation is forgotten, so a Retry tries again.
+ */
+function lazPerfOnce(): Promise<LazPerf> {
+  lazPerfInstance ??= import("laz-perf")
+    .then(({ createLazPerf }) => createLazPerf({ locateFile: () => "/laz-perf.wasm" }))
+    .catch((err: unknown) => {
+      lazPerfInstance = null;
+      throw err;
+    });
+  return lazPerfInstance;
+}
 
 function ramp(t: number): [number, number, number] {
   const stops: [number, number, number][] = [
@@ -127,27 +146,16 @@ export function PointView({ active }: { active: boolean }) {
     const url = new URL(productUrl(ws.jobId, kind), window.location.href).href;
     setStatus({ phase: "loading", text: "Reading the COPC header…", frac: 0 });
     try {
-      const [THREE, { OrbitControls }, { Copc }, { createLazPerf }] = await Promise.all([
+      const [THREE, { OrbitControls }, { Copc }, lazPerf] = await Promise.all([
         import("three"),
         import("three/examples/jsm/controls/OrbitControls.js"),
         import("copc"),
-        import("laz-perf"),
+        lazPerfOnce(),
       ]);
-      const lazPerf = await createLazPerf({ locateFile: () => "/laz-perf.wasm" });
       const copc = await Copc.create(url);
-      const { nodes } = await Copc.loadHierarchyPage(url, copc.info.rootHierarchyPage);
+      // Coarse levels first up to the budget, reading child hierarchy pages as far as it reaches.
+      const { nodes, chosen, total } = await chooseNodes(copc.info.rootHierarchyPage, (page) => Copc.loadHierarchyPage(url, page), budget);
       if (stale()) return;
-      const keys = Object.keys(nodes)
-        .filter((k) => (nodes[k]?.pointCount ?? 0) > 0)
-        .sort((a, b) => Number(a.split("-")[0]) - Number(b.split("-")[0]));
-      const chosen: string[] = [];
-      let total = 0;
-      for (const k of keys) {
-        const c = nodes[k]!.pointCount;
-        if (total + c > budget) break;
-        chosen.push(k);
-        total += c;
-      }
       const [minx, miny, minz] = copc.header.min;
       const [maxx, maxy, maxz] = copc.header.max;
       const cx0 = (minx + maxx) / 2;
@@ -158,7 +166,7 @@ export function PointView({ active }: { active: boolean }) {
       let n = 0;
       for (const [i, k] of chosen.entries()) {
         setStatus({ phase: "loading", text: `Node ${i + 1} of ${chosen.length} · ${count(n)} points`, frac: (i + 1) / chosen.length });
-        const view = await Copc.loadPointDataView(url, copc, nodes[k]!, {
+        const view = await Copc.loadPointDataView(url, copc, nodes[k], {
           lazPerf,
           include: ["X", "Y", "Z", "Classification", "Intensity"],
         });

@@ -4,7 +4,7 @@ FROM node:22.23.4-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-# postinstall copies laz-perf.wasm into public/
+# postinstall copies laz-perf.wasm and maplibre-gl-worker.mjs into public/
 COPY scripts ./scripts
 RUN --mount=type=cache,target=/root/.npm npm ci
 
@@ -15,6 +15,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY --from=deps /app/public/laz-perf.wasm ./public/laz-perf.wasm
+COPY --from=deps /app/public/maplibre-gl-worker.mjs ./public/maplibre-gl-worker.mjs
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

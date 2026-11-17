@@ -85,9 +85,9 @@ const HREF = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
 /**
  * The basemap attribution reduced to text and `<a href="http(s)://…">` links. MapLibre's own sanitizer
  * (`DOM.sanitize`, which feeds the attribution control's innerHTML) skips an attribute after one it
- * removes in maplibre-gl ≤ 6.4.0 (GHSA-jrc7-96c5-q579), and 6.4.1's fix has no 5.x backport. The value
- * comes from the deployment, not from users, and the CSP blocks inline handlers anyway; this closes
- * the gap even with `ARGUS_SIGHTLINE_CSP=off`. Drop it once maplibre-gl is ≥ 6.4.1.
+ * removed in maplibre-gl ≤ 6.4.0 (GHSA-jrc7-96c5-q579, fixed in 6.4.1, which this UI is past). Kept as
+ * defence in depth: the value is HTML from the deployment that reaches innerHTML, and this holds even
+ * with `ARGUS_SIGHTLINE_CSP=off` or a future regression in MapLibre's sanitizer.
  */
 export function sanitizeAttribution(html: string): string {
   let out = "";

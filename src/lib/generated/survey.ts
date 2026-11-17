@@ -1,4 +1,4 @@
-// Generated from smk762/argus-survey@8d966b6ec7f1cac3f188a705c194ee3c6ad61199 schema/survey-wire.schema.json.
+// Generated from smk762/argus-survey@f4fbc55761c002709cc0489465e185b03bb2f74d schema/survey-wire.schema.json.
 // Do not edit: change schema/pins.json and run `npm run wire:pull`.
 
 export interface SurveyWire {
