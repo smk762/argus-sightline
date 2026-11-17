@@ -1,9 +1,9 @@
 {
  "tape": 1,
- "recorded_at": "2026-11-15T04:16:08Z",
+ "recorded_at": "2026-11-17T11:34:41Z",
  "survey": {
-  "commit": "8d966b6ec7f1cac3f188a705c194ee3c6ad61199",
-  "version": "0.1.dev69+g8d966b6ec"
+  "commit": "f4fbc55761c002709cc0489465e185b03bb2f74d",
+  "version": "0.1.dev76+gf4fbc5576"
  },
  "job": "usgs-3dep",
  "runs": [
@@ -38,206 +38,206 @@
      }
     },
     {
-     "t": 71,
+     "t": 45,
      "event": "command",
      "data": {
       "index": 1,
       "step": "ingest",
       "tool": "pdal",
-      "seconds": 0.063,
+      "seconds": 0.038,
       "returncode": 0
      }
     },
     {
-     "t": 107,
+     "t": 77,
      "event": "command",
      "data": {
       "index": 2,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.028,
+      "seconds": 0.025,
       "returncode": 0
      }
     },
     {
-     "t": 135,
+     "t": 99,
      "event": "command",
      "data": {
       "index": 3,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.027,
+      "seconds": 0.021,
       "returncode": 0
      }
     },
     {
-     "t": 258,
+     "t": 190,
      "event": "command",
      "data": {
       "index": 4,
       "step": "ingest",
       "tool": "gdaltransform",
-      "seconds": 0.122,
+      "seconds": 0.091,
       "returncode": 0
      }
     },
     {
-     "t": 808,
+     "t": 461,
      "event": "command",
      "data": {
       "index": 5,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.548,
+      "seconds": 0.269,
       "returncode": 0
      }
     },
     {
-     "t": 3106,
+     "t": 1314,
      "event": "command",
      "data": {
       "index": 6,
       "step": "ingest",
       "tool": "pdal",
-      "seconds": 2.293,
+      "seconds": 0.852,
       "returncode": 0
      }
     },
     {
-     "t": 6368,
+     "t": 2506,
      "event": "command",
      "data": {
       "index": 7,
       "step": "ingest",
       "tool": "untwine",
-      "seconds": 3.262,
+      "seconds": 1.191,
       "returncode": 0
      }
     },
     {
-     "t": 6779,
+     "t": 2626,
      "event": "command",
      "data": {
       "index": 8,
       "step": "ingest",
       "tool": "pdal",
-      "seconds": 0.409,
+      "seconds": 0.119,
       "returncode": 0
      }
     },
     {
-     "t": 6841,
+     "t": 2648,
      "event": "command",
      "data": {
       "index": 9,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.056,
+      "seconds": 0.021,
       "returncode": 0
      }
     },
     {
-     "t": 7043,
+     "t": 2715,
      "event": "command",
      "data": {
       "index": 10,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.2,
+      "seconds": 0.066,
       "returncode": 0
      }
     },
     {
-     "t": 7064,
+     "t": 2724,
      "event": "command",
      "data": {
       "index": 11,
       "step": "ingest",
       "tool": "proj",
-      "seconds": 0.02,
+      "seconds": 0.009,
       "returncode": 0
      }
     },
     {
-     "t": 7081,
+     "t": 2733,
      "event": "command",
      "data": {
       "index": 12,
       "step": "ingest",
       "tool": "proj",
-      "seconds": 0.016,
+      "seconds": 0.008,
       "returncode": 0
      }
     },
     {
-     "t": 7127,
+     "t": 2750,
      "event": "command",
      "data": {
       "index": 13,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.043,
+      "seconds": 0.016,
       "returncode": 0
      }
     },
     {
-     "t": 7169,
+     "t": 2766,
      "event": "command",
      "data": {
       "index": 14,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.04,
+      "seconds": 0.016,
       "returncode": 0
      }
     },
     {
-     "t": 7249,
+     "t": 2798,
      "event": "command",
      "data": {
       "index": 15,
       "step": "ingest",
       "tool": "projinfo",
-      "seconds": 0.077,
+      "seconds": 0.03,
       "returncode": 0
      }
     },
     {
-     "t": 7263,
+     "t": 2808,
      "event": "command",
      "data": {
       "index": 16,
       "step": "ingest",
       "tool": "cct",
-      "seconds": 0.013,
+      "seconds": 0.009,
       "returncode": 0
      }
     },
     {
-     "t": 7277,
+     "t": 2811,
      "event": "warning",
      "data": {
       "message": "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height"
      }
     },
     {
-     "t": 7278,
+     "t": 2812,
      "event": "warning",
      "data": {
       "message": "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade"
      }
     },
     {
-     "t": 7280,
+     "t": 2813,
      "event": "step",
      "data": {
       "step": "ingest",
       "state": "done",
-      "seconds": 7.272
+      "seconds": 2.806
      }
     },
     {
-     "t": 7281,
+     "t": 2813,
      "event": "step",
      "data": {
       "step": "qa",
@@ -245,133 +245,133 @@
      }
     },
     {
-     "t": 8192,
+     "t": 3150,
      "event": "command",
      "data": {
       "index": 17,
       "step": "qa",
       "tool": "pdal",
-      "seconds": 0.91,
+      "seconds": 0.335,
       "returncode": 0
      }
     },
     {
-     "t": 8275,
+     "t": 3187,
      "event": "command",
      "data": {
       "index": 18,
       "step": "qa",
       "tool": "ogr2ogr",
-      "seconds": 0.081,
+      "seconds": 0.036,
       "returncode": 0
      }
     },
     {
-     "t": 8367,
+     "t": 3223,
      "event": "command",
      "data": {
       "index": 19,
       "step": "qa",
       "tool": "gdal_rasterize",
-      "seconds": 0.089,
+      "seconds": 0.034,
       "returncode": 0
      }
     },
     {
-     "t": 8514,
+     "t": 3282,
      "event": "command",
      "data": {
       "index": 20,
       "step": "qa",
       "tool": "gdal",
-      "seconds": 0.145,
+      "seconds": 0.058,
       "returncode": 0
      }
     },
     {
-     "t": 8799,
+     "t": 3384,
      "event": "command",
      "data": {
       "index": 21,
       "step": "qa",
       "tool": "gdal",
-      "seconds": 0.283,
+      "seconds": 0.101,
       "returncode": 0
      }
     },
     {
-     "t": 9043,
+     "t": 3483,
      "event": "command",
      "data": {
       "index": 22,
       "step": "qa",
       "tool": "gdalinfo",
-      "seconds": 0.243,
+      "seconds": 0.098,
       "returncode": 0
      }
     },
     {
-     "t": 9150,
+     "t": 3543,
      "event": "command",
      "data": {
       "index": 23,
       "step": "qa",
       "tool": "gdal_translate",
-      "seconds": 0.104,
+      "seconds": 0.059,
       "returncode": 0
      }
     },
     {
-     "t": 9315,
+     "t": 3638,
      "event": "command",
      "data": {
       "index": 24,
       "step": "qa",
       "tool": "gdal",
-      "seconds": 0.142,
+      "seconds": 0.076,
       "returncode": 0
      }
     },
     {
-     "t": 9482,
+     "t": 3728,
      "event": "command",
      "data": {
       "index": 25,
       "step": "qa",
       "tool": "gdal",
-      "seconds": 0.165,
+      "seconds": 0.088,
       "returncode": 0
      }
     },
     {
-     "t": 16370,
+     "t": 6151,
      "event": "command",
      "data": {
       "index": 26,
       "step": "qa",
       "tool": "pdal",
-      "seconds": 6.884,
+      "seconds": 2.421,
       "returncode": 0
      }
     },
     {
-     "t": 16391,
+     "t": 6159,
      "event": "warning",
      "data": {
       "message": "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))"
      }
     },
     {
-     "t": 16399,
+     "t": 6161,
      "event": "step",
      "data": {
       "step": "qa",
       "state": "done",
-      "seconds": 9.111
+      "seconds": 3.346
      }
     },
     {
-     "t": 16399,
+     "t": 6162,
      "event": "step",
      "data": {
       "step": "ground",
@@ -379,60 +379,60 @@
      }
     },
     {
-     "t": 25590,
+     "t": 9059,
      "event": "command",
      "data": {
       "index": 27,
       "step": "ground",
       "tool": "pdal",
-      "seconds": 9.186,
+      "seconds": 2.895,
       "returncode": 0
      }
     },
     {
-     "t": 25989,
+     "t": 9179,
      "event": "command",
      "data": {
       "index": 28,
       "step": "ground",
       "tool": "pdal",
-      "seconds": 0.395,
+      "seconds": 0.118,
       "returncode": 0
      }
     },
     {
-     "t": 29272,
+     "t": 10459,
      "event": "command",
      "data": {
       "index": 29,
       "step": "ground",
       "tool": "untwine",
-      "seconds": 3.281,
+      "seconds": 1.278,
       "returncode": 0
      }
     },
     {
-     "t": 29856,
+     "t": 10724,
      "event": "command",
      "data": {
       "index": 30,
       "step": "ground",
       "tool": "pdal",
-      "seconds": 0.581,
+      "seconds": 0.263,
       "returncode": 0
      }
     },
     {
-     "t": 29870,
+     "t": 10726,
      "event": "step",
      "data": {
       "step": "ground",
       "state": "done",
-      "seconds": 13.469
+      "seconds": 4.564
      }
     },
     {
-     "t": 29870,
+     "t": 10727,
      "event": "step",
      "data": {
       "step": "surfaces",
@@ -440,221 +440,221 @@
      }
     },
     {
-     "t": 29954,
+     "t": 10765,
      "event": "command",
      "data": {
       "index": 31,
       "step": "surfaces",
       "tool": "gdal_rasterize",
-      "seconds": 0.083,
+      "seconds": 0.037,
       "returncode": 0
      }
     },
     {
-     "t": 30071,
+     "t": 10826,
      "event": "command",
      "data": {
       "index": 32,
       "step": "surfaces",
       "tool": "gdal",
-      "seconds": 0.115,
+      "seconds": 0.06,
       "returncode": 0
      }
     },
     {
-     "t": 31010,
+     "t": 11275,
      "event": "command",
      "data": {
       "index": 33,
       "step": "surfaces",
       "tool": "pdal",
-      "seconds": 0.936,
+      "seconds": 0.447,
       "returncode": 0
      }
     },
     {
-     "t": 32387,
+     "t": 11741,
      "event": "command",
      "data": {
       "index": 34,
       "step": "surfaces",
       "tool": "pdal",
-      "seconds": 1.372,
+      "seconds": 0.464,
       "returncode": 0
      }
     },
     {
-     "t": 34290,
+     "t": 12462,
      "event": "command",
      "data": {
       "index": 35,
       "step": "surfaces",
       "tool": "pdal",
-      "seconds": 1.9,
+      "seconds": 0.719,
       "returncode": 0
      }
     },
     {
-     "t": 34536,
+     "t": 12601,
      "event": "command",
      "data": {
       "index": 36,
       "step": "surfaces",
       "tool": "pdal",
-      "seconds": 0.242,
+      "seconds": 0.137,
       "returncode": 0
      }
     },
     {
-     "t": 35478,
+     "t": 12961,
      "event": "command",
      "data": {
       "index": 37,
       "step": "surfaces",
       "tool": "pdal",
-      "seconds": 0.939,
+      "seconds": 0.358,
       "returncode": 0
      }
     },
     {
-     "t": 35596,
+     "t": 13029,
      "event": "command",
      "data": {
       "index": 38,
       "step": "surfaces",
       "tool": "gdal",
-      "seconds": 0.116,
+      "seconds": 0.066,
       "returncode": 0
      }
     },
     {
-     "t": 35810,
+     "t": 13138,
      "event": "command",
      "data": {
       "index": 39,
       "step": "surfaces",
       "tool": "gdal",
-      "seconds": 0.211,
+      "seconds": 0.106,
       "returncode": 0
      }
     },
     {
-     "t": 35992,
+     "t": 13238,
      "event": "command",
      "data": {
       "index": 40,
       "step": "surfaces",
       "tool": "gdalinfo",
-      "seconds": 0.18,
+      "seconds": 0.099,
       "returncode": 0
      }
     },
     {
-     "t": 36188,
+     "t": 13343,
      "event": "command",
      "data": {
       "index": 41,
       "step": "surfaces",
       "tool": "gdalinfo",
-      "seconds": 0.194,
+      "seconds": 0.103,
       "returncode": 0
      }
     },
     {
-     "t": 36368,
+     "t": 13455,
      "event": "command",
      "data": {
       "index": 42,
       "step": "surfaces",
       "tool": "gdal",
-      "seconds": 0.173,
+      "seconds": 0.107,
       "returncode": 0
      }
     },
     {
-     "t": 36593,
+     "t": 13554,
      "event": "command",
      "data": {
       "index": 43,
       "step": "surfaces",
       "tool": "gdalinfo",
-      "seconds": 0.223,
+      "seconds": 0.098,
       "returncode": 0
      }
     },
     {
-     "t": 36855,
+     "t": 13668,
      "event": "command",
      "data": {
       "index": 44,
       "step": "surfaces",
       "tool": "gdalinfo",
-      "seconds": 0.26,
+      "seconds": 0.113,
       "returncode": 0
      }
     },
     {
-     "t": 37120,
+     "t": 13792,
      "event": "command",
      "data": {
       "index": 45,
       "step": "surfaces",
       "tool": "gdal",
-      "seconds": 0.255,
+      "seconds": 0.119,
       "returncode": 0
      }
     },
     {
-     "t": 37361,
+     "t": 13893,
      "event": "command",
      "data": {
       "index": 46,
       "step": "surfaces",
       "tool": "gdalinfo",
-      "seconds": 0.24,
+      "seconds": 0.099,
       "returncode": 0
      }
     },
     {
-     "t": 37631,
+     "t": 14000,
      "event": "command",
      "data": {
       "index": 47,
       "step": "surfaces",
       "tool": "gdalinfo",
-      "seconds": 0.267,
+      "seconds": 0.106,
       "returncode": 0
      }
     },
     {
-     "t": 37640,
+     "t": 14004,
      "event": "warning",
      "data": {
       "message": "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
      }
     },
     {
-     "t": 37812,
+     "t": 14074,
      "event": "command",
      "data": {
       "index": 48,
       "step": "surfaces",
       "tool": "gdaldem",
-      "seconds": 0.165,
+      "seconds": 0.068,
       "returncode": 0
      }
     },
     {
-     "t": 37818,
+     "t": 14078,
      "event": "step",
      "data": {
       "step": "surfaces",
       "state": "done",
-      "seconds": 7.946
+      "seconds": 3.35
      }
     },
     {
-     "t": 37819,
+     "t": 14078,
      "event": "step",
      "data": {
       "step": "contours",
@@ -662,60 +662,60 @@
      }
     },
     {
-     "t": 38028,
+     "t": 14160,
      "event": "command",
      "data": {
       "index": 49,
       "step": "contours",
       "tool": "gdal_contour",
-      "seconds": 0.206,
+      "seconds": 0.081,
       "returncode": 0
      }
     },
     {
-     "t": 38186,
+     "t": 14220,
      "event": "command",
      "data": {
       "index": 50,
       "step": "contours",
       "tool": "ogr2ogr",
-      "seconds": 0.154,
-      "returncode": 0
-     }
-    },
-    {
-     "t": 38522,
-     "event": "command",
-     "data": {
-      "index": 51,
-      "step": "contours",
-      "tool": "ogr2ogr",
-      "seconds": 0.334,
-      "returncode": 0
-     }
-    },
-    {
-     "t": 38583,
-     "event": "command",
-     "data": {
-      "index": 52,
-      "step": "contours",
-      "tool": "ogrinfo",
       "seconds": 0.059,
       "returncode": 0
      }
     },
     {
-     "t": 38600,
+     "t": 14336,
+     "event": "command",
+     "data": {
+      "index": 51,
+      "step": "contours",
+      "tool": "ogr2ogr",
+      "seconds": 0.113,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14374,
+     "event": "command",
+     "data": {
+      "index": 52,
+      "step": "contours",
+      "tool": "ogrinfo",
+      "seconds": 0.037,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14380,
      "event": "step",
      "data": {
       "step": "contours",
       "state": "done",
-      "seconds": 0.779
+      "seconds": 0.301
      }
     },
     {
-     "t": 38601,
+     "t": 14380,
      "event": "step",
      "data": {
       "step": "report",
@@ -723,55 +723,55 @@
      }
     },
     {
-     "t": 38736,
+     "t": 14438,
      "event": "command",
      "data": {
       "index": 53,
       "step": "report",
       "tool": "gdaldem",
-      "seconds": 0.132,
+      "seconds": 0.056,
       "returncode": 0
      }
     },
     {
-     "t": 38892,
+     "t": 14529,
      "event": "command",
      "data": {
       "index": 54,
       "step": "report",
       "tool": "gdal_translate",
-      "seconds": 0.154,
+      "seconds": 0.09,
       "returncode": 0
      }
     },
     {
-     "t": 39072,
+     "t": 14628,
      "event": "command",
      "data": {
       "index": 55,
       "step": "report",
       "tool": "gdal_translate",
-      "seconds": 0.175,
+      "seconds": 0.096,
       "returncode": 0
      }
     },
     {
-     "t": 39080,
+     "t": 14637,
      "event": "step",
      "data": {
       "step": "report",
       "state": "done",
-      "seconds": 0.479
+      "seconds": 0.256
      }
     },
     {
-     "t": 39080,
+     "t": 14638,
      "event": "done",
      "data": {
       "job": "usgs-3dep",
       "step": "run",
       "result": {
-       "result": "<argus_survey.jobs.Job object at 0x7f35ea0ce5f0>"
+       "result": "<argus_survey.jobs.Job object at 0x7737ece638c0>"
       },
       "products": [
        "boundary",
@@ -821,29 +821,29 @@
      }
     },
     {
-     "t": 64,
+     "t": 41,
      "event": "command",
      "data": {
       "index": 56,
       "step": "volume",
       "tool": "ogrinfo",
-      "seconds": 0.057,
+      "seconds": 0.034,
       "returncode": 0
      }
     },
     {
-     "t": 154,
+     "t": 91,
      "event": "command",
      "data": {
       "index": 57,
       "step": "volume",
       "tool": "ogr2ogr",
-      "seconds": 0.087,
+      "seconds": 0.048,
       "returncode": 0
      }
     },
     {
-     "t": 154,
+     "t": 91,
      "event": "step",
      "data": {
       "step": "volume",
@@ -851,104 +851,104 @@
      }
     },
     {
-     "t": 253,
+     "t": 156,
      "event": "command",
      "data": {
       "index": 58,
       "step": "volume",
       "tool": "gdal_translate",
-      "seconds": 0.097,
+      "seconds": 0.062,
       "returncode": 0
      }
     },
     {
-     "t": 483,
+     "t": 259,
      "event": "command",
      "data": {
       "index": 59,
       "step": "volume",
       "tool": "gdalinfo",
-      "seconds": 0.227,
+      "seconds": 0.102,
       "returncode": 0
      }
     },
     {
-     "t": 712,
+     "t": 391,
      "event": "command",
      "data": {
       "index": 60,
       "step": "volume",
       "tool": "gdal",
-      "seconds": 0.225,
+      "seconds": 0.129,
       "returncode": 0
      }
     },
     {
-     "t": 816,
+     "t": 457,
      "event": "command",
      "data": {
       "index": 61,
       "step": "volume",
       "tool": "gdal_translate",
-      "seconds": 0.097,
+      "seconds": 0.06,
       "returncode": 0
      }
     },
     {
-     "t": 916,
+     "t": 528,
      "event": "command",
      "data": {
       "index": 62,
       "step": "volume",
       "tool": "gdal",
-      "seconds": 0.098,
+      "seconds": 0.068,
       "returncode": 0
      }
     },
     {
-     "t": 985,
+     "t": 580,
      "event": "command",
      "data": {
       "index": 63,
       "step": "volume",
       "tool": "ogr2ogr",
-      "seconds": 0.067,
+      "seconds": 0.05,
       "returncode": 0
      }
     },
     {
-     "t": 1118,
+     "t": 665,
      "event": "command",
      "data": {
       "index": 64,
       "step": "volume",
       "tool": "gdal",
-      "seconds": 0.131,
+      "seconds": 0.083,
       "returncode": 0
      }
     },
     {
-     "t": 1197,
+     "t": 722,
      "event": "command",
      "data": {
       "index": 65,
       "step": "volume",
       "tool": "gdal",
-      "seconds": 0.078,
+      "seconds": 0.056,
       "returncode": 0
      }
     },
     {
-     "t": 1200,
+     "t": 725,
      "event": "step",
      "data": {
       "step": "volume",
       "state": "done",
-      "seconds": 1.045
+      "seconds": 0.633
      }
     },
     {
-     "t": 1201,
+     "t": 726,
      "event": "done",
      "data": {
       "job": "usgs-3dep",
@@ -1036,7 +1036,7 @@
    },
    "events": [
     {
-     "t": 5,
+     "t": 4,
      "event": "start",
      "data": {
       "job": "usgs-3dep",
@@ -1044,18 +1044,18 @@
      }
     },
     {
-     "t": 73,
+     "t": 56,
      "event": "command",
      "data": {
       "index": 66,
       "step": "profile",
       "tool": "ogr2ogr",
-      "seconds": 0.066,
+      "seconds": 0.049,
       "returncode": 0
      }
     },
     {
-     "t": 74,
+     "t": 56,
      "event": "step",
      "data": {
       "step": "profile",
@@ -1063,60 +1063,60 @@
      }
     },
     {
-     "t": 248,
+     "t": 156,
      "event": "command",
      "data": {
       "index": 67,
       "step": "profile",
       "tool": "gdalinfo",
-      "seconds": 0.171,
+      "seconds": 0.099,
       "returncode": 0
      }
     },
     {
-     "t": 579,
+     "t": 271,
      "event": "command",
      "data": {
       "index": 68,
       "step": "profile",
       "tool": "gdal",
-      "seconds": 0.319,
+      "seconds": 0.113,
       "returncode": 0
      }
     },
     {
-     "t": 799,
+     "t": 376,
      "event": "command",
      "data": {
       "index": 69,
       "step": "profile",
       "tool": "gdalinfo",
-      "seconds": 0.218,
+      "seconds": 0.1,
       "returncode": 0
      }
     },
     {
-     "t": 1008,
+     "t": 495,
      "event": "command",
      "data": {
       "index": 70,
       "step": "profile",
       "tool": "gdal",
-      "seconds": 0.204,
+      "seconds": 0.117,
       "returncode": 0
      }
     },
     {
-     "t": 1016,
+     "t": 504,
      "event": "step",
      "data": {
       "step": "profile",
       "state": "done",
-      "seconds": 0.941
+      "seconds": 0.448
      }
     },
     {
-     "t": 1016,
+     "t": 505,
      "event": "done",
      "data": {
       "job": "usgs-3dep",
@@ -1169,7 +1169,7 @@
    "body": {},
    "events": [
     {
-     "t": 4,
+     "t": 6,
      "event": "start",
      "data": {
       "job": "usgs-3dep",
@@ -1177,7 +1177,7 @@
      }
     },
     {
-     "t": 4,
+     "t": 6,
      "event": "step",
      "data": {
       "step": "report",
@@ -1185,49 +1185,49 @@
      }
     },
     {
-     "t": 90,
+     "t": 63,
      "event": "command",
      "data": {
       "index": 71,
       "step": "report",
       "tool": "gdaldem",
-      "seconds": 0.082,
+      "seconds": 0.056,
       "returncode": 0
      }
     },
     {
-     "t": 261,
+     "t": 185,
      "event": "command",
      "data": {
       "index": 72,
       "step": "report",
       "tool": "gdal_translate",
-      "seconds": 0.169,
+      "seconds": 0.12,
       "returncode": 0
      }
     },
     {
-     "t": 474,
+     "t": 293,
      "event": "command",
      "data": {
       "index": 73,
       "step": "report",
       "tool": "gdal_translate",
-      "seconds": 0.21,
+      "seconds": 0.105,
       "returncode": 0
      }
     },
     {
-     "t": 488,
+     "t": 300,
      "event": "step",
      "data": {
       "step": "report",
       "state": "done",
-      "seconds": 0.482
+      "seconds": 0.294
      }
     },
     {
-     "t": 489,
+     "t": 300,
      "event": "done",
      "data": {
       "job": "usgs-3dep",
@@ -1301,7 +1301,7 @@
  },
  "skipped": {
   "usgs-3dep": {
-   "copc": 1660470,
+   "copc": 1665287,
    "dtm": 1268495,
    "dsm": 1273116,
    "contours": 847872,
