@@ -74,10 +74,16 @@ export interface Truth {
 
 /**
  * The kit's polygons name their one feature (`stockpile.geojson` → "stockpile", `pad.geojson` → "pad"), and
- * argus-survey names a zone, or a change's `area`, after it. A polygon the user drew or picked is something else,
- * and the analytic answer does not apply to it.
+ * argus-survey names a volume zone after it. A polygon the user drew or picked is something else, and the
+ * analytic answer does not apply to it.
  */
 export const KIT_STOCKPILE_ZONE = "stockpile";
+
+/**
+ * A change report's `area` is the polygon file's name (argus-survey change.py: `polygon.name`), not a feature
+ * name: "stockpile.geojson" for the kit's stockpile polygon.
+ */
+export const KIT_STOCKPILE_FILE = "stockpile.geojson";
 
 /**
  * The truth for one zone of a stockpile volume: only the kit's stockpile polygon, on a kit job, with the epoch's
@@ -100,6 +106,6 @@ export function changeTruth(
   change: { against_job: string; area?: string | null; lod_m: number },
 ): Truth | null {
   if (!kit || jobId !== KIT_JOB_2 || change.against_job !== KIT_JOB_1) return null;
-  if (change.lod_m !== 0 || change.area !== KIT_STOCKPILE_ZONE) return null;
+  if (change.lod_m !== 0 || change.area !== KIT_STOCKPILE_FILE) return null;
   return { truth: KIT_TRUTH.changeGain, tolerance: TRUTH_TOLERANCE["change-gain"] };
 }

@@ -68,6 +68,10 @@ describe("sanitizeAttribution (GHSA-jrc7-96c5-q579 workaround)", () => {
       '<a href="https://x.example">X</a>',
     );
     expect(sanitizeAttribution('<a href="https://x.example" title="t">X</a>')).toBe('<a href="https://x.example">X</a>');
+    // Only the attribute named href: a `data-href` before it is not the link target.
+    expect(sanitizeAttribution('<a data-href="https://evil.example" href="https://x.example">X</a>')).toBe(
+      '<a href="https://x.example">X</a>',
+    );
     warn.mockRestore();
   });
 

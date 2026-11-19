@@ -150,10 +150,12 @@ export function Workspace({ jobId, demo }: { jobId: string; demo: boolean }) {
   );
 
   const kit = findKit(inputs);
-  // The hosted demo shows what a recorded measure step measured (its polygon or line) when it is selected.
+  // The hosted demo shows what a recorded measure step measured (its polygon or line) when it is selected, and
+  // clears it on a step that measured nothing, so the volume's polygon doesn't linger over the report.
   const overlay = staticDemo() && selected ? currentTape()?.overlays?.[jobId]?.[selected] : undefined;
   useEffect(() => {
-    if (overlay) setDrawn({ kind: overlay.kind, coords: overlay.coords });
+    if (!staticDemo()) return;
+    setDrawn(overlay ? { kind: overlay.kind, coords: overlay.coords } : null);
   }, [overlay]);
   const tape = staticDemo() && health ? currentTape() : null;
   const recorded = useMemo(() => (tape ? recordedSteps(tape, jobId) : null), [tape, jobId]);

@@ -516,8 +516,11 @@ export function ProfilePanel({ blocked }: PanelProps) {
       />
       {p && svg && (
         <Section title={`${num(p.length_m, 1)} m · ${count(p.samples)} samples`} aside={hasProduct(ws.jobId, "profile") ? <a className="text-[12.5px] text-data hover:underline" href={productUrl(ws.jobId, "profile")}>CSV ↓</a> : undefined}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- an SVG product from the API, not a static asset */}
-          <img src={`${productUrl(ws.jobId, "profile_svg")}?v=${svg.sha256.slice(0, 12)}`} alt={`Profile along ${p.line}`} className={cx("w-full rounded-md border border-line bg-white")} />
+          {/* The hosted demo's tape can leave the SVG out; its productUrl is then "", which would load this page. */}
+          {hasProduct(ws.jobId, "profile_svg") && (
+            // eslint-disable-next-line @next/next/no-img-element -- an SVG product from the API, not a static asset
+            <img src={`${productUrl(ws.jobId, "profile_svg")}?v=${svg.sha256.slice(0, 12)}`} alt={`Profile along ${p.line}`} className={cx("w-full rounded-md border border-line bg-white")} />
+          )}
           <span className="text-[12px] text-muted">Surfaces: {p.surfaces.map((s) => s.toUpperCase()).join(", ")} · voids break the line</span>
         </Section>
       )}

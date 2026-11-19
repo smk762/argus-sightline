@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREEType from "three";
 import { chooseNodes } from "@/lib/copcHierarchy";
 import { count, num } from "@/lib/format";
-import { productUrl } from "@/lib/surveyApi";
+import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { TASK_BUDGET_MS, yieldToMain } from "@/lib/yieldToMain";
 import { Button, cx, Segmented, Spinner } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
@@ -90,7 +90,10 @@ export function PointView({ active }: { active: boolean }) {
   // panel does), so it never covers the Map / 3D points / Split control.
   const [panelOpen, setPanelOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 1024);
   const products = ws.sidecar?.products ?? {};
-  const kind = products.classified ? "classified" : products.copc ? "copc" : null;
+  // Only a cloud that downloads here: the hosted demo's tape can leave one out, and its productUrl is then "",
+  // which resolves to this page rather than a COPC.
+  const has = (k: string) => !!products[k] && hasProduct(ws.jobId, k);
+  const kind = has("classified") ? "classified" : has("copc") ? "copc" : null;
   const sha = kind ? products[kind].sha256 : null;
 
   // Recolouring up to millions of points is chunked so a colour-mode click stays responsive.

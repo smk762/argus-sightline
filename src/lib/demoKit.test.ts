@@ -41,9 +41,11 @@ describe("stockpileTruth / changeTruth", () => {
   });
 
   it("checks change only for epoch 2 against epoch 1, in the stockpile polygon, with no LoD", () => {
-    const base = { against_job: KIT_JOB_1, area: "stockpile", lod_m: 0 };
+    const base = { against_job: KIT_JOB_1, area: "stockpile.geojson", lod_m: 0 };
     expect(changeTruth(kit, KIT_JOB_2, base)).toEqual({ truth: KIT_TRUTH.changeGain, tolerance: TRUTH_TOLERANCE["change-gain"] });
-    expect(changeTruth(kit, KIT_JOB_2, { ...base, area: "pad" })).toBeNull();
+    expect(changeTruth(kit, KIT_JOB_2, { ...base, area: "pad.geojson" })).toBeNull();
+    // A volume zone's name is not a change area: argus-survey names the area after the file.
+    expect(changeTruth(kit, KIT_JOB_2, { ...base, area: "stockpile" })).toBeNull();
     expect(changeTruth(kit, KIT_JOB_2, { ...base, area: "whole overlap of the two epochs" })).toBeNull();
     expect(changeTruth(kit, KIT_JOB_2, { ...base, against_job: "some-other-job" })).toBeNull();
     expect(changeTruth(kit, KIT_JOB_2, { ...base, lod_m: 0.1 })).toBeNull();

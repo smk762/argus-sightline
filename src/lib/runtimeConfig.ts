@@ -80,7 +80,8 @@ const textOnly = (html: string): string =>
   html.replace(TAG, "").replace(ENTITY, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const ANCHOR = /<a\b([^>]*)>([\s\S]*?)<\/a\s*>/gi;
-const HREF = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
+// An attribute named exactly `href`: after whitespace, so `data-href=` or `xhref=` is not it.
+const HREF = /(?:^|\s)href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
 
 /**
  * The basemap attribution reduced to text and `<a href="http(s)://…">` links. MapLibre's own sanitizer

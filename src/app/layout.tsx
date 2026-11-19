@@ -31,8 +31,7 @@ export const viewport: Viewport = { colorScheme: "dark light" };
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   if (staticDemo()) {
     // No inline scripts: the family theme script (public/dh-theme.js) is added blocking, first in <head>,
-    // by scripts/csp.mjs, next to its Trusted Types policy (React would create it through innerHTML on a
-    // client render, which that policy blocks). The config is STATIC_CONFIG (runtimeConfig.ts).
+    // by scripts/csp.mjs, beside the page's hash-based CSP <meta>. The config is STATIC_CONFIG (runtimeConfig.ts).
     return (
       <html lang="en" data-dh-site={STRIP_SITE} className="h-full antialiased" suppressHydrationWarning>
         <body className="min-h-full font-sans text-[14px] leading-snug">
