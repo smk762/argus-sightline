@@ -4,6 +4,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-19
+
 ### Added
 - A hosted demo build (`make pages`, `SIGHTLINE_STATIC=1`): a pure static export that replays one argus-survey job recorded on public USGS 3DEP lidar (`public/data-tape/`, `make tape-data` and `make tape`), with a hash-based CSP on every page (`scripts/csp.mjs`) and a check that the export is static, carries the CSP and has every tape file (`scripts/check-static.mjs`). Running a step replays its recorded console; cut/fill, change and accuracy say what they would need. CI builds it.
 - The Dragonhound shared layer (dh-shared 1.2.8, `vendor/dh/`) with a drift check in CI. The hosted demo carries the family strip (`data-dh-site="sightline"`, Sightline's own link marked current since 1.2.5).
@@ -61,6 +63,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - The compose stack showed OpenStreetMap tiles without OSM's attribution, because compose names OSM's tile URL explicitly (#9).
 
-[Unreleased]: https://github.com/smk762/argus-sightline/compare/v0.1.1...dev
+[Unreleased]: https://github.com/smk762/argus-sightline/compare/v0.2.0...dev
+[0.2.0]: https://github.com/smk762/argus-sightline/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/smk762/argus-sightline/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/smk762/argus-sightline/releases/tag/v0.1.0
