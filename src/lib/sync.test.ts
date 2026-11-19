@@ -7,8 +7,8 @@
  */
 
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DEMO_END, DEMO_START, demoTable } from "../../scripts/demo-table.mjs";
 import { KIT_TRUTH, TRUTH_TOLERANCE } from "@/lib/demoKit";
@@ -62,7 +62,17 @@ describe("survey sync record", () => {
 
   it("has imported docs that match their recorded hashes", () => {
     for (const [file, sha] of Object.entries(pin.docs ?? {})) {
-      expect(createHash("sha256").update(read(join("docs", "survey", file))).digest("hex"), file).toBe(sha);
+      expect(createHash("sha256").update(readFileSync(join(root, "docs", "survey", file))).digest("hex"), file).toBe(sha);
     }
+  });
+
+  it("has no file under docs/survey/ that the sync record doesn't pin", () => {
+    const dir = join(root, "docs", "survey");
+    const files = existsSync(dir)
+      ? readdirSync(dir, { recursive: true, withFileTypes: true })
+          .filter((e) => e.isFile())
+          .map((e) => relative(dir, join(e.parentPath, e.name)).split(sep).join("/"))
+      : [];
+    expect(files.sort()).toEqual(Object.keys(pin.docs ?? {}).sort());
   });
 });

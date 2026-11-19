@@ -1,0 +1,1365 @@
+{
+ "tape": 1,
+ "recorded_at": "2026-11-19T10:44:02Z",
+ "survey": {
+  "commit": "340f302198395d1858c9e2af99a538771a818aa9",
+  "version": "0.1.0rc2.dev77+g340f30219"
+ },
+ "job": "usgs-3dep",
+ "runs": [
+  {
+   "job": "usgs-3dep",
+   "step": "run",
+   "body": {
+    "inputs": [
+     "usgs-3dep/site.laz"
+    ],
+    "assume_vertical": "EPSG:5703",
+    "t_srs": "EPSG:6340+5703",
+    "res": 0.5,
+    "interval": 2,
+    "force": true
+   },
+   "events": [
+    {
+     "t": 6,
+     "event": "start",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "run"
+     }
+    },
+    {
+     "t": 6,
+     "event": "step",
+     "data": {
+      "step": "ingest",
+      "state": "start"
+     }
+    },
+    {
+     "t": 46,
+     "event": "command",
+     "data": {
+      "index": 1,
+      "step": "ingest",
+      "tool": "pdal",
+      "seconds": 0.039,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 74,
+     "event": "command",
+     "data": {
+      "index": 2,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.022,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 95,
+     "event": "command",
+     "data": {
+      "index": 3,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.02,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 183,
+     "event": "command",
+     "data": {
+      "index": 4,
+      "step": "ingest",
+      "tool": "gdaltransform",
+      "seconds": 0.087,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 454,
+     "event": "command",
+     "data": {
+      "index": 5,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.27,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 1313,
+     "event": "command",
+     "data": {
+      "index": 6,
+      "step": "ingest",
+      "tool": "pdal",
+      "seconds": 0.858,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2563,
+     "event": "command",
+     "data": {
+      "index": 7,
+      "step": "ingest",
+      "tool": "untwine",
+      "seconds": 1.249,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2692,
+     "event": "command",
+     "data": {
+      "index": 8,
+      "step": "ingest",
+      "tool": "pdal",
+      "seconds": 0.127,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2714,
+     "event": "command",
+     "data": {
+      "index": 9,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.021,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2775,
+     "event": "command",
+     "data": {
+      "index": 10,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.061,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2784,
+     "event": "command",
+     "data": {
+      "index": 11,
+      "step": "ingest",
+      "tool": "proj",
+      "seconds": 0.008,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2793,
+     "event": "command",
+     "data": {
+      "index": 12,
+      "step": "ingest",
+      "tool": "proj",
+      "seconds": 0.008,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2808,
+     "event": "command",
+     "data": {
+      "index": 13,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.015,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2825,
+     "event": "command",
+     "data": {
+      "index": 14,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.016,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2857,
+     "event": "command",
+     "data": {
+      "index": 15,
+      "step": "ingest",
+      "tool": "projinfo",
+      "seconds": 0.031,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2867,
+     "event": "command",
+     "data": {
+      "index": 16,
+      "step": "ingest",
+      "tool": "cct",
+      "seconds": 0.01,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 2869,
+     "event": "warning",
+     "data": {
+      "message": "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height"
+     }
+    },
+    {
+     "t": 2869,
+     "event": "warning",
+     "data": {
+      "message": "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade"
+     }
+    },
+    {
+     "t": 2869,
+     "event": "step",
+     "data": {
+      "step": "ingest",
+      "state": "done",
+      "seconds": 2.864
+     }
+    },
+    {
+     "t": 2870,
+     "event": "step",
+     "data": {
+      "step": "qa",
+      "state": "start"
+     }
+    },
+    {
+     "t": 3210,
+     "event": "command",
+     "data": {
+      "index": 17,
+      "step": "qa",
+      "tool": "pdal",
+      "seconds": 0.339,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3252,
+     "event": "command",
+     "data": {
+      "index": 18,
+      "step": "qa",
+      "tool": "ogr2ogr",
+      "seconds": 0.039,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3289,
+     "event": "command",
+     "data": {
+      "index": 19,
+      "step": "qa",
+      "tool": "gdal_rasterize",
+      "seconds": 0.036,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3349,
+     "event": "command",
+     "data": {
+      "index": 20,
+      "step": "qa",
+      "tool": "gdal",
+      "seconds": 0.06,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3452,
+     "event": "command",
+     "data": {
+      "index": 21,
+      "step": "qa",
+      "tool": "gdal",
+      "seconds": 0.102,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3551,
+     "event": "command",
+     "data": {
+      "index": 22,
+      "step": "qa",
+      "tool": "gdalinfo",
+      "seconds": 0.098,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3608,
+     "event": "command",
+     "data": {
+      "index": 23,
+      "step": "qa",
+      "tool": "gdal_translate",
+      "seconds": 0.056,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3723,
+     "event": "command",
+     "data": {
+      "index": 24,
+      "step": "qa",
+      "tool": "gdal",
+      "seconds": 0.075,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 3808,
+     "event": "command",
+     "data": {
+      "index": 25,
+      "step": "qa",
+      "tool": "gdal",
+      "seconds": 0.085,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 6187,
+     "event": "command",
+     "data": {
+      "index": 26,
+      "step": "qa",
+      "tool": "pdal",
+      "seconds": 2.376,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 6191,
+     "event": "warning",
+     "data": {
+      "message": "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))"
+     }
+    },
+    {
+     "t": 6193,
+     "event": "step",
+     "data": {
+      "step": "qa",
+      "state": "done",
+      "seconds": 3.321
+     }
+    },
+    {
+     "t": 6193,
+     "event": "step",
+     "data": {
+      "step": "ground",
+      "state": "start"
+     }
+    },
+    {
+     "t": 9042,
+     "event": "command",
+     "data": {
+      "index": 27,
+      "step": "ground",
+      "tool": "pdal",
+      "seconds": 2.847,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 9162,
+     "event": "command",
+     "data": {
+      "index": 28,
+      "step": "ground",
+      "tool": "pdal",
+      "seconds": 0.118,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 10438,
+     "event": "command",
+     "data": {
+      "index": 29,
+      "step": "ground",
+      "tool": "untwine",
+      "seconds": 1.275,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 10691,
+     "event": "command",
+     "data": {
+      "index": 30,
+      "step": "ground",
+      "tool": "pdal",
+      "seconds": 0.251,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 10694,
+     "event": "step",
+     "data": {
+      "step": "ground",
+      "state": "done",
+      "seconds": 4.5
+     }
+    },
+    {
+     "t": 10694,
+     "event": "step",
+     "data": {
+      "step": "surfaces",
+      "state": "start"
+     }
+    },
+    {
+     "t": 10733,
+     "event": "command",
+     "data": {
+      "index": 31,
+      "step": "surfaces",
+      "tool": "gdal_rasterize",
+      "seconds": 0.038,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 10795,
+     "event": "command",
+     "data": {
+      "index": 32,
+      "step": "surfaces",
+      "tool": "gdal",
+      "seconds": 0.061,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 11239,
+     "event": "command",
+     "data": {
+      "index": 33,
+      "step": "surfaces",
+      "tool": "pdal",
+      "seconds": 0.442,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 11703,
+     "event": "command",
+     "data": {
+      "index": 34,
+      "step": "surfaces",
+      "tool": "pdal",
+      "seconds": 0.462,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 12430,
+     "event": "command",
+     "data": {
+      "index": 35,
+      "step": "surfaces",
+      "tool": "pdal",
+      "seconds": 0.724,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 12553,
+     "event": "command",
+     "data": {
+      "index": 36,
+      "step": "surfaces",
+      "tool": "pdal",
+      "seconds": 0.121,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 12913,
+     "event": "command",
+     "data": {
+      "index": 37,
+      "step": "surfaces",
+      "tool": "pdal",
+      "seconds": 0.357,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 12982,
+     "event": "command",
+     "data": {
+      "index": 38,
+      "step": "surfaces",
+      "tool": "gdal",
+      "seconds": 0.066,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13087,
+     "event": "command",
+     "data": {
+      "index": 39,
+      "step": "surfaces",
+      "tool": "gdal",
+      "seconds": 0.103,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13187,
+     "event": "command",
+     "data": {
+      "index": 40,
+      "step": "surfaces",
+      "tool": "gdalinfo",
+      "seconds": 0.099,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13291,
+     "event": "command",
+     "data": {
+      "index": 41,
+      "step": "surfaces",
+      "tool": "gdalinfo",
+      "seconds": 0.102,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13407,
+     "event": "command",
+     "data": {
+      "index": 42,
+      "step": "surfaces",
+      "tool": "gdal",
+      "seconds": 0.111,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13513,
+     "event": "command",
+     "data": {
+      "index": 43,
+      "step": "surfaces",
+      "tool": "gdalinfo",
+      "seconds": 0.104,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13625,
+     "event": "command",
+     "data": {
+      "index": 44,
+      "step": "surfaces",
+      "tool": "gdalinfo",
+      "seconds": 0.111,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13745,
+     "event": "command",
+     "data": {
+      "index": 45,
+      "step": "surfaces",
+      "tool": "gdal",
+      "seconds": 0.116,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13847,
+     "event": "command",
+     "data": {
+      "index": 46,
+      "step": "surfaces",
+      "tool": "gdalinfo",
+      "seconds": 0.1,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13951,
+     "event": "command",
+     "data": {
+      "index": 47,
+      "step": "surfaces",
+      "tool": "gdalinfo",
+      "seconds": 0.102,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 13953,
+     "event": "warning",
+     "data": {
+      "message": "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
+     }
+    },
+    {
+     "t": 14023,
+     "event": "command",
+     "data": {
+      "index": 48,
+      "step": "surfaces",
+      "tool": "gdaldem",
+      "seconds": 0.068,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14026,
+     "event": "step",
+     "data": {
+      "step": "surfaces",
+      "state": "done",
+      "seconds": 3.331
+     }
+    },
+    {
+     "t": 14026,
+     "event": "step",
+     "data": {
+      "step": "contours",
+      "state": "start"
+     }
+    },
+    {
+     "t": 14108,
+     "event": "command",
+     "data": {
+      "index": 49,
+      "step": "contours",
+      "tool": "gdal_contour",
+      "seconds": 0.08,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14167,
+     "event": "command",
+     "data": {
+      "index": 50,
+      "step": "contours",
+      "tool": "ogr2ogr",
+      "seconds": 0.058,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14281,
+     "event": "command",
+     "data": {
+      "index": 51,
+      "step": "contours",
+      "tool": "ogr2ogr",
+      "seconds": 0.111,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14316,
+     "event": "command",
+     "data": {
+      "index": 52,
+      "step": "contours",
+      "tool": "ogrinfo",
+      "seconds": 0.034,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14319,
+     "event": "step",
+     "data": {
+      "step": "contours",
+      "state": "done",
+      "seconds": 0.293
+     }
+    },
+    {
+     "t": 14320,
+     "event": "step",
+     "data": {
+      "step": "report",
+      "state": "start"
+     }
+    },
+    {
+     "t": 14374,
+     "event": "command",
+     "data": {
+      "index": 53,
+      "step": "report",
+      "tool": "gdaldem",
+      "seconds": 0.053,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14465,
+     "event": "command",
+     "data": {
+      "index": 54,
+      "step": "report",
+      "tool": "gdal_translate",
+      "seconds": 0.09,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14566,
+     "event": "command",
+     "data": {
+      "index": 55,
+      "step": "report",
+      "tool": "gdal_translate",
+      "seconds": 0.097,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 14575,
+     "event": "step",
+     "data": {
+      "step": "report",
+      "state": "done",
+      "seconds": 0.254
+     }
+    },
+    {
+     "t": 14575,
+     "event": "done",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "run",
+      "result": {
+       "result": "<argus_survey.jobs.Job object at 0x7fa4e538e210>"
+      },
+      "products": [
+       "boundary",
+       "chm",
+       "chm_voids",
+       "classified",
+       "contours",
+       "contours_geojson",
+       "copc",
+       "coverage",
+       "density",
+       "dsm",
+       "dsm_voids",
+       "dtm",
+       "dtm_voids",
+       "gaps",
+       "hillshade",
+       "qa",
+       "report"
+      ],
+      "warnings": [
+       "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+       "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade",
+       "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))",
+       "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "job": "usgs-3dep",
+   "step": "volume",
+   "body": {
+    "polygon": "usgs-3dep/pile.geojson",
+    "base": "plane",
+    "surface": "dsm",
+    "allow_voids": false
+   },
+   "events": [
+    {
+     "t": 5,
+     "event": "start",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "volume"
+     }
+    },
+    {
+     "t": 40,
+     "event": "command",
+     "data": {
+      "index": 56,
+      "step": "volume",
+      "tool": "ogrinfo",
+      "seconds": 0.033,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 90,
+     "event": "command",
+     "data": {
+      "index": 57,
+      "step": "volume",
+      "tool": "ogr2ogr",
+      "seconds": 0.048,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 90,
+     "event": "step",
+     "data": {
+      "step": "volume",
+      "state": "start"
+     }
+    },
+    {
+     "t": 151,
+     "event": "command",
+     "data": {
+      "index": 58,
+      "step": "volume",
+      "tool": "gdal_translate",
+      "seconds": 0.059,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 249,
+     "event": "command",
+     "data": {
+      "index": 59,
+      "step": "volume",
+      "tool": "gdalinfo",
+      "seconds": 0.096,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 380,
+     "event": "command",
+     "data": {
+      "index": 60,
+      "step": "volume",
+      "tool": "gdal",
+      "seconds": 0.128,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 444,
+     "event": "command",
+     "data": {
+      "index": 61,
+      "step": "volume",
+      "tool": "gdal_translate",
+      "seconds": 0.059,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 512,
+     "event": "command",
+     "data": {
+      "index": 62,
+      "step": "volume",
+      "tool": "gdal",
+      "seconds": 0.067,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 562,
+     "event": "command",
+     "data": {
+      "index": 63,
+      "step": "volume",
+      "tool": "ogr2ogr",
+      "seconds": 0.048,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 648,
+     "event": "command",
+     "data": {
+      "index": 64,
+      "step": "volume",
+      "tool": "gdal",
+      "seconds": 0.084,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 705,
+     "event": "command",
+     "data": {
+      "index": 65,
+      "step": "volume",
+      "tool": "gdal",
+      "seconds": 0.055,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 707,
+     "event": "step",
+     "data": {
+      "step": "volume",
+      "state": "done",
+      "seconds": 0.616
+     }
+    },
+    {
+     "t": 708,
+     "event": "done",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "volume",
+      "result": {
+       "kind": "stockpile",
+       "surface": "DSM (upper) vs base (lower)",
+       "sign_convention": "above = surface above base (stockpile volume); below = surface below base",
+       "res": 0.5,
+       "surface_void_percent": {
+        "dsm": 0.782
+       },
+       "method": "per-cell (upper − lower) × cell area, summed separately for positive and negative cells; boundary cells weighted by the fraction inside the polygon (gdal raster zonal-stats --pixels fractional)",
+       "zones": [
+        {
+         "name": "twin piles",
+         "area_m2": 604.63,
+         "above_m3": 725.788,
+         "below_m3": 56.517,
+         "net_m3": 669.271,
+         "area_above_m2": 396.77,
+         "area_below_m2": 207.86,
+         "void_percent": 0,
+         "base": "least-squares plane through 199 boundary heights: z = 57.854 + 0.01604·(E − 408734.526) + -0.03008·(N − 3772286.010)",
+         "ground_area_m2": 604.997,
+         "ground_above_m3": 726.228,
+         "ground_below_m3": 56.551,
+         "ground_net_m3": 669.677,
+         "base_fit_rms_m": 0.6911,
+         "boundary_samples": 199
+        }
+       ],
+       "resampled": null,
+       "allow_voids": false,
+       "combined_scale_factor": 0.99969672
+      },
+      "products": [
+       "boundary",
+       "chm",
+       "chm_voids",
+       "classified",
+       "contours",
+       "contours_geojson",
+       "copc",
+       "coverage",
+       "density",
+       "dsm",
+       "dsm_voids",
+       "dtm",
+       "dtm_voids",
+       "gaps",
+       "hillshade",
+       "qa",
+       "report",
+       "volume"
+      ],
+      "warnings": [
+       "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+       "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade",
+       "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))",
+       "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "job": "usgs-3dep",
+   "step": "profile",
+   "body": {
+    "line": {
+     "type": "LineString",
+     "coordinates": [
+      [
+       -117.9907481,
+       34.087372
+      ],
+      [
+       -117.9896702,
+       34.0871489
+      ]
+     ]
+    },
+    "step": 0.5
+   },
+   "events": [
+    {
+     "t": 3,
+     "event": "start",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "profile"
+     }
+    },
+    {
+     "t": 40,
+     "event": "command",
+     "data": {
+      "index": 66,
+      "step": "profile",
+      "tool": "ogrinfo",
+      "seconds": 0.035,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 89,
+     "event": "command",
+     "data": {
+      "index": 67,
+      "step": "profile",
+      "tool": "ogr2ogr",
+      "seconds": 0.048,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 89,
+     "event": "step",
+     "data": {
+      "step": "profile",
+      "state": "start"
+     }
+    },
+    {
+     "t": 192,
+     "event": "command",
+     "data": {
+      "index": 68,
+      "step": "profile",
+      "tool": "gdalinfo",
+      "seconds": 0.101,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 308,
+     "event": "command",
+     "data": {
+      "index": 69,
+      "step": "profile",
+      "tool": "gdal",
+      "seconds": 0.113,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 408,
+     "event": "command",
+     "data": {
+      "index": 70,
+      "step": "profile",
+      "tool": "gdalinfo",
+      "seconds": 0.095,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 525,
+     "event": "command",
+     "data": {
+      "index": 71,
+      "step": "profile",
+      "tool": "gdal",
+      "seconds": 0.114,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 533,
+     "event": "step",
+     "data": {
+      "step": "profile",
+      "state": "done",
+      "seconds": 0.443
+     }
+    },
+    {
+     "t": 533,
+     "event": "done",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "profile",
+      "result": {
+       "line": "drawn line",
+       "length_m": 102.481,
+       "step_m": 0.5,
+       "samples": 206,
+       "surfaces": [
+        "dtm",
+        "dsm"
+       ]
+      },
+      "products": [
+       "boundary",
+       "chm",
+       "chm_voids",
+       "classified",
+       "contours",
+       "contours_geojson",
+       "copc",
+       "coverage",
+       "density",
+       "dsm",
+       "dsm_voids",
+       "dtm",
+       "dtm_voids",
+       "gaps",
+       "hillshade",
+       "profile",
+       "profile_svg",
+       "qa",
+       "report",
+       "volume"
+      ],
+      "warnings": [
+       "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+       "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade",
+       "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))",
+       "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "job": "usgs-3dep",
+   "step": "report",
+   "body": {},
+   "events": [
+    {
+     "t": 6,
+     "event": "start",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "report"
+     }
+    },
+    {
+     "t": 6,
+     "event": "step",
+     "data": {
+      "step": "report",
+      "state": "start"
+     }
+    },
+    {
+     "t": 62,
+     "event": "command",
+     "data": {
+      "index": 72,
+      "step": "report",
+      "tool": "gdaldem",
+      "seconds": 0.055,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 149,
+     "event": "command",
+     "data": {
+      "index": 73,
+      "step": "report",
+      "tool": "gdal_translate",
+      "seconds": 0.086,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 247,
+     "event": "command",
+     "data": {
+      "index": 74,
+      "step": "report",
+      "tool": "gdal_translate",
+      "seconds": 0.094,
+      "returncode": 0
+     }
+    },
+    {
+     "t": 258,
+     "event": "step",
+     "data": {
+      "step": "report",
+      "state": "done",
+      "seconds": 0.251
+     }
+    },
+    {
+     "t": 258,
+     "event": "done",
+     "data": {
+      "job": "usgs-3dep",
+      "step": "report",
+      "result": {
+       "result": "/data/jobs/usgs-3dep/report.html"
+      },
+      "products": [
+       "boundary",
+       "chm",
+       "chm_voids",
+       "classified",
+       "contours",
+       "contours_geojson",
+       "copc",
+       "coverage",
+       "density",
+       "dsm",
+       "dsm_voids",
+       "dtm",
+       "dtm_voids",
+       "gaps",
+       "hillshade",
+       "profile",
+       "profile_svg",
+       "qa",
+       "report",
+       "volume"
+      ],
+      "warnings": [
+       "Vertical datum ASSUMED, not read from the data: --assume-vertical EPSG:5703: the input declares no vertical datum; the user stated its heights are NAVD88 height",
+       "The transformation used (Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(2011) to WGS 84 (1) + UTM zone 11N) is only accurate to ~2.0 m — not survey grade",
+       "6.0% of the covered area is below the density threshold (25% of the median density (5.00 pts/m²))",
+       "CHM has 29.4% voids inside the coverage (sparse bins: try --chm-method radius or a coarser --res)"
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "views": {
+  "usgs-3dep": [
+   "hillshade",
+   "dtm",
+   "dsm",
+   "chm",
+   "density",
+   "boundary",
+   "gaps",
+   "contours_geojson"
+  ]
+ },
+ "products": {
+  "usgs-3dep": {
+   "qa": "jobs/usgs-3dep/products/qa.json",
+   "density": "jobs/usgs-3dep/products/density.tif",
+   "boundary": "jobs/usgs-3dep/products/boundary.geojson",
+   "coverage": "jobs/usgs-3dep/products/coverage.tif",
+   "gaps": "jobs/usgs-3dep/products/gaps.geojson",
+   "classified": "jobs/usgs-3dep/products/ground.copc.laz",
+   "dtm_voids": "jobs/usgs-3dep/products/dtm_voids.tif",
+   "dsm_voids": "jobs/usgs-3dep/products/dsm_voids.tif",
+   "chm": "jobs/usgs-3dep/products/chm.tif",
+   "chm_voids": "jobs/usgs-3dep/products/chm_voids.tif",
+   "hillshade": "jobs/usgs-3dep/products/hillshade.tif",
+   "report": "jobs/usgs-3dep/products/report.html",
+   "volume": "jobs/usgs-3dep/products/volume.json",
+   "profile": "jobs/usgs-3dep/products/profile.csv",
+   "profile_svg": "jobs/usgs-3dep/products/profile.svg"
+  }
+ },
+ "skipped": {
+  "usgs-3dep": {
+   "copc": 1659549,
+   "dtm": 1268495,
+   "dsm": 1273116,
+   "contours": 847872,
+   "contours_geojson": 1342146
+  }
+ },
+ "overlays": {
+  "usgs-3dep": {
+   "volume": {
+    "kind": "polygon",
+    "coords": [
+     [
+      -117.9894276,
+      34.0874688
+     ],
+     [
+      -117.9891042,
+      34.0874688
+     ],
+     [
+      -117.9891042,
+      34.0873349
+     ],
+     [
+      -117.989221,
+      34.0872753
+     ],
+     [
+      -117.9894276,
+      34.0872753
+     ]
+    ]
+   },
+   "profile": {
+    "kind": "line",
+    "coords": [
+     [
+      -117.9907481,
+      34.087372
+     ],
+     [
+      -117.9896702,
+      34.0871489
+     ]
+    ]
+   }
+  }
+ },
+ "provenance": "PROVENANCE.md"
+}

@@ -1,10 +1,10 @@
 {
   "survey": {
-    "commit": "087758b4501706a780c01c6dd3968bfb31aafbf4",
-    "version": "0.1.0"
+    "commit": "340f302198395d1858c9e2af99a538771a818aa9",
+    "version": "0.1.0rc2.dev77+g340f30219"
   },
-  "api_version": "0.1.0",
-  "recorded_at": "2026-11-13T17:33:07Z",
+  "api_version": "0.1.0rc2.dev77+g340f30219",
+  "recorded_at": "2026-11-19T10:43:41Z",
   "checks": [
     {
       "id": "stockpile-e1",

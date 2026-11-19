@@ -1,7 +1,20 @@
 /** Number formatting for survey quantities: fixed decimals, thin-space thousands, units always shown. */
 
-const group = (n: number, digits: number): string =>
-  n.toLocaleString("en-AU", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const THIN_SPACE = "\u2009";
+const formats = new Map<number, Intl.NumberFormat>();
+
+/** `n` with `digits` decimals and thin-space thousands (SI/ISO 80000), whatever the locale groups with. */
+function group(n: number, digits: number): string {
+  let f = formats.get(digits);
+  if (!f) {
+    f = new Intl.NumberFormat("en-AU", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    formats.set(digits, f);
+  }
+  return f
+    .formatToParts(n)
+    .map((p) => (p.type === "group" ? THIN_SPACE : p.value))
+    .join("");
+}
 
 export function num(n: number | null | undefined, digits = 2): string {
   if (n === null || n === undefined || !Number.isFinite(n)) return "—";
@@ -20,7 +33,8 @@ export const cm = (metres: number | null | undefined, digits = 1): string =>
 
 export function seconds(s: number | null | undefined): string {
   if (s === null || s === undefined || !Number.isFinite(s)) return "—";
-  if (s < 1) return `${Math.round(s * 1000)} ms`;
+  // Below 0.9995 s the millisecond count stays under 1000; above it, "1.0 s" rather than "1000 ms".
+  if (s < 0.9995) return `${Math.round(s * 1000)} ms`;
   if (s < 59.95) return `${s.toFixed(1)} s`;
   const whole = Math.round(s);
   return `${Math.floor(whole / 60)} min ${whole % 60} s`;

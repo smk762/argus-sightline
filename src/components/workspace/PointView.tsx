@@ -9,8 +9,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREEType from "three";
+import { chooseNodes } from "@/lib/copcHierarchy";
 import { count, num } from "@/lib/format";
-import { productUrl } from "@/lib/surveyApi";
+import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { TASK_BUDGET_MS, yieldToMain } from "@/lib/yieldToMain";
 import { Button, cx, Segmented, Spinner } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
@@ -29,6 +30,24 @@ const CLASSES: Record<number, { name: string; rgb: [number, number, number] }> =
 };
 
 const BUDGETS = [500_000, 1_500_000, 4_000_000] as const;
+
+type LazPerf = Awaited<ReturnType<(typeof import("laz-perf"))["createLazPerf"]>>;
+let lazPerfInstance: Promise<LazPerf> | null = null;
+
+/**
+ * The one laz-perf WASM instance, made on first use and shared by every load: each `createLazPerf` is a new
+ * module with its own linear memory, which nothing frees, so one per Retry or budget change grows the tab.
+ * A failed instantiation is forgotten, so a Retry tries again.
+ */
+function lazPerfOnce(): Promise<LazPerf> {
+  lazPerfInstance ??= import("laz-perf")
+    .then(({ createLazPerf }) => createLazPerf({ locateFile: () => "/laz-perf.wasm" }))
+    .catch((err: unknown) => {
+      lazPerfInstance = null;
+      throw err;
+    });
+  return lazPerfInstance;
+}
 
 function ramp(t: number): [number, number, number] {
   const stops: [number, number, number][] = [
@@ -67,8 +86,14 @@ export function PointView({ active }: { active: boolean }) {
   const [size, setSize] = useState(2);
   const [budget, setBudget] = useState<number>(BUDGETS[1]);
   const [classesSeen, setClassesSeen] = useState<number[]>([]);
+  // Below lg the panel starts collapsed; in a narrow pane it sits under the view toggle (as the map's Layers
+  // panel does), so it never covers the Map / 3D points / Split control.
+  const [panelOpen, setPanelOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 1024);
   const products = ws.sidecar?.products ?? {};
-  const kind = products.classified ? "classified" : products.copc ? "copc" : null;
+  // Only a cloud that downloads here: the hosted demo's tape can leave one out, and its productUrl is then "",
+  // which resolves to this page rather than a COPC.
+  const has = (k: string) => !!products[k] && hasProduct(ws.jobId, k);
+  const kind = has("classified") ? "classified" : has("copc") ? "copc" : null;
   const sha = kind ? products[kind].sha256 : null;
 
   // Recolouring up to millions of points is chunked so a colour-mode click stays responsive.
@@ -120,30 +145,20 @@ export function PointView({ active }: { active: boolean }) {
     const stale = () => gen !== loadGen.current;
     scene.current?.dispose();
     scene.current = null;
-    const url = productUrl(ws.jobId, kind);
+    // Absolute: copc.js reads a string that doesn't start with "http" as a local file path (the hosted demo's are root-relative).
+    const url = new URL(productUrl(ws.jobId, kind), window.location.href).href;
     setStatus({ phase: "loading", text: "Reading the COPC header…", frac: 0 });
     try {
-      const [THREE, { OrbitControls }, { Copc }, { createLazPerf }] = await Promise.all([
+      const [THREE, { OrbitControls }, { Copc }, lazPerf] = await Promise.all([
         import("three"),
         import("three/examples/jsm/controls/OrbitControls.js"),
         import("copc"),
-        import("laz-perf"),
+        lazPerfOnce(),
       ]);
-      const lazPerf = await createLazPerf({ locateFile: () => "/laz-perf.wasm" });
       const copc = await Copc.create(url);
-      const { nodes } = await Copc.loadHierarchyPage(url, copc.info.rootHierarchyPage);
+      // Coarse levels first up to the budget, reading child hierarchy pages as far as it reaches.
+      const { nodes, chosen, total } = await chooseNodes(copc.info.rootHierarchyPage, (page) => Copc.loadHierarchyPage(url, page), budget);
       if (stale()) return;
-      const keys = Object.keys(nodes)
-        .filter((k) => (nodes[k]?.pointCount ?? 0) > 0)
-        .sort((a, b) => Number(a.split("-")[0]) - Number(b.split("-")[0]));
-      const chosen: string[] = [];
-      let total = 0;
-      for (const k of keys) {
-        const c = nodes[k]!.pointCount;
-        if (total + c > budget) break;
-        chosen.push(k);
-        total += c;
-      }
       const [minx, miny, minz] = copc.header.min;
       const [maxx, maxy, maxz] = copc.header.max;
       const cx0 = (minx + maxx) / 2;
@@ -154,7 +169,7 @@ export function PointView({ active }: { active: boolean }) {
       let n = 0;
       for (const [i, k] of chosen.entries()) {
         setStatus({ phase: "loading", text: `Node ${i + 1} of ${chosen.length} · ${count(n)} points`, frac: (i + 1) / chosen.length });
-        const view = await Copc.loadPointDataView(url, copc, nodes[k]!, {
+        const view = await Copc.loadPointDataView(url, copc, nodes[k], {
           lazPerf,
           include: ["X", "Y", "Z", "Classification", "Intensity"],
         });
@@ -167,7 +182,7 @@ export function PointView({ active }: { active: boolean }) {
         for (let p = 0; p < view.pointCount; p++, n++) {
           const z = gz(p);
           pos[3 * n] = gx(p) - cx0;
-          pos[3 * n + 1] = z - minz;
+          pos[3 * n + 1] = z; // made relative to the ground below, once every point is in
           pos[3 * n + 2] = -(gy(p) - cy0);
           raw.z[n] = z;
           raw.cls[n] = gc(p);
@@ -175,6 +190,10 @@ export function PointView({ active }: { active: boolean }) {
           seen.add(raw.cls[n]);
         }
       }
+      // Frame on the bulk of the cloud, not the header's extent: a few noise returns (classes 7 and 18) far
+      // above or below the site would otherwise put the camera under the ground.
+      const [zlo, zhi] = robustRange(raw.z, raw.cls, n) ?? [minz, maxz];
+      for (let p = 0; p < n; p++) pos[3 * p + 1] -= zlo;
       const el = host.current;
       if (!el || stale()) return;
       const geom = new THREE.BufferGeometry();
@@ -191,7 +210,7 @@ export function PointView({ active }: { active: boolean }) {
       camera.position.set(span * 0.55, span * 0.45, span * 0.65);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.target.set(0, (maxz - minz) / 4, 0);
+      controls.target.set(0, (zhi - zlo) / 4, 0);
       const material = new THREE.PointsMaterial({ size: sizeRef.current, sizeAttenuation: false, vertexColors: true });
       three.add(new THREE.Points(geom, material));
       const frame = () => {
@@ -296,59 +315,81 @@ export function PointView({ active }: { active: boolean }) {
       )}
 
       {kind && (
-        <div className="absolute right-3 top-3 z-10 flex w-56 flex-col gap-2.5 rounded-lg border border-line bg-panel/95 p-3 text-[12.5px] shadow-panel backdrop-blur">
-          <div className="flex items-center justify-between">
-            <span className="font-medium">Colour by</span>
-          </div>
-          <Segmented
-            value={colour}
-            onChange={setColour}
-            options={[
-              { value: "class", label: "Class" },
-              { value: "z", label: "Height" },
-              { value: "intensity", label: "Intensity" },
-            ]}
-          />
-          <label className="flex items-center justify-between gap-2 text-muted">
-            Point size
-            <input type="range" min={1} max={6} step={0.5} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-28 accent-[var(--accent)]" />
-          </label>
-          <label className="flex items-center justify-between gap-2 text-muted">
-            Budget
-            <select
-              className="rounded border border-line bg-panel-2 px-1.5 py-0.5 text-ink"
-              value={budget}
-              onChange={(e) => setBudget(Number(e.target.value))}
-            >
-              {BUDGETS.map((b) => (
-                <option key={b} value={b}>
-                  {num(b / 1e6, 1)} M pts
-                </option>
-              ))}
-            </select>
-          </label>
-          {colour === "class" && classesSeen.length > 0 && (
-            <ul className="grid grid-cols-2 gap-x-2 gap-y-1 border-t border-line pt-2">
-              {classesSeen.map((c) => (
-                <li key={c} className="flex items-center gap-1.5 text-ink-2">
-                  <span
-                    className="size-2.5 rounded-sm"
-                    style={{ background: `rgb(${(CLASSES[c]?.rgb ?? [0.8, 0.8, 0.8]).map((v) => Math.round(v * 255)).join(",")})` }}
-                  />
-                  <span className="truncate">{CLASSES[c]?.name ?? `Class ${c}`}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {s && status.phase === "ready" && (
-            <div className={cx("num border-t border-line pt-2 text-[11.5px] text-muted")}>
-              {count(s.n)} of {count(s.total)} pts · {s.nodes} nodes
-              <br />
-              {kind === "classified" ? "classified cloud" : "ingested cloud"} · drag to orbit
+        <div className="absolute right-3 top-14 z-10 w-56 max-w-[calc(100%-1.5rem)] rounded-lg border border-line bg-panel/95 text-[12.5px] shadow-panel backdrop-blur @2xl:top-3">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-3 py-2 font-medium"
+            aria-expanded={panelOpen}
+            onClick={() => setPanelOpen((o) => !o)}
+          >
+            <span>Colour by</span>
+            <span className="text-muted" aria-hidden="true">
+              {panelOpen ? "–" : "+"}
+            </span>
+          </button>
+          {panelOpen && (
+            <div className="flex flex-col gap-2.5 border-t border-line p-3">
+              <Segmented
+                value={colour}
+                onChange={setColour}
+                options={[
+                  { value: "class", label: "Class" },
+                  { value: "z", label: "Height" },
+                  { value: "intensity", label: "Intensity" },
+                ]}
+              />
+              <label className="flex items-center justify-between gap-2 text-muted">
+                Point size
+                <input type="range" min={1} max={6} step={0.5} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-28 accent-[var(--accent)]" />
+              </label>
+              <label className="flex items-center justify-between gap-2 text-muted">
+                Budget
+                <select
+                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 text-ink"
+                  value={budget}
+                  onChange={(e) => setBudget(Number(e.target.value))}
+                >
+                  {BUDGETS.map((b) => (
+                    <option key={b} value={b}>
+                      {num(b / 1e6, 1)} M pts
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {colour === "class" && classesSeen.length > 0 && (
+                <ul className="grid grid-cols-2 gap-x-2 gap-y-1 border-t border-line pt-2">
+                  {classesSeen.map((c) => (
+                    <li key={c} className="flex items-center gap-1.5 text-ink-2">
+                      <span
+                        className="size-2.5 rounded-sm"
+                        style={{ background: `rgb(${(CLASSES[c]?.rgb ?? [0.8, 0.8, 0.8]).map((v) => Math.round(v * 255)).join(",")})` }}
+                      />
+                      <span className="truncate">{CLASSES[c]?.name ?? `Class ${c}`}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {s && status.phase === "ready" && (
+                <div className={cx("num border-t border-line pt-2 text-[11.5px] text-muted")}>
+                  {count(s.n)} of {count(s.total)} pts · {s.nodes} nodes
+                  <br />
+                  {kind === "classified" ? "classified cloud" : "ingested cloud"} · drag to orbit
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
     </div>
   );
+}
+
+/** The 1st to 99th percentile of the heights of points that aren't noise, from a sample; null if there are none. */
+function robustRange(z: Float32Array, cls: Uint8Array, n: number): [number, number] | null {
+  const step = Math.max(1, Math.floor(n / 20000));
+  const sample: number[] = [];
+  for (let i = 0; i < n; i += step) if (cls[i] !== 7 && cls[i] !== 18) sample.push(z[i]);
+  if (sample.length === 0) return null;
+  sample.sort((a, b) => a - b);
+  return [sample[Math.floor(sample.length * 0.01)], sample[Math.floor(sample.length * 0.99)]];
 }

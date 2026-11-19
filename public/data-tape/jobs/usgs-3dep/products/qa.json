@@ -1,0 +1,95 @@
+{
+  "points": 450545,
+  "bounds": {
+    "minx": 408505.6356,
+    "miny": 3772086.679,
+    "minz": -165.82,
+    "maxx": 408806.6906,
+    "maxy": 3772386.134,
+    "maxz": 326.82
+  },
+  "coverage_area_m2": 81689.35,
+  "coverage_hex_edge": 2.15,
+  "source_type": "lidar",
+  "density": {
+    "res": 1.0,
+    "mean": 5.497,
+    "p5": 1.0,
+    "p50": 5.0,
+    "p95": 11.0,
+    "covered_cells": 81659
+  },
+  "classes": [
+    {
+      "code": 1,
+      "name": "Unclassified",
+      "count": 291869,
+      "percent": 64.781
+    },
+    {
+      "code": 2,
+      "name": "Ground",
+      "count": 157655,
+      "percent": 34.992
+    },
+    {
+      "code": 7,
+      "name": "Low point (noise)",
+      "count": 1,
+      "percent": 0.0
+    },
+    {
+      "code": 9,
+      "name": "Water",
+      "count": 703,
+      "percent": 0.156
+    },
+    {
+      "code": 10,
+      "name": "Rail",
+      "count": 313,
+      "percent": 0.069
+    },
+    {
+      "code": 18,
+      "name": "High noise",
+      "count": 4,
+      "percent": 0.001
+    }
+  ],
+  "returns": [
+    {
+      "value": 1,
+      "count": 447685,
+      "percent": 99.365
+    },
+    {
+      "value": 2,
+      "count": 2842,
+      "percent": 0.631
+    },
+    {
+      "value": 3,
+      "count": 18,
+      "percent": 0.004
+    }
+  ],
+  "outliers": {
+    "method": "filters.outlier (statistical)",
+    "params": {
+      "method": "statistical",
+      "mean_k": 8,
+      "multiplier": 3.0
+    },
+    "count": 75,
+    "percent": 0.0166
+  },
+  "gaps": {
+    "threshold": 1.25,
+    "threshold_rule": "25% of the median density (5.00 pts/m²)",
+    "cells": 4940,
+    "area_m2": 4940.0,
+    "percent_of_coverage": 6.05
+  },
+  "tiles": 1
+}

@@ -1,0 +1,28 @@
+{
+ "kind": "density",
+ "png": "density.58784286ccfeca9c.v2.png",
+ "url": "jobs/usgs-3dep/web/density.58784286ccfeca9c.v2.png",
+ "coordinates": [
+  [
+   -117.9917735,
+   34.0882955
+  ],
+  [
+   -117.9884711,
+   34.0882955
+  ],
+  [
+   -117.9884711,
+   34.0855515
+  ],
+  [
+   -117.9917735,
+   34.0855515
+  ]
+ ],
+ "range": [
+  0,
+  112
+ ],
+ "ramp": "terrain"
+}

@@ -3,7 +3,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { HealthInfo } from "@/lib/generated/survey";
+import { staticDemo } from "@/lib/demo";
 import { runtimeConfig } from "@/lib/runtimeConfig";
+import { DOCS_ROOT } from "@/lib/surveyDocs";
 import { Logo, Pill, ThemeToggle } from "@/components/ui";
 
 export function AppHeader({ health, children }: { health: HealthInfo | null; children?: ReactNode }) {
@@ -17,7 +19,7 @@ export function AppHeader({ health, children }: { health: HealthInfo | null; chi
         </span>
       </Link>
       <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
-      {health && (
+      {health && !staticDemo() && (
         <Pill
           tone={health.read_only ? "warn" : "ok"}
           title={health.read_only ? "SURVEY_ALLOW_PROCESS is off: browse only" : "This server runs steps"}
@@ -25,6 +27,9 @@ export function AppHeader({ health, children }: { health: HealthInfo | null; chi
           {health.read_only ? "read-only" : "processing on"}
         </Pill>
       )}
+      <Link href={DOCS_ROOT} className="text-[12.5px] text-muted hover:text-ink">
+        Docs
+      </Link>
       {studio && (
         <a href={studio} className="hidden text-[12.5px] text-muted hover:text-ink sm:inline">
           Argus Studio ↗

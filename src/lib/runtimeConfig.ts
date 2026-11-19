@@ -12,9 +12,12 @@
  *   ARGUS_STUDIO_URL       link back to argus-studio, or unset for none.
  *   ARGUS_SURVEY_BASEMAP   XYZ raster tile template for the map's backdrop, "none" for a blank canvas.
  *                          Unset: OpenStreetMap's standard tiles (light use only, per their tile policy).
- *   ARGUS_SURVEY_BASEMAP_ATTRIBUTION   attribution HTML for the basemap. Unset: OSM's for OSM's tiles
+ *   ARGUS_SURVEY_BASEMAP_ATTRIBUTION   attribution for the basemap: text and <a href="http(s)://…"> links,
+ *                          nothing else (sanitizeAttribution). Unset: OSM's for OSM's tiles
  *                          (whether defaulted or named explicitly, as compose does), none for others.
  */
+
+import { staticDemo } from "@/lib/demo";
 
 export interface RuntimeConfig {
   surveyUrl: string;
@@ -66,6 +69,53 @@ function resolveLink(value: string | undefined): string {
   return v.startsWith("/") || isAbsoluteUrl(v) ? v.replace(/\/+$/, "") : "";
 }
 
+/** A tag starts with `<` and a letter, `/`, `!` or `?`; a bare `<` is text, as in the HTML parser. */
+const TAG = /<[a-z!/?][^>]*>/gi;
+const hasTag = (html: string): boolean => html.search(TAG) !== -1;
+
+const ENTITY = /&(?![a-z][a-z\d]*;|#\d+;|#x[\da-f]+;)/gi;
+
+/** Tags dropped, then what's left escaped so it can only be text. Entities such as `&copy;` survive. */
+const textOnly = (html: string): string =>
+  html.replace(TAG, "").replace(ENTITY, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const ANCHOR = /<a\b([^>]*)>([\s\S]*?)<\/a\s*>/gi;
+// An attribute named exactly `href`: after whitespace, so `data-href=` or `xhref=` is not it.
+const HREF = /(?:^|\s)href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
+
+/**
+ * The basemap attribution reduced to text and `<a href="http(s)://…">` links. MapLibre's own sanitizer
+ * (`DOM.sanitize`, which feeds the attribution control's innerHTML) skips an attribute after one it
+ * removed in maplibre-gl ≤ 6.4.0 (GHSA-jrc7-96c5-q579, fixed in 6.4.1, which this UI is past). Kept as
+ * defence in depth: the value is HTML from the deployment that reaches innerHTML, and this holds even
+ * with `ARGUS_SIGHTLINE_CSP=off` or a future regression in MapLibre's sanitizer.
+ */
+export function sanitizeAttribution(html: string): string {
+  let out = "";
+  let last = 0;
+  let dropped = false;
+  for (const m of html.matchAll(ANCHOR)) {
+    const before = html.slice(last, m.index);
+    dropped ||= hasTag(before);
+    out += textOnly(before);
+    last = m.index + m[0].length;
+    const h = HREF.exec(m[1]);
+    const href = h ? (h[1] ?? h[2] ?? h[3]).trim() : "";
+    const extra = m[1].replace(HREF, "").trim() !== "";
+    const inner = textOnly(m[2]);
+    if (isAbsoluteUrl(href)) out += `<a href="${href.replace(ENTITY, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}">${inner}</a>`;
+    else out += inner;
+    dropped ||= extra || !isAbsoluteUrl(href) || hasTag(m[2]);
+  }
+  const rest = html.slice(last);
+  dropped ||= hasTag(rest);
+  out += textOnly(rest);
+  if (dropped) {
+    console.warn("[argus-sightline] ARGUS_SURVEY_BASEMAP_ATTRIBUTION: kept only text and http(s) links; other markup was dropped.");
+  }
+  return out;
+}
+
 /** Pure, so the precedence rules are testable without a server. */
 export function resolveRuntimeConfig(source: Record<string, string | undefined>): RuntimeConfig {
   const basemapRaw = firstDefined(source, ["ARGUS_SURVEY_BASEMAP"]);
@@ -73,7 +123,7 @@ export function resolveRuntimeConfig(source: Record<string, string | undefined>)
   // Compose names OSM's template explicitly; that is still OSM and still owes OSM's attribution.
   const custom = basemap !== OSM_TILES;
   // Empty counts as unset: compose passes an unset variable through as "".
-  const attribution = (firstDefined(source, ["ARGUS_SURVEY_BASEMAP_ATTRIBUTION"]) ?? "").trim();
+  const attribution = sanitizeAttribution((firstDefined(source, ["ARGUS_SURVEY_BASEMAP_ATTRIBUTION"]) ?? "").trim());
   const none = basemap === "" || basemap.toLowerCase() === "none";
   return {
     surveyUrl: normalizeBase(firstDefined(source, ["ARGUS_SURVEY_URL"]) ?? "http://localhost:8107"),
@@ -83,10 +133,18 @@ export function resolveRuntimeConfig(source: Record<string, string | undefined>)
   };
 }
 
+/**
+ * The hosted demo's config, fixed at build time: the API is the tape on this origin (staticApi.ts reads it,
+ * not this), no Studio link, and no basemap, so the page loads nothing from another origin (its CSP is
+ * 'self' only) and puts no load on OpenStreetMap's tile servers.
+ */
+export const STATIC_CONFIG: RuntimeConfig = { surveyUrl: "", studioUrl: "", basemapUrl: "", basemapAttribution: "" };
+
 let serverConfig: RuntimeConfig | undefined;
 let warnedMissingGlobal = false;
 
 export function runtimeConfig(): RuntimeConfig {
+  if (staticDemo()) return STATIC_CONFIG;
   if (typeof window === "undefined") {
     serverConfig ??= resolveRuntimeConfig(process.env as Record<string, string | undefined>);
     return serverConfig;

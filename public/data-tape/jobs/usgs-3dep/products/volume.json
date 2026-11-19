@@ -1,0 +1,32 @@
+{
+  "kind": "stockpile",
+  "surface": "DSM (upper) vs base (lower)",
+  "sign_convention": "above = surface above base (stockpile volume); below = surface below base",
+  "res": 0.5,
+  "surface_void_percent": {
+    "dsm": 0.782
+  },
+  "method": "per-cell (upper − lower) × cell area, summed separately for positive and negative cells; boundary cells weighted by the fraction inside the polygon (gdal raster zonal-stats --pixels fractional)",
+  "zones": [
+    {
+      "name": "twin piles",
+      "area_m2": 604.63,
+      "above_m3": 725.788,
+      "below_m3": 56.517,
+      "net_m3": 669.271,
+      "area_above_m2": 396.77,
+      "area_below_m2": 207.86,
+      "void_percent": 0.0,
+      "base": "least-squares plane through 199 boundary heights: z = 57.854 + 0.01604·(E − 408734.526) + -0.03008·(N − 3772286.010)",
+      "ground_area_m2": 604.997,
+      "ground_above_m3": 726.228,
+      "ground_below_m3": 56.551,
+      "ground_net_m3": 669.677,
+      "base_fit_rms_m": 0.6911,
+      "boundary_samples": 199
+    }
+  ],
+  "resampled": null,
+  "allow_voids": false,
+  "combined_scale_factor": 0.99969672
+}

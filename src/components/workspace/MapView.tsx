@@ -66,11 +66,19 @@ export function MapView() {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const [ready, setReady] = useState(false);
-  const [layers, setLayers] = useState<Partial<Record<LayerKind, LayerState>>>({});
+  const [layers, setLayersState] = useState<Partial<Record<LayerKind, LayerState>>>({});
+  // The latest layer state, written alongside every change: the reload reads it after its fetches resolve, so a
+  // toggle or opacity drag made while views were loading is carried over rather than reverted.
+  const layersRef = useRef<Partial<Record<LayerKind, LayerState>>>({});
+  const setLayers = (next: Partial<Record<LayerKind, LayerState>>) => {
+    layersRef.current = next;
+    setLayersState(next);
+  };
   const [loading, setLoading] = useState(false);
   const [cursor, setCursor] = useState<LonLat | null>(null);
   const [panelOpen, setPanelOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 1024);
-  const fitted = useRef(false);
+  // The job the map was framed on: a new job (MapView can outlive a job change) is framed again.
+  const fittedFor = useRef<string | null>(null);
 
   // drawing state lives in refs: MapLibre handlers are registered once
   const drawingRef = useRef(ws.drawing);
@@ -102,8 +110,12 @@ export function MapView() {
     let map: MlMap | null = null;
     let unsubscribeTheme = () => {};
     (async () => {
-      const maplibregl = (await import("maplibre-gl")).default;
+      const maplibregl = await import("maplibre-gl");
       if (disposed || !box.current) return;
+      // MapLibre 6 looks for its worker module next to its own bundle; bundled, that is a chunk URL with no
+      // worker beside it. postinstall copies it to public/ (scripts/copy-wasm.mjs): same origin, so it starts
+      // as a module worker under worker-src 'self'. The version busts a cached worker across upgrades.
+      maplibregl.setWorkerUrl(`/maplibre-gl-worker.mjs?v=${maplibregl.getVersion()}`);
       const cfg = runtimeConfig();
       const bg = getComputedStyle(document.documentElement).getPropertyValue("--map-bg").trim() || "#0e1217";
       map = new maplibregl.Map({
@@ -157,9 +169,11 @@ export function MapView() {
         const bgNow = getComputedStyle(document.documentElement).getPropertyValue("--map-bg").trim();
         if (bgNow) map.setPaintProperty("bg", "background-color", bgNow);
         if (!map.getLayer("basemap")) return;
-        for (const [k, v] of Object.entries(basemapPaint(isDark()))) map.setPaintProperty("basemap", k, v);
+        const paint = basemapPaint(isDark());
+        map.setPaintProperty("basemap", "raster-brightness-max", paint["raster-brightness-max"]);
+        map.setPaintProperty("basemap", "raster-contrast", paint["raster-contrast"]);
       });
-      map.on("error", (e) => console.error(`[map] ${(e as { error?: Error }).error?.message ?? "error"}`));
+      map.on("error", (e) => console.error(`[map] ${e.error?.message ?? "error"}`));
       map.on("mousemove", (e: MapMouseEvent) => setCursor([e.lngLat.lng, e.lngLat.lat]));
       map.on("mouseout", () => setCursor(null));
       map.on("click", (e: MapMouseEvent) => {
@@ -264,7 +278,7 @@ export function MapView() {
       for (const f of fetched) {
         if (f.status !== "fulfilled") continue; // a view that cannot be derived is skipped; the product still downloads
         const { l } = f.value;
-        const prev = layers[l.kind];
+        const prev = layersRef.current[l.kind];
         const st: LayerState = { on: prev?.on ?? l.on, opacity: prev?.opacity ?? l.opacity };
         const id = `job-${l.kind}`;
         const vis = st.on ? "visible" : "none";
@@ -274,8 +288,10 @@ export function MapView() {
           const corners = view.coordinates as [[number, number], [number, number], [number, number], [number, number]];
           extent.push(...(corners as LonLat[]));
           map.addSource(id, { type: "image", url: `${view.imageUrl}?v=${encodeURIComponent(view.png)}`, coordinates: corners });
+          // Linear, not "nearest": MapLibre 5.24 draws an image source resampled "nearest" as black, at any zoom
+          // (seen in Chromium on SwiftShader and on Intel Mesa, in both builds).
           map.addLayer(
-            { id, type: "raster", source: id, layout: { visibility: vis }, paint: { "raster-opacity": st.opacity, "raster-fade-duration": 0, "raster-resampling": "nearest" } },
+            { id, type: "raster", source: id, layout: { visibility: vis }, paint: { "raster-opacity": st.opacity, "raster-fade-duration": 0, "raster-resampling": "linear" } },
             "draw-fill",
           );
         } else {
@@ -293,32 +309,32 @@ export function MapView() {
       setLayers(next);
       setLoading(false);
       const b = bbox(extent);
-      if (b && !fitted.current) {
-        fitted.current = true;
-        map.fitBounds(b, { padding: 48, duration: 900, maxZoom: 20 });
+      if (b && fittedFor.current !== ws.jobId) {
+        fittedFor.current = ws.jobId;
+        // Keep the job clear of the layer panel (top right) where the map is wide enough to.
+        const wide = map.getContainer().clientWidth > 700;
+        map.fitBounds(b, { padding: { top: 48, bottom: 48, left: 48, right: wide ? 300 : 48 }, duration: 900, maxZoom: 20 });
       }
     })();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `layers` is read for carry-over only
   }, [productKey, ready, ws.jobId, ws.mapVersion]);
 
   const setLayer = (kind: LayerKind, patch: Partial<LayerState>) => {
     const map = mapRef.current;
-    setLayers((all) => {
-      const cur = all[kind];
-      if (!cur) return all;
-      const next = { ...cur, ...patch };
-      const id = `job-${kind}`;
-      if (map?.getLayer(id)) {
-        map.setLayoutProperty(id, "visibility", next.on ? "visible" : "none");
-        const def = LAYERS.find((l) => l.kind === kind);
-        if (def?.raster) map.setPaintProperty(id, "raster-opacity", next.opacity);
-        else if (kind === "gaps") map.setPaintProperty(id, "fill-opacity", next.opacity);
-      }
-      return { ...all, [kind]: next };
-    });
+    const all = layersRef.current;
+    const cur = all[kind];
+    if (!cur) return;
+    const next = { ...cur, ...patch };
+    const id = `job-${kind}`;
+    if (map?.getLayer(id)) {
+      map.setLayoutProperty(id, "visibility", next.on ? "visible" : "none");
+      const def = LAYERS.find((l) => l.kind === kind);
+      if (def?.raster) map.setPaintProperty(id, "raster-opacity", next.opacity);
+      else if (kind === "gaps") map.setPaintProperty(id, "fill-opacity", next.opacity);
+    }
+    setLayers({ ...all, [kind]: next });
   };
 
   const legendKind = (["dod_lod", "chm", "density", "dsm", "dtm"] as LayerKind[]).find((k) => layers[k]?.on && layers[k]?.view?.range);
@@ -343,7 +359,7 @@ export function MapView() {
 
       {/* layer panel */}
       {available.length > 0 && (
-        <div className="absolute right-12 top-14 z-10 w-60 rounded-lg lg:top-3 border border-line bg-panel/95 text-[12.5px] shadow-panel backdrop-blur">
+        <div className="absolute right-12 top-14 z-10 w-60 max-w-[calc(100%-4rem)] rounded-lg @2xl:top-3 border border-line bg-panel/95 text-[12.5px] shadow-panel backdrop-blur">
           <button type="button" className="flex w-full items-center justify-between px-3 py-2 font-medium" onClick={() => setPanelOpen((o) => !o)}>
             <span>Layers {loading && <Spinner className="ml-1 inline size-3" />}</span>
             <span className="text-muted">{panelOpen ? "–" : "+"}</span>

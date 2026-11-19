@@ -62,7 +62,7 @@ export function Console({ lines, open, onToggle }: { lines: LogLine[]; open: boo
             ) : (
               lines.map((l) => (
                 <div key={l.id} className={cx("whitespace-pre-wrap", KIND_COLOR[l.kind])}>
-                  <span className="mr-2 text-muted/60">{new Date(l.at).toLocaleTimeString("en-AU", { hour12: false })}</span>
+                  <span className="mr-2 text-muted">{new Date(l.at).toLocaleTimeString("en-AU", { hour12: false })}</span>
                   {l.text}
                   {l.detail && l.kind === "error" && (
                     <pre className="mt-1 max-h-40 overflow-auto rounded bg-bad-soft p-2 text-[11.5px] text-ink-2">{l.detail}</pre>

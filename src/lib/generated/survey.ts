@@ -1,4 +1,4 @@
-// Generated from smk762/argus-survey@087758b4501706a780c01c6dd3968bfb31aafbf4 schema/survey-wire.schema.json.
+// Generated from smk762/argus-survey@340f302198395d1858c9e2af99a538771a818aa9 schema/survey-wire.schema.json.
 // Do not edit: change schema/pins.json and run `npm run wire:pull`.
 
 export interface SurveyWire {
@@ -684,9 +684,9 @@ export interface StepEvent {
 }
 export interface SurfacesBody {
   chm?: boolean;
-  chm_method?: string;
+  chm_method?: "max" | "radius";
   dsm?: boolean;
-  dsm_method?: string;
+  dsm_method?: "idw" | "max";
   dtm?: boolean;
   fill_voids?: number | null;
   res?: number;
