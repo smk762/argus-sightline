@@ -44,11 +44,15 @@ export function sameOriginTape(url) {
   return url || "/data-tape";
 }
 
+// Cloudflare Web Analytics is on for the zone: Cloudflare adds its beacon tag at the edge, and the
+// tag loads this one script. It reports to this site's own /cdn-cgi/rum, so connect-src is unchanged.
+const BEACON = "https://static.cloudflareinsights.com";
+
 /** @param {string[]} hashes */
 export function policy(hashes) {
   return [
     "default-src 'self'",
-    `script-src 'self' 'wasm-unsafe-eval' ${hashes.join(" ")}`.trim(),
+    `script-src 'self' ${BEACON} 'wasm-unsafe-eval' ${hashes.join(" ")}`.trim(),
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "connect-src 'self'",
