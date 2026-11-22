@@ -29,7 +29,7 @@ Both are in `scripts/tape-data/` and carry no data beyond their coordinates.
 
 ## Recording
 
-- Recorded with argus-survey 0.1.0rc2.dev77+g340f30219 @ `340f302`, the commit this UI is synced to (`schema/pins.json`), on CPU.
+- Recorded with argus-survey 0.1.dev89+g452e5021d @ `452e502`, the commit this UI is synced to (`schema/pins.json`), on CPU.
 - Steps: the core pipeline (`run`: ingest, QA, ground, surfaces at 0.5 m, contours at 2 m, report), then
   `volume` (fitted-plane base, DSM), `profile` (0.5 m step) and `report` again.
 - Files: `tape.json` (the recording: each step's request and its server-sent events with their timing),

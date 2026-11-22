@@ -1,9 +1,9 @@
 {
   "survey": {
     "repo": "smk762/argus-survey",
-    "tag": "340f302198395d1858c9e2af99a538771a818aa9",
+    "tag": "452e5021d1f85e4fa8c84cf56df524ed0b67f9ab",
     "sha256": "21230db09120e21792e835e837792685fb7be8b2f3987d4bd8fb27236643676c",
-    "version": "0.1.0rc2.dev77+g340f30219",
+    "version": "0.1.dev89+g452e5021d",
     "docs": {
       "README.md": "ae523db5b033e0d08dfa9780472fbecb83aeba1640e57d3aaf798097942e1541",
       "docs/datums.md": "0825a842f6a52997a280198f92a63e198573fb8114fbdc46e23f116f8e0dbf6d",
@@ -11,7 +11,7 @@
       "docs/methods.md": "6727b64665bc0ae2d46f7fd445111b255e408d718d5f5c74c0f30c10efa89f5f",
       "docs/provenance.md": "7229dbcf734f651912d5994e03912e817adfc2c9e2482253335eb687020957cd",
       "docs/api.md": "22727ae74a6028b754069fb82cb2190d790ab500b15586eb5a4b6187d8b885a0",
-      "docs/cli.md": "e73ca5f38a40c335e1d1850a9626ea9f942f4d0c97a005599a9f2c786070b838",
+      "docs/cli.md": "fd320ce00a41f2306519d7a3bbb00c5cf940164712fed98ea4796d4a0f4ed3db",
       "docs/runbook.md": "d386dc9f7ad0a14271c29a28b7a75dffe35624f54ff9a2d1ca5e5e5764887035",
       "docs/data-sources.md": "86902eadf9bbb1b1cdb0c9ca0f5eccedbca5da097b4871d3ddf0abf34038dd09",
       "docs/atlas-showcase.md": "5db2fa11f86fc9cc205eabe3776d6ca390c4a284de932d4c044f4bff73689932",
