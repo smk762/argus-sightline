@@ -146,7 +146,7 @@ export function IngestPanel({ blocked }: PanelProps) {
           secondary={
             <button
               type="button"
-              disabled={!!why || ws.running !== null || !ws.canWrite}
+              disabled={blocked || !!why || ws.running !== null || !ws.canWrite}
               onClick={() => {
                 setLastRun("ingest");
                 void ingest.run({ ...body, force });

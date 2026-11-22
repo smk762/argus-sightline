@@ -33,8 +33,15 @@ const makeVar = (name: string) => new RegExp(`^${name} = (.+)$`, "m").exec(makef
 /** Whether `rel` (`<dataset>/<file>`) is a file of an allowlisted public dataset. */
 function isPublic(rel: string): boolean {
   const [dir, file, ...rest] = rel.split("/");
+  // Own keys only: `in` or plain indexing would let "usgs-3dep/constructor" through on Object.prototype.
+  if (rest.length !== 0 || !Object.hasOwn(PUBLIC_DATASETS, dir)) return false;
   const ds = PUBLIC_DATASETS[dir];
-  return rest.length === 0 && !!ds && (file in ds.fetched || ds.drawn.includes(file));
+  return Object.hasOwn(ds.fetched, file) || ds.drawn.includes(file);
+}
+
+/** Every `/data/in/…` path anywhere inside `value`'s strings, including those inside a command line. */
+function dataInPaths(value: unknown): string[] {
+  return strings(value).flatMap((s) => s.match(/\/data\/in\/[^\s"'=,;]+/g) ?? []);
 }
 
 /** Every string in `value`, however deep. */
@@ -48,6 +55,20 @@ function strings(value: unknown): string[] {
 /** Web Mercator (EPSG:3857) to lon/lat. */
 const R = 6378137;
 const toLonLat = ([x, y]: number[]) => [(x / R) * (180 / Math.PI), Math.atan(Math.sinh(y / R)) * (180 / Math.PI)];
+
+describe("the provenance checks themselves", () => {
+  it("allowlist only a dataset's own files, never an Object.prototype key", () => {
+    expect(isPublic("usgs-3dep/site.laz")).toBe(true);
+    for (const rel of ["usgs-3dep/constructor", "usgs-3dep/toString", "usgs-3dep/__proto__", "constructor/name", "__proto__/site.laz"]) {
+      expect(isPublic(rel), rel).toBe(false);
+    }
+  });
+
+  it("find input paths inside command lines and joined flags, not only whole strings", () => {
+    const sidecar = { commands: ["pdal translate /data/in/client/a.laz out.laz", "--filename=/data/in/client/b.laz", "x '/data/in/c/d.tif'"] };
+    expect(dataInPaths(sidecar)).toEqual(["/data/in/client/a.laz", "/data/in/client/b.laz", "/data/in/c/d.tif"]);
+  });
+});
 
 describe("the tape's provenance", () => {
   it("names its provenance file, which credits each dataset's source and licence", () => {
@@ -75,7 +96,7 @@ describe("the tape's provenance", () => {
   });
 
   it("read only public inputs, as the sidecar and its command lines show", () => {
-    const paths = [...job.inputs.map((i: { path: string }) => i.path), ...strings(job).filter((s) => s.startsWith("/data/in/"))];
+    const paths = [...job.inputs.map((i: { path: string }) => i.path), ...dataInPaths(job)];
     expect(paths.length).toBeGreaterThan(0);
     for (const path of paths) {
       expect(path.startsWith("/data/in/"), path).toBe(true);

@@ -36,6 +36,10 @@ describe("stockpileTruth / changeTruth", () => {
     expect(stockpileTruth(null, KIT_JOB_1, "stockpile")).toBeNull();
   });
 
+  it("gives truth only on the two kit jobs, not on any job that starts with kit-", () => {
+    for (const id of ["kit-e3", "kit-retry", "kit-"]) expect(stockpileTruth(kit, id, "stockpile"), id).toBeNull();
+  });
+
   it("holds epoch 2 to its own cone and its own tolerance", () => {
     expect(stockpileTruth(kit, KIT_JOB_2, "stockpile")).toEqual({ truth: KIT_TRUTH.stockpileVolumeE2, tolerance: TRUTH_TOLERANCE["stockpile-e2"] });
   });

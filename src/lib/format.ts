@@ -7,7 +7,12 @@ const formats = new Map<number, Intl.NumberFormat>();
 function group(n: number, digits: number): string {
   let f = formats.get(digits);
   if (!f) {
-    f = new Intl.NumberFormat("en-AU", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    f = new Intl.NumberFormat("en-AU", {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+      // A negative that rounds to zero shows as "0.0", not "-0.0": there is no measurable sign at that precision.
+      signDisplay: "negative",
+    });
     formats.set(digits, f);
   }
   return f

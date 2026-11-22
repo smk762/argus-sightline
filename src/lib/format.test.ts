@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { count, m3, num, seconds } from "@/lib/format";
+import { cm, count, m3, num, seconds } from "@/lib/format";
 
 describe("num", () => {
   it("groups thousands with a thin space, not a comma", () => {
@@ -8,6 +8,13 @@ describe("num", () => {
     expect(num(-9876.5, 1)).toBe("-9 876.5");
     expect(num(999.999, 2)).toBe("1 000.00");
     expect(num(NaN)).toBe("—");
+  });
+
+  it("drops the sign of a negative that rounds to zero, and keeps a real one", () => {
+    expect(num(-0.0004, 1)).toBe("0.0");
+    expect(num(-0, 2)).toBe("0.00");
+    expect(cm(-0.0003)).toBe("0.0 cm");
+    expect(cm(-0.003)).toBe("-0.3 cm");
   });
 });
 

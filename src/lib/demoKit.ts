@@ -90,10 +90,10 @@ export const KIT_STOCKPILE_FILE = "stockpile.geojson";
  * own cone and tolerance (epoch 2 grew 1 m at the apex). `null` everywhere else.
  */
 export function stockpileTruth(kit: DemoKit | null, jobId: string, zoneName: string): Truth | null {
-  if (!kit || !jobId.startsWith("kit-") || zoneName !== KIT_STOCKPILE_ZONE) return null;
-  return jobId === KIT_JOB_2
-    ? { truth: KIT_TRUTH.stockpileVolumeE2, tolerance: TRUTH_TOLERANCE["stockpile-e2"] }
-    : { truth: KIT_TRUTH.stockpileVolume, tolerance: TRUTH_TOLERANCE["stockpile-e1"] };
+  if (!kit || zoneName !== KIT_STOCKPILE_ZONE) return null;
+  if (jobId === KIT_JOB_1) return { truth: KIT_TRUTH.stockpileVolume, tolerance: TRUTH_TOLERANCE["stockpile-e1"] };
+  if (jobId === KIT_JOB_2) return { truth: KIT_TRUTH.stockpileVolumeE2, tolerance: TRUTH_TOLERANCE["stockpile-e2"] };
+  return null;
 }
 
 /**

@@ -23,6 +23,7 @@ export function Dashboard() {
   const [inputs, setInputs] = useState<Inputs | null>(null);
   const [doctor, setDoctor] = useState<(DoctorReport & { ok: boolean }) | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [doctorFailed, setDoctorFailed] = useState(false);
   const [newId, setNewId] = useState("");
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export function Dashboard() {
       .catch((e: Error) => live && setError(e.message));
     getDoctor()
       .then((d) => live && setDoctor(d))
-      .catch(() => undefined);
+      .catch(() => live && setDoctorFailed(true));
     return () => {
       live = false;
     };
@@ -103,7 +104,7 @@ export function Dashboard() {
             </form>
             )}
           </div>
-          {staticDemo() ? <RecordedCard /> : <DemoCard kit={kit} canWrite={canWrite} jobs={jobs} loaded={inputs !== null} />}
+          {staticDemo() ? <RecordedCard /> : <DemoCard kit={kit} canWrite={canWrite} jobs={jobs} loaded={inputs !== null} failed={error !== null} />}
         </section>
 
         {error && staticDemo() && (
@@ -168,6 +169,8 @@ export function Dashboard() {
                     </li>
                   ))}
                 </ul>
+              ) : doctorFailed ? (
+                <span className="text-muted">Doctor report unavailable.</span>
               ) : (
                 <span className="text-muted">Doctor report…</span>
               )}
@@ -184,11 +187,14 @@ function DemoCard({
   canWrite,
   jobs,
   loaded,
+  failed,
 }: {
   kit: DemoKit | null;
   canWrite: boolean;
   jobs: JobDigest[] | null;
   loaded: boolean;
+  /** The inputs listing failed (the API is unreachable): stop looking rather than spin. */
+  failed: boolean;
 }) {
   const started = jobs?.some((j) => j.job_id === KIT_JOB_1);
   return (
@@ -229,6 +235,8 @@ function DemoCard({
             Run <code className="num">make demo-data</code> (writes <code className="num">data/in/kit/</code>), then
             reload.
           </Banner>
+        ) : failed ? (
+          <p className="text-[13px] text-muted">Can&apos;t look for the demo kit until argus-survey is reachable.</p>
         ) : (
           <div className="flex items-center gap-2 text-muted">
             <Spinner /> Looking for the demo kit…

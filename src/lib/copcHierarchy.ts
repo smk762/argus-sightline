@@ -52,9 +52,16 @@ export async function chooseNodes<N extends HierarchyNode, P>(
 ): Promise<NodeChoice<N>> {
   const nodes: Record<string, N> = {};
   const pending = new Map<string, P>();
+  // Every page key ever queued: a malformed file whose page lists itself (or a cycle of pages) would otherwise be
+  // re-queued after each load and read forever. The keys across a file's pages are finite, so this terminates.
+  const seen = new Set<string>();
   const merge = (sub: HierarchySubtree<N, P>) => {
     for (const [k, n] of Object.entries(sub.nodes)) if (n && n.pointCount > 0) nodes[k] = n;
-    for (const [k, p] of Object.entries(sub.pages)) if (p) pending.set(k, p);
+    for (const [k, p] of Object.entries(sub.pages)) {
+      if (!p || seen.has(k)) continue;
+      seen.add(k);
+      pending.set(k, p);
+    }
   };
   merge(await loadPage(root));
   for (;;) {
