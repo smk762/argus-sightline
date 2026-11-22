@@ -158,8 +158,8 @@
   },
   {
    "name": "op:EPSG:6319->EPSG:6318+5703",
-   "ok": true,
-   "detail": "NAD83(2011) to NAVD88 height (3) (0.015 m)",
+   "ok": false,
+   "detail": "PROJ has no non-ballpark operation from EPSG:6319 to EPSG:6318+5703; refusing rather than guessing (a ballpark transform ignores datum and geoid differences)",
    "required": false
   }
  ]

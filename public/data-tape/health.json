@@ -1,7 +1,7 @@
 {
  "status": "ok",
  "service": "argus-survey",
- "version": "0.1.0rc2.dev77+g340f30219",
+ "version": "0.1.dev89+g452e5021d",
  "read_only": false,
  "tools": {
   "pdal": "2.10.2",
