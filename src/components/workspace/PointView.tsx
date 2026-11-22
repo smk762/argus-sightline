@@ -240,6 +240,9 @@ export function PointView({ active }: { active: boolean }) {
           geom.dispose();
           material.dispose();
           renderer.dispose();
+          // dispose() leaves the WebGL context alive until the canvas is collected; browsers cap live contexts
+          // and drop the oldest (possibly the map's), so release it now.
+          renderer.forceContextLoss();
           renderer.domElement.remove();
         },
       };

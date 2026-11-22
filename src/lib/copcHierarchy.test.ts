@@ -45,6 +45,23 @@ describe("chooseNodes", () => {
     expect(chosen.map((k) => k[0])).toEqual(["0", "1", "2"]);
   });
 
+  it("reads each page once, even when a malformed page lists itself or pages point at each other", async () => {
+    const cyclic: Record<string, HierarchySubtree<Node, Page>> = {
+      root: { nodes: { "0-0-0-0": { pointCount: 100 } }, pages: { "1-0-0-0": { id: "a" } } },
+      a: { nodes: { "1-0-0-0": { pointCount: 100 } }, pages: { "1-0-0-0": { id: "a" }, "2-0-0-0": { id: "b" } } },
+      b: { nodes: { "2-0-0-0": { pointCount: 100 } }, pages: { "1-0-0-0": { id: "a" }, "2-0-0-0": { id: "b" } } },
+    };
+    const read: string[] = [];
+    const load = async (p: Page) => {
+      read.push(p.id);
+      if (read.length > 20) throw new Error(`hierarchy pages re-read: ${read.join(",")}`);
+      return cyclic[p.id];
+    };
+    const { total } = await chooseNodes({ id: "root" }, load, 1_000);
+    expect(read).toEqual(["root", "a", "b"]);
+    expect(total).toBe(300);
+  });
+
   it("reads no child page the budget never reaches", async () => {
     const { read, load } = loader();
     const { chosen } = await chooseNodes({ id: "root" }, load, 150);

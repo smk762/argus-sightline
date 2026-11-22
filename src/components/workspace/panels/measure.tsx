@@ -95,6 +95,7 @@ export function VolumePanel({ blocked }: PanelProps) {
   const [allowVoids, setAllowVoids] = useState(false);
   const r = useStepRun("volume");
   const v = latest(ws.sidecar?.volumes, "stockpile");
+  const noBase = base === "surface" && !baseSurface;
   const baseArg = base === "surface" ? `surface:${baseSurface}` : base;
   return (
     <>
@@ -129,9 +130,12 @@ export function VolumePanel({ blocked }: PanelProps) {
             ]}
           />
         </Field>
-        {base === "surface" && (
-          <Select value={baseSurface} onChange={setBaseSurface} options={(ws.inputs?.rasters ?? []).map((f) => ({ value: f, label: f }))} />
-        )}
+        {base === "surface" &&
+          (ws.inputs?.rasters.length ? (
+            <Select value={baseSurface} onChange={setBaseSurface} options={ws.inputs.rasters.map((f) => ({ value: f, label: f }))} />
+          ) : (
+            <span className="text-[12.5px] text-muted">No rasters under the data root.</span>
+          ))}
         <Field
           label="Measured surface"
           hint={surface === "dsm" ? "The DSM: a stockpile is not ground, so the ground filter takes it out of the DTM." : "The DTM reads low on a stockpile (≈10 % on the demo cone): the ground filter removes the pile."}
@@ -144,8 +148,8 @@ export function VolumePanel({ blocked }: PanelProps) {
         label="Measure volume"
         busy={r.busy}
         outcome={r.outcome}
-        disabled={blocked || missing}
-        why={missing ? "Choose a polygon file or draw one." : undefined}
+        disabled={blocked || missing || noBase}
+        why={missing ? "Choose a polygon file or draw one." : noBase ? "Choose a base surface raster." : undefined}
         onRun={() => r.run({ ...zone, base: baseArg, surface, allow_voids: allowVoids })}
       />
       {v && <VolumeResult report={v} truthFor={(zone) => stockpileTruth(ws.kit, ws.jobId, zone)} />}
@@ -355,6 +359,7 @@ export function AccuracyPanel({ blocked }: PanelProps) {
   const r = useStepRun("accuracy");
   const a = ws.sidecar?.accuracy;
   const colList = cols.split(",").map((c) => c.trim());
+  const colsOk = colList.length === 4 && colList.every(Boolean);
   return (
     <>
       <DemoTip>
@@ -368,7 +373,7 @@ export function AccuracyPanel({ blocked }: PanelProps) {
         <Field label="Their CRS" hint="transformed through the job's operation">
           <TextInput value={crs} onChange={setCrs} mono />
         </Field>
-        <Field label="Columns" hint="id, x, y, z" error={colList.length !== 4 ? "exactly four names" : null}>
+        <Field label="Columns" hint="id, x, y, z" error={colsOk ? null : "exactly four names"}>
           <TextInput value={cols} onChange={setCols} mono />
         </Field>
         <Field label="Check point RMSE" hint="their own survey accuracy">
@@ -392,8 +397,8 @@ export function AccuracyPanel({ blocked }: PanelProps) {
         label="Assess accuracy"
         busy={r.busy}
         outcome={r.outcome}
-        disabled={blocked || !checks || !crs || colList.length !== 4}
-        why={!checks ? "Choose a check point CSV." : !crs ? "Enter the check points' CRS." : colList.length !== 4 ? "Columns: exactly four names." : undefined}
+        disabled={blocked || !checks || !crs || !colsOk}
+        why={!checks ? "Choose a check point CSV." : !crs ? "Enter the check points' CRS." : !colsOk ? "Columns: exactly four names." : undefined}
         onRun={() => r.run({ checks, crs, cols: colList, checkpoint_rmse: cpRmse, class_cm: classCm, surface })}
       />
       {a && (
