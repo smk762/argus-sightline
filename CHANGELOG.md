@@ -4,6 +4,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `compose.yaml` labels the survey container for the suite directory (smk762/argus-cortex#212): `argus.peer: survey`, `argus.service: argus-survey`, `argus.health: /health` and `argus.port: "8107"`, with `ARGUS_PEER=survey` in its environment, as argus-survey's own compose file does. argus-iris's agents read the labels; nothing else does. The UI and the one-shot `kit` job carry none. A survey image built before argus-cortex 0.16's health contract is listed with its health marked off contract.
+
 ## [0.2.0] - 2026-11-19
 
 ### Added

@@ -50,6 +50,8 @@ make up                  # http://localhost:3107   (API on :8107)
 
 Open the UI and press **Start the guided demo**. Put your own `.las`/`.laz`, polygons, design rasters and check-point CSVs under `data/in/` (mounted read-only); jobs are written to `data/jobs/`.
 
+The survey container carries the suite's discovery labels (`argus.peer: survey`, `argus.service`, `argus.health`, `argus.port`), which argus-iris's agents read to list it in the suite directory. Nothing else reads them.
+
 | Variable | Default | |
 |---|---|---|
 | `ARGUS_SURVEY_URL` | `http://localhost:8107` | The API as the *browser* sees it. Empty means same origin; a path prefix works behind a proxy. |
