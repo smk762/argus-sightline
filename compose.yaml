@@ -29,8 +29,16 @@ services:
     image: ${SURVEY_IMAGE:-ghcr.io/smk762/argus-survey:latest}
     user: "${UID:-1000}:${GID:-1000}"
     command: [argus-survey, serve, --host, 0.0.0.0, --port, "8107", --cors]
+    # How the suite finds this service (argus-cortex#212): argus-iris's agents read the labels and list it in the
+    # suite directory as peer "survey". The same name and port as argus-survey's own compose file.
+    labels:
+      argus.peer: survey
+      argus.service: argus-survey
+      argus.health: /health
+      argus.port: "8107"
     environment:
       HOME: /tmp
+      ARGUS_PEER: survey  # the argus.peer label above, repeated so /health can report it
       # A local demo is about running steps; set 0 for a browse-only deployment.
       SURVEY_ALLOW_PROCESS: ${SURVEY_ALLOW_PROCESS:-1}
       SURVEY_CORS_ORIGINS: ${SURVEY_CORS_ORIGINS:-http://localhost:${UI_PORT:-3107}}
