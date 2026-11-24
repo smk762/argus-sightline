@@ -22,8 +22,40 @@ describe("resolveRuntimeConfig", () => {
   });
 
   it("treats an empty API URL as same origin and trims slashes", () => {
-    expect(resolveRuntimeConfig({ ARGUS_SURVEY_URL: "" }).surveyUrl).toBe("");
+    expect(resolveRuntimeConfig({ ARGUS_SURVEY_UI_URL: "" }).surveyUrl).toBe("");
+    expect(resolveRuntimeConfig({ ARGUS_SURVEY_UI_URL: "/api/survey/" }).surveyUrl).toBe("/api/survey");
+  });
+
+  it("never hands the browser the suite-wide server URL (ARGUS_SURVEY_URL, argus-cortex#209)", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // The suite file's server-to-server address: not the browser's, whatever host it names.
+    for (const peer of ["http://survey:8107", "https://user:secret@survey.internal", "//survey:8107", "survey:8107"]) {
+      expect(resolveRuntimeConfig({ ARGUS_SURVEY_URL: peer }).surveyUrl).toBe("http://localhost:8107");
+    }
+    expect(warn).toHaveBeenCalledTimes(4);
+    // The warning names the variables and never the value.
+    for (const [message] of warn.mock.calls) {
+      expect(message).toContain("ARGUS_SURVEY_UI_URL");
+      expect(message).not.toMatch(/survey:8107|secret/);
+    }
+    warn.mockClear();
+    // Blank is unset, as in cortex's peers: no warning, the default.
+    expect(resolveRuntimeConfig({ ARGUS_SURVEY_URL: " " }).surveyUrl).toBe("http://localhost:8107");
+    expect(warn).not.toHaveBeenCalled();
+    // Both set: each keeps its own meaning.
+    const both = { ARGUS_SURVEY_URL: "http://survey:8107", ARGUS_SURVEY_UI_URL: "/api/survey" };
+    expect(resolveRuntimeConfig(both).surveyUrl).toBe("/api/survey");
+    expect(resolveRuntimeConfig({ ...both, ARGUS_SURVEY_UI_URL: "" }).surveyUrl).toBe("");
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("still reads a path under the old name, with a deprecation warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(resolveRuntimeConfig({ ARGUS_SURVEY_URL: "/api/survey/" }).surveyUrl).toBe("/api/survey");
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0][0]).toContain("deprecated");
+    warn.mockRestore();
   });
 
   it("turns the basemap off with none and drops bad links", () => {
