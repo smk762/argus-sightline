@@ -54,7 +54,7 @@ The survey container carries the suite's discovery labels (`argus.peer: survey`,
 
 | Variable | Default | |
 |---|---|---|
-| `ARGUS_SURVEY_UI_URL` | `http://localhost:8107` | The API as the *browser* sees it. Empty means same origin; a path prefix works behind a proxy. Called `ARGUS_SURVEY_URL` up to 0.2.0; see below. |
+| `ARGUS_SURVEY_BROWSER_URL` | `http://localhost:8107` | The API as the *browser* sees it. Empty means same origin; a path prefix works behind a proxy. Called `ARGUS_SURVEY_URL` up to 0.2.0; see below. |
 | `SURVEY_ALLOW_PROCESS` | `1` (compose) | Set on the API. `0` makes it read-only: browse jobs, maps, points and reports only. `1` is this compose stack's default; an argus-survey API started on its own is read-only until it is set to `1`. |
 | `SURVEY_CORS_ORIGINS` | `http://localhost:3107` | The UI's origin. Widen it for a LAN or proxy origin. |
 | `ARGUS_SURVEY_BASEMAP` | OpenStreetMap tiles | An XYZ template, or `none` for an offline blank canvas. |
@@ -64,7 +64,7 @@ The survey container carries the suite's discovery labels (`argus.peer: survey`,
 
 The config is read per request, not baked in at build time, so one image deploys to any origin.
 
-`ARGUS_SURVEY_URL` is the suite-wide name for the address *servers* use to reach argus-survey (argus-cortex's `peers`, for example `http://survey:8107` in the suite file), which a browser usually can't reach. The UI doesn't give it to the browser. If you set it for this UI (0.2.0 or earlier), rename it to `ARGUS_SURVEY_UI_URL`. A value that is a path (`/api/survey`) is still read under the old name, with a deprecation warning in the UI's log; an absolute URL under the old name is ignored, with a warning. The recording scripts (`make demo-record`, `make tape`) call the API from Node, so they keep `ARGUS_SURVEY_URL`.
+`ARGUS_SURVEY_URL` is the suite-wide name for the address *servers* use to reach argus-survey (argus-cortex's `peers`, for example `http://survey:8107` in the suite file), which a browser usually can't reach. The UI doesn't give it to the browser. If you set it for this UI (0.2.0 or earlier), rename it to `ARGUS_SURVEY_BROWSER_URL`. A value that is a path (`/api/survey`) is still read under the old name, with a deprecation warning in the UI's log; an absolute URL under the old name is ignored, with a warning. The recording scripts (`make demo-record`, `make tape`) call the API from Node, so they keep `ARGUS_SURVEY_URL`.
 
 ### Published image
 
@@ -73,7 +73,7 @@ Each `v*` release publishes `ghcr.io/smk762/argus-sightline` for linux/amd64 and
 ```bash
 docker pull ghcr.io/smk762/argus-sightline:latest
 docker run -d -p 127.0.0.1:3107:3000 \
-  -e ARGUS_SURVEY_UI_URL=http://localhost:8107 \
+  -e ARGUS_SURVEY_BROWSER_URL=http://localhost:8107 \
   ghcr.io/smk762/argus-sightline:latest
 ```
 
@@ -94,7 +94,7 @@ make demo-record   # with `make up` running: re-measure the demo table above aga
 
 The UI is synced to one argus-survey `dev` commit (`schema/pins.json`): the wire types, the demo numbers in this README (`schema/demo-record.json`) and the imported docs (`docs/survey/`, hashed in the pin) all describe it, and `make check` fails if they disagree. A daily workflow opens an issue when survey's `dev` moves past the pin; that issue lists the re-sync steps.
 
-With Node on the host: `npm ci && npm run dev` (set `ARGUS_SURVEY_UI_URL` in `.env.local`, and add `http://localhost:3000` to the API's `SURVEY_CORS_ORIGINS`).
+With Node on the host: `npm ci && npm run dev` (set `ARGUS_SURVEY_BROWSER_URL` in `.env.local`, and add `http://localhost:3000` to the API's `SURVEY_CORS_ORIGINS`).
 
 ## License
 

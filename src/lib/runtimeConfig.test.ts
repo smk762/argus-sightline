@@ -22,8 +22,8 @@ describe("resolveRuntimeConfig", () => {
   });
 
   it("treats an empty API URL as same origin and trims slashes", () => {
-    expect(resolveRuntimeConfig({ ARGUS_SURVEY_UI_URL: "" }).surveyUrl).toBe("");
-    expect(resolveRuntimeConfig({ ARGUS_SURVEY_UI_URL: "/api/survey/" }).surveyUrl).toBe("/api/survey");
+    expect(resolveRuntimeConfig({ ARGUS_SURVEY_BROWSER_URL: "" }).surveyUrl).toBe("");
+    expect(resolveRuntimeConfig({ ARGUS_SURVEY_BROWSER_URL: "/api/survey/" }).surveyUrl).toBe("/api/survey");
   });
 
   it("never hands the browser the suite-wide server URL (ARGUS_SURVEY_URL, argus-cortex#209)", () => {
@@ -35,7 +35,7 @@ describe("resolveRuntimeConfig", () => {
     expect(warn).toHaveBeenCalledTimes(4);
     // The warning names the variables and never the value.
     for (const [message] of warn.mock.calls) {
-      expect(message).toContain("ARGUS_SURVEY_UI_URL");
+      expect(message).toContain("ARGUS_SURVEY_BROWSER_URL");
       expect(message).not.toMatch(/survey:8107|secret/);
     }
     warn.mockClear();
@@ -43,9 +43,9 @@ describe("resolveRuntimeConfig", () => {
     expect(resolveRuntimeConfig({ ARGUS_SURVEY_URL: " " }).surveyUrl).toBe("http://localhost:8107");
     expect(warn).not.toHaveBeenCalled();
     // Both set: each keeps its own meaning.
-    const both = { ARGUS_SURVEY_URL: "http://survey:8107", ARGUS_SURVEY_UI_URL: "/api/survey" };
+    const both = { ARGUS_SURVEY_URL: "http://survey:8107", ARGUS_SURVEY_BROWSER_URL: "/api/survey" };
     expect(resolveRuntimeConfig(both).surveyUrl).toBe("/api/survey");
-    expect(resolveRuntimeConfig({ ...both, ARGUS_SURVEY_UI_URL: "" }).surveyUrl).toBe("");
+    expect(resolveRuntimeConfig({ ...both, ARGUS_SURVEY_BROWSER_URL: "" }).surveyUrl).toBe("");
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });

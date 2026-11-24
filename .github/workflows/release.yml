@@ -5,7 +5,7 @@ name: Release
 # native runner), then create the GitHub Release from the tag's CHANGELOG.md
 # section. Nothing goes to npm: the package is private.
 #
-# The image takes no build-time configuration. ARGUS_SURVEY_UI_URL and the rest
+# The image takes no build-time configuration. ARGUS_SURVEY_BROWSER_URL and the rest
 # are read from the container's environment per request
 # (src/lib/runtimeConfig.ts), so one image deploys to any origin.
 #

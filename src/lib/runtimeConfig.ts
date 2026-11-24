@@ -7,7 +7,7 @@
  * client reads it back. Never read config at client module scope: the global is
  * only guaranteed to exist by the time components render.
  *
- *   ARGUS_SURVEY_UI_URL    the argus-survey API as the *browser* sees it. Unset: http://localhost:8107.
+ *   ARGUS_SURVEY_BROWSER_URL    the argus-survey API as the *browser* sees it. Unset: http://localhost:8107.
  *                          Empty: same origin (a reverse proxy). A path prefix (/api/survey) also works.
  *                          Not ARGUS_SURVEY_URL: that is the suite-wide name for the address *servers* use
  *                          (argus-cortex `peers`, e.g. http://survey:8107), which a browser can't reach.
@@ -36,7 +36,7 @@ declare global {
 }
 
 /** The API base the browser uses. */
-const SURVEY_UI_URL = "ARGUS_SURVEY_UI_URL";
+const SURVEY_BROWSER_URL = "ARGUS_SURVEY_BROWSER_URL";
 /** Its name up to 0.2.0, now the suite-wide server-to-server URL of the `survey` peer (argus-cortex#209). */
 const SURVEY_PEER_URL = "ARGUS_SURVEY_URL";
 
@@ -62,7 +62,7 @@ function isAbsoluteUrl(value: string): boolean {
 }
 
 /** Trim and drop trailing slashes; warn about a scheme-less value that would only fail in a browser. */
-export function normalizeBase(value: string, name = SURVEY_UI_URL): string {
+export function normalizeBase(value: string, name = SURVEY_BROWSER_URL): string {
   const base = value.trim().replace(/\/+$/, "");
   if (base !== "" && !base.startsWith("/") && !isAbsoluteUrl(base)) {
     console.warn(`[argus-sightline] ${name}="${base}" is not an absolute URL or "/"-prefixed path; requests will fail.`);
@@ -71,20 +71,20 @@ export function normalizeBase(value: string, name = SURVEY_UI_URL): string {
 }
 
 /**
- * The browser's API base: ARGUS_SURVEY_UI_URL. The old name is honoured only when its value is a path
+ * The browser's API base: ARGUS_SURVEY_BROWSER_URL. The old name is honoured only when its value is a path
  * (starts with one "/"), which can't be a server-to-server URL; anything else under it belongs to the
  * suite's servers and is left alone. Warnings name the variable, never the value (a URL can carry credentials).
  */
 function resolveSurveyUrl(source: Record<string, string | undefined>): string {
-  const current = firstDefined(source, [SURVEY_UI_URL]);
+  const current = firstDefined(source, [SURVEY_BROWSER_URL]);
   if (current !== undefined) return normalizeBase(current);
   const legacy = (firstDefined(source, [SURVEY_PEER_URL]) ?? "").trim();
   if (legacy.startsWith("/") && !legacy.startsWith("//")) {
-    console.warn(`[argus-sightline] ${SURVEY_PEER_URL} as the browser's path is deprecated; rename it to ${SURVEY_UI_URL}.`);
+    console.warn(`[argus-sightline] ${SURVEY_PEER_URL} as the browser's path is deprecated; rename it to ${SURVEY_BROWSER_URL}.`);
     return normalizeBase(legacy, SURVEY_PEER_URL);
   }
   if (legacy !== "") {
-    console.warn(`[argus-sightline] ${SURVEY_PEER_URL} is the server-side URL and is not given to the browser; set ${SURVEY_UI_URL}.`);
+    console.warn(`[argus-sightline] ${SURVEY_PEER_URL} is the server-side URL and is not given to the browser; set ${SURVEY_BROWSER_URL}.`);
   }
   return "http://localhost:8107";
 }

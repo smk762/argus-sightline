@@ -15,7 +15,7 @@ services:
     environment:
       # The API as the *browser* sees it (not a compose DNS name). ARGUS_SURVEY_URL is the suite-wide name for
       # the address servers use (argus-cortex#209), so it is deliberately not passed to the UI.
-      ARGUS_SURVEY_UI_URL: ${ARGUS_SURVEY_UI_URL:-http://localhost:${SURVEY_PORT:-8107}}
+      ARGUS_SURVEY_BROWSER_URL: ${ARGUS_SURVEY_BROWSER_URL:-http://localhost:${SURVEY_PORT:-8107}}
       ARGUS_STUDIO_URL: ${ARGUS_STUDIO_URL:-}
       ARGUS_SURVEY_BASEMAP: ${ARGUS_SURVEY_BASEMAP:-https://tile.openstreetmap.org/{z}/{x}/{y}.png}
       ARGUS_SURVEY_BASEMAP_ATTRIBUTION: ${ARGUS_SURVEY_BASEMAP_ATTRIBUTION-}
