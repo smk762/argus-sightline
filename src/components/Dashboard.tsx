@@ -115,7 +115,7 @@ export function Dashboard() {
         {error && !staticDemo() && (
           <Banner tone="bad" title="Cannot reach argus-survey">
             {error}. Start it with <code className="num">make up</code> here, or set{" "}
-            <code className="num">ARGUS_SURVEY_URL</code> (now{" "}
+            <code className="num">ARGUS_SURVEY_BROWSER_URL</code> (now{" "}
             <code className="num">{runtimeConfig().surveyUrl || "same origin"}</code>).
           </Banner>
         )}

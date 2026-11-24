@@ -15,6 +15,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
+// Node calls the API itself, so this is the suite-wide server URL, not the browser's ARGUS_SURVEY_BROWSER_URL.
 const api = (process.env.ARGUS_SURVEY_URL ?? "http://localhost:8107").replace(/\/+$/, "");
 const commit = process.env.SURVEY_COMMIT ?? "";
 const out = join(root, "public", "data-tape");
