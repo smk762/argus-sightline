@@ -36,6 +36,8 @@ make tape          # record public/data-tape/
 make pages         # static export to out/, hash CSP on every page, then the static check
 ```
 
+`.github/workflows/pages.yml` deploys it to Cloudflare Pages from every `dev` commit that passes CI.
+
 ## Run it
 
 What this UI needs live, what its mock or recording stands in for, and the no-GPU command are in [What to run for which UI](https://docs.dragonhound.dev/setup/which-services/#sightline). Each external service it depends on has a setup page under the suite's [Setup and services](https://docs.dragonhound.dev/setup/).
