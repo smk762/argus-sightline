@@ -8,6 +8,7 @@ import { bytes, count, m2, num, pct } from "@/lib/format";
 import { Banner, cx, Field, KV, NumberInput, Pill, Section, Select, Stat, TextInput, Toggle } from "@/components/ui";
 import { useWorkspace } from "@/components/workspace/context";
 import { DemoTip, RunBar, useStepRun, type PanelProps } from "@/components/workspace/panels/StepPanel";
+import { ingestSections } from "@/lib/workflow";
 
 // ── Ingest ────────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,7 @@ export function IngestPanel({ blocked }: PanelProps) {
   };
   const why = selected.length === 0 ? "Choose at least one point cloud." : exists && !force ? "Re-ingesting replaces this job's cloud: tick Replace." : undefined;
   const rec = ws.sidecar?.ingest;
+  const shown = ingestSections(!!rec, force);
 
   return (
     <>
@@ -50,8 +52,7 @@ export function IngestPanel({ blocked }: PanelProps) {
         walk each step.
       </DemoTip>
 
-      {!rec && (
-        <>
+      {shown.points && (
           <Section title="Point clouds" aside={<span className="text-[12px] text-muted">under SURVEY_DATA_DIR</span>}>
             {points.length === 0 ? (
               <Banner tone="data">No .las/.laz files under the server&apos;s data root yet.</Banner>
@@ -71,8 +72,17 @@ export function IngestPanel({ blocked }: PanelProps) {
               </ul>
             )}
           </Section>
+      )}
 
+      {shown.settings && (
+        <>
           <Section title="Datums">
+            {rec && (
+              <Banner tone="data">
+                Replacing: the cloud is re-ingested with the settings below, not the last run&apos;s
+                {ws.sidecar?.crs ? ` (working CRS ${ws.sidecar.crs.name}${ws.sidecar.crs.vertical_assumed ? `, assumed ${ws.sidecar.crs.vertical_assumed}` : ""}${rec.crop ? `, crop ${rec.crop}` : ""})` : ""}.
+              </Banner>
+            )}
             <Field label="Working CRS" hint="The job's CRS. A 2D target keeps the source heights explicitly; geographic and Web Mercator are refused.">
               <TextInput value={target} onChange={setTarget} placeholder="as in the file" list="crs-presets" mono />
               <datalist id="crs-presets">

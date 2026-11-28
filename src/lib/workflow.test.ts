@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { JobSidecar } from "@/lib/generated/survey";
-import { coreProgress, nextStep, stepState } from "@/lib/workflow";
+import { coreProgress, ingestSections, nextStep, stepState } from "@/lib/workflow";
 
 const crs = (height_reference: "gravity" | "none") => ({
   definition: "EPSG:7850+5711",
@@ -33,5 +33,17 @@ describe("stepState", () => {
     expect(stepState("surfaces", s).reason).toContain("ground");
     expect(nextStep(s)).toBe("qa");
     expect(coreProgress(s)).toBeCloseTo(1 / 7);
+  });
+});
+
+// Audit pack-argus-sightline-1d01e6ad9c: a re-ingest sends the datums and pipeline settings, so it shows them.
+describe("ingestSections", () => {
+  it("shows the whole form before the first ingest", () => {
+    expect(ingestSections(false, false)).toEqual({ points: true, settings: true });
+  });
+
+  it("hides the settings on an ingested job until Replace is ticked, then shows them", () => {
+    expect(ingestSections(true, false)).toEqual({ points: false, settings: false });
+    expect(ingestSections(true, true)).toEqual({ points: false, settings: true });
   });
 });

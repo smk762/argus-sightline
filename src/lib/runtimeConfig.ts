@@ -61,11 +61,14 @@ function isAbsoluteUrl(value: string): boolean {
   }
 }
 
-/** Trim and drop trailing slashes; warn about a scheme-less value that would only fail in a browser. */
+/**
+ * Trim and drop trailing slashes; warn about a scheme-less value that would only fail in a browser. The warning
+ * names the variable, never the value: a malformed URL (`user:token@host:8107`) can still carry credentials.
+ */
 export function normalizeBase(value: string, name = SURVEY_BROWSER_URL): string {
   const base = value.trim().replace(/\/+$/, "");
   if (base !== "" && !base.startsWith("/") && !isAbsoluteUrl(base)) {
-    console.warn(`[argus-sightline] ${name}="${base}" is not an absolute URL or "/"-prefixed path; requests will fail.`);
+    console.warn(`[argus-sightline] ${name} is not an absolute URL or "/"-prefixed path; requests will fail.`);
   }
   return base;
 }
