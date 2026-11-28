@@ -100,3 +100,13 @@ export function coreProgress(sidecar: JobSidecar | null): number {
   if (!sidecar) return 0;
   return core.filter((s) => done(sidecar, s)).length / core.length;
 }
+
+/**
+ * Which parts of the ingest form show. With no ingest record, everything; once the job has one, the cloud
+ * picker gives way to the re-ingest picker, but a replace (`force`) still shows the datums and pipeline
+ * settings, because the request sends them: hidden, they would go as the form's defaults and silently drop
+ * the working CRS, vertical assumption, pinned operation and crop the job was made with.
+ */
+export function ingestSections(hasRecord: boolean, force: boolean): { points: boolean; settings: boolean } {
+  return { points: !hasRecord, settings: !hasRecord || force };
+}

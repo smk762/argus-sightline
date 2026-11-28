@@ -9,6 +9,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREEType from "three";
+import { cloudAction } from "@/lib/cloudLoad";
 import { chooseNodes } from "@/lib/copcHierarchy";
 import { count, num } from "@/lib/format";
 import { hasProduct, productUrl } from "@/lib/surveyApi";
@@ -255,14 +256,19 @@ export function PointView({ active }: { active: boolean }) {
     }
   }, [kind, ws.jobId, budget, paint]);
 
-  // load when first shown, and again when the cloud changes (re-ingest / re-classify)
+  // load when first shown, and again when the cloud changes (re-ingest / re-classify); tear the last cloud
+  // down when the job has none, so another job's points never stay up as this one's
   const loadedFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!active || !sha) return;
-    const key = `${sha}:${budget}`;
-    if (loadedFor.current === key) return;
-    loadedFor.current = key;
-    void load();
+    const next = cloudAction(loadedFor.current, active, sha, budget);
+    loadedFor.current = next.key;
+    if (next.action === "load") void load();
+    else if (next.action === "clear") {
+      loadGen.current++;
+      scene.current?.dispose();
+      scene.current = null;
+      setStatus({ phase: "idle" });
+    }
   }, [active, sha, budget, load]);
 
   useEffect(() => {

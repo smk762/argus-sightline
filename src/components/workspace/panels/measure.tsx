@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import type { AccuracyGroup, CheckResidual, VolumeReport } from "@/lib/generated/survey";
 import { changeTruth, KIT_JOB_1, KIT_JOB_2, KIT_TRUTH, stockpileTruth, TRUTH_TOLERANCE, type Truth } from "@/lib/demoKit";
-import { closeRing, lineLength, ringArea } from "@/lib/geo";
+import { lineLength, ringArea } from "@/lib/geo";
+import { resolveZone, type ZoneMode } from "@/lib/zone";
 import { cm, count, m, m2, m3, num, pct } from "@/lib/format";
 import { hasProduct, productUrl } from "@/lib/surveyApi";
 import { docsUrl } from "@/lib/surveyDocs";
@@ -27,22 +28,14 @@ function useDefaulted<T>(fallback: T): [T, (v: T) => void] {
 
 // ── polygon source: a file under the data root, or drawn on the map ───────────
 
-type Zone = { polygon: string } | { polygon_geojson: GeoJSON.Polygon; name: string } | null;
-
 function useZone(defaultFile: string | null, optional: boolean) {
   const ws = useWorkspace();
   const files = vectorsOf(ws.inputs?.vectors);
-  const [mode, setMode] = useDefaulted<"file" | "draw" | "none">(defaultFile || files.length ? "file" : "draw");
+  const [mode, setMode] = useDefaulted<ZoneMode>(defaultFile || files.length ? "file" : "draw");
   const [file, setFile] = useDefaulted<string>(defaultFile ?? files[0] ?? "");
   const [name, setName] = useState("drawn polygon");
   const drawn = ws.drawn?.kind === "polygon" ? ws.drawn.coords : null;
-  const zone: Zone =
-    mode === "file" && file
-      ? { polygon: file }
-      : mode === "draw" && drawn
-        ? { polygon_geojson: { type: "Polygon", coordinates: [closeRing(drawn)] }, name: name || "drawn polygon" }
-        : null;
-  const missing = !optional && zone === null;
+  const { zone, missing } = resolveZone(mode, file, drawn, name);
   const ui = (
     <Section title="Area">
       <Segmented
@@ -209,7 +202,7 @@ export function CutfillPanel({ blocked }: PanelProps) {
   const ws = useWorkspace();
   const rasters = ws.inputs?.rasters ?? [];
   const [design, setDesign] = useDefaulted(ws.kit?.design ?? rasters[0] ?? "");
-  const { zone, ui } = useZone(ws.kit?.pad ?? null, true);
+  const { zone, missing, ui } = useZone(ws.kit?.pad ?? null, true);
   const [designVertical, setDesignVertical] = useState("");
   const [resample, setResample] = useState(false);
   const r = useStepRun("cutfill");
@@ -236,8 +229,8 @@ export function CutfillPanel({ blocked }: PanelProps) {
         label="Compute cut / fill"
         busy={r.busy}
         outcome={r.outcome}
-        disabled={blocked || !design}
-        why={!design ? "Choose a design surface." : undefined}
+        disabled={blocked || !design || missing}
+        why={!design ? "Choose a design surface." : missing ? "Choose a polygon file, draw one, or pick Whole design." : undefined}
         onRun={() => r.run({ design, ...(zone ?? {}), design_vertical: designVertical || null, resample })}
       />
       {v && (

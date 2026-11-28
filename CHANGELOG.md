@@ -11,6 +11,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The hosted demo deploys itself: `.github/workflows/pages.yml` publishes every `dev` commit that passes CI and checks the live site serves that build.
 - `compose.yaml` labels the survey container for the suite directory (smk762/argus-cortex#212): `argus.peer: survey`, `argus.service: argus-survey`, `argus.health: /health` and `argus.port: "8107"`, with `ARGUS_PEER=survey` in its environment, as argus-survey's own compose file does. argus-iris's agents read the labels; nothing else does. The UI and the one-shot `kit` job carry none. A survey image built before argus-cortex 0.16's health contract is listed with its health marked off contract.
 
+### Fixed
+- Replacing an ingested job's cloud shows the Datums and Core pipeline settings again. They were hidden once the job had an ingest record, yet the request still sent them, so a re-ingest silently fell back to the file's CRS and dropped the vertical assumption, pinned operation and crop; a banner now names what the last run used.
+- Cut/fill no longer runs over the whole design when "Draw on map" has nothing drawn or "Polygon file" has no file: the run waits for a polygon, and "Whole design" is the only way to send none.
+- The 3D view tears down the previous cloud when the current job has none (another job, or a product gone during re-ingest), instead of leaving another job's points on screen as this one's.
+- The warning about a malformed `ARGUS_SURVEY_BROWSER_URL` names the variable, not its value, which can carry credentials.
+
 ## [0.2.0] - 2026-11-19
 
 ### Added

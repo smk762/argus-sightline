@@ -50,6 +50,21 @@ describe("resolveRuntimeConfig", () => {
     warn.mockRestore();
   });
 
+  // Audit pack-argus-sightline-1593bd227c: a malformed browser URL is warned about by name only.
+  it("never puts a malformed API URL's value in its warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      expect(resolveRuntimeConfig({ ARGUS_SURVEY_BROWSER_URL: "user:token@survey.internal:8107" }).surveyUrl).toBe(
+        "user:token@survey.internal:8107",
+      );
+      expect(warn).toHaveBeenCalledOnce();
+      expect(warn.mock.calls[0][0]).toContain("ARGUS_SURVEY_BROWSER_URL");
+      expect(warn.mock.calls[0][0]).not.toMatch(/token|survey\.internal/);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it("still reads a path under the old name, with a deprecation warning", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(resolveRuntimeConfig({ ARGUS_SURVEY_URL: "/api/survey/" }).surveyUrl).toBe("/api/survey");
